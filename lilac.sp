@@ -70,14 +70,11 @@
 		hitreg, so I recommend leaving it off... Sorta...
 		In my testing, it hasn't ever caused any hitreg issues.
 		Quite literally, I've tested this patch for months now, and
-		no legit player has ever had any issues (Partial patch / mode 1).
+		no legit player has ever had any issues.
 		That said, it is interfering with lagcomp, so it is better
 		to leave it off as there is a chance that it will make
 		some players miss. I recommend testing it out and seeing
 		if it's going to work for you and your players.
-		Mode 1 (Partial patch) shouldn't cause any issues for legit
-		players, but it may happen. This mode is somewhat bypassable.
-		Mode 2 (Full patch) may really screw with hitreg.
 
 		As for my max ping check, I know there are plenty of other
 		plugins that handle high ping players, the main difference
@@ -102,7 +99,7 @@
 #undef REQUIRE_PLUGIN
 #include <sourcebanspp>
 
-#define VERSION "0.7.0"
+#define VERSION "0.7.1"
 
 #define CMD_LENGTH 	330
 
@@ -304,8 +301,8 @@ public void OnPluginStart()
 		"Detect Aimlock.\n0 = Disabled.\n1 = Log only.\n5 or more = ban on n'th detection (Minimum possible is 5).",
 		FCVAR_PROTECTED, true, 0.0, false, 0.0);
 	cvar[CVAR_BACKTRACK_PATCH] = CreateConVar("lilac_backtrack_patch", "0",
-		"Patch Backtrack.\n0 = Disabled (Recommended).\n1 = Partial patch (Recommended if you plan on using this feature).\n2 = Full patch (NOT RECOMMENDED).",
-		FCVAR_PROTECTED, true, 0.0, true, 2.0);
+		"Patch Backtrack.\n0 = Disabled (Recommended).\n1 = Enabled (Not recommended, may cause hitreg issues).",
+		FCVAR_PROTECTED, true, 0.0, true, 1.0);
 	cvar[CVAR_MAX_PING] = CreateConVar("lilac_max_ping", "0",
 		"Ban players with too high of a ping for 3 minutes.\nThis is meant to deal with fakelatency, the ban length is just to prevent instant reconnects.\n0 = no ling limit, minimum possible is 100.",
 		FCVAR_PROTECTED, true, 0.0, true, 1000.0);
@@ -331,6 +328,12 @@ public void OnPluginStart()
 	} else {
 		sv_cheats = 1;
 	}
+
+	// If sv_maxupdaterate is changed mid-game and then this plugin
+	// 	is loaded, then it could lead to false positives.
+	// 	Ignore nolerp on all players already in game.
+	for (int i = 1; i <= MaxClients; i++)
+		ignore_lerp[i] = true;
 
 	RegServerCmd("lilac_date_list", lilac_date_list,
 		"Lists date formatting options", 0);
@@ -541,8 +544,8 @@ public Action timer_check_latency(Handle timer)
 			continue;
 		}
 
-		// Player has had a higher ping than maximum for 100 seconds.
-		if (++log_high_ping[i] < 20)
+		// Player has had a higher ping than maximum for 45 seconds.
+		if (++log_high_ping[i] < 9)
 			continue;
 
 		Format(reason, sizeof(reason),
@@ -1032,13 +1035,13 @@ public Action OnPlayerRunCmd(int client, int& buttons, int& impulse,
 
 	if (!icvar[CVAR_ENABLE]) {
 		lbuttons[client] = buttons;
+		log_tickcount[client] = tickcount;
 
 		return Plugin_Continue;
 	}
 
 	// Patch backtracking.
-	switch (icvar[CVAR_BACKTRACK_PATCH]) {
-	case 1: {
+	if (icvar[CVAR_BACKTRACK_PATCH]) {
 		if (log_tickcount[client] + 1 != tickcount
 			&& time_backtrack[client] < GetGameTime())
 			time_backtrack[client] = GetGameTime() + 10.0;
@@ -1046,13 +1049,11 @@ public Action OnPlayerRunCmd(int client, int& buttons, int& impulse,
 		log_tickcount[client] = tickcount;
 
 		if (GetGameTime() < time_backtrack[client])
-			tickcount = log_tickcount[client] + GetRandomInt(0, time_to_ticks(0.2));
-	}
-	case 2: {
+			tickcount = log_tickcount[client]
+				+ GetRandomInt(0, time_to_ticks(0.4))
+				- time_to_ticks(0.2);
+	} else {
 		log_tickcount[client] = tickcount;
-		tickcount = 0;
-	}
-	default: log_tickcount[client] = tickcount;
 	}
 
 	// Angles test (Detects out of range values).
@@ -1145,7 +1146,7 @@ void lilac_detected_aimlock(int client)
 
 	time_aimlock[client] = GetGameTime();
 
-	if (log_aimlock_sus[client] < 3)
+	if (log_aimlock_sus[client] < 2)
 		return;
 
 	log_aimlock_sus[client] = 0;
@@ -1301,6 +1302,18 @@ void lilac_detected_aimbot(int client, float delta, float td, int flags)
 	}
 }
 
+public Action OnClientSayCommand(int client, const char[] command, const char[] sArgs)
+{
+	// Prevent players banned for Chat-Clear
+	// 	from spamming chat.
+	// 	Helps legit players see the cheater
+	// 	was banned in chat (disconnect reason).
+	if (log_banned_flags[client][CHEAT_CHATCLEAR])
+		return Plugin_Stop;
+
+	return Plugin_Continue;
+}
+
 public void OnClientSayCommand_Post(int client, const char[] command,
 					const char[] sArgs)
 {
@@ -1315,28 +1328,35 @@ public void OnClientSayCommand_Post(int client, const char[] command,
 	if (log_banned_flags[client][CHEAT_CHATCLEAR])
 		return;
 
-	for (int i = 0; sArgs[i]; i++) {
-		// Newline character or carriage return.
-		if (sArgs[i] == '\n' || sArgs[i] == 0x0d) {
-			lilac_forward_client_cheat(client, CHEAT_CHATCLEAR);
+	if (does_string_contain_newline(sArgs)) {
+		log_banned_flags[client][CHEAT_CHATCLEAR] = true;
+		lilac_forward_client_cheat(client, CHEAT_CHATCLEAR);
 
-			if (icvar[CVAR_LOG]) {
-				lilac_log_setup_client(client);
-				Format(line, sizeof(line),
-					"%s was detected and banned for Chat-Clear (Chat message: %s).",
-					line, sArgs);
+		if (icvar[CVAR_LOG]) {
+			lilac_log_setup_client(client);
+			Format(line, sizeof(line),
+				"%s was detected and banned for Chat-Clear (Chat message: %s)",
+				line, sArgs);
 
-				lilac_log(true);
+			lilac_log(true);
 
-				if (icvar[CVAR_LOG_EXTRA])
-					lilac_log_extra(client);
-			}
-
-			log_banned_flags[client][CHEAT_CHATCLEAR] = true;
-			lilac_ban_client(client, CHEAT_CHATCLEAR);
-			return;
+			if (icvar[CVAR_LOG_EXTRA])
+				lilac_log_extra(client);
 		}
+
+		lilac_ban_client(client, CHEAT_CHATCLEAR);
 	}
+}
+
+bool does_string_contain_newline(const char []string)
+{
+	for (int i = 0; string[i]; i++) {
+		// Newline or carriage return.
+		if (string[i] == '\n' || string[i] == 0x0d)
+			return true;
+	}
+
+	return false;
 }
 
 // Todo: / Debate: Add everything listed here?
