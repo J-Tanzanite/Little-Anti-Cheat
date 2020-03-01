@@ -18,20 +18,23 @@
 
 /*
 	Special thanks to:
-		Bottiger for letting me know structures in SM
-		*DO* exist, I was told something else in the past.
+		Bottiger for letting me know structures in SM *DO* exist,
+		I was told something else in the past.
 		Bottiger also gave me some really helpful criticisms.
-		Also, big thanks to jermaphobe for introducing me to Bottiger
+		Lastly... He also fixed this plugin not loading in CS:GO... What a hero.
+
+		Jermaphobe for introducing me to Bottiger and for being a fam.
 */
 
 #include <sourcemod>
 #include <sdktools_engine>
 #undef REQUIRE_PLUGIN
+#undef REQUIRE_EXTENSIONS
 #include <sourcebanspp>
 #include <tf2>
 #include <tf2_stocks>
 
-#define VERSION "1.0.0-ReWrite-Draft #1"
+#define VERSION "1.0.0-ReWrite Draft 2"
 
 #define CMD_LENGTH 	330
 
@@ -83,10 +86,10 @@
 Handle cvar_bhop = null;
 Handle cvar[CVAR_MAX];
 int icvar[CVAR_MAX];
-int cvar_bhop_value = 0;
-int sv_maxupdaterate = 0;
 int sv_cheats = 0;
 int time_sv_cheats = 0;
+int cvar_bhop_value = 0;
+int sv_maxupdaterate = 0;
 
 // Misc.
 int ggame;
@@ -102,9 +105,6 @@ enum struct struct_player {
 	int tickcount;
 	int buttons[CMD_LENGTH];
 	int actions[CMD_LENGTH];
-	// Two dimentional arrays aren't allowed yet.
-	float angles[CMD_LENGTH * 3];
-	int banned_flags[CHEAT_MAX];
 	int autoshoot;
 	int jumps;
 	int high_ping;
@@ -117,7 +117,10 @@ enum struct struct_player {
 	float time_teleported;
 	float time_aimlock;
 	float time_backtrack;
+	// Two dimentional arrays aren't allowed yet.
+	float angles[CMD_LENGTH * 3];
 	float time_usercmd[CMD_LENGTH];
+	bool banned_flags[CHEAT_MAX];
 	bool ignore_lerp;
 }
 struct_player player[MAXPLAYERS + 1];
@@ -236,7 +239,7 @@ public void OnPluginStart()
 		"Ban players with too high of a ping for 3 minutes.\nThis is meant to deal with fakelatency, the ban length is just to prevent instant reconnects.\n0 = no ling limit, minimum possible is 100.",
 		FCVAR_PROTECTED, true, 0.0, true, 1000.0);
 	cvar[CVAR_MAX_LERP] = CreateConVar("lilac_max_lerp", "105",
-		"Kick players with an interp higher than this in ms (minimum possible is 105ms, default value in Source games is 100ms).\nThis is done to patch an exploit in the game that makes facestabbing players easier (aka cl_interp 0.5).",
+		"Kick players with an interp higher than this in ms (minimum possible is 105ms, default value in Source games is 100ms).\nThis is done to patch an exploit in the game that makes facestabbing players in TF2 easier (aka cl_interp 0.5).",
 		FCVAR_PROTECTED, true, 105.0, true, 510.0); // 500 is max possible.
 	cvar[CVAR_LOSS_FIX] = CreateConVar("lilac_loss_fix", "1",
 		"Ignore some cheat detections for players who have too much packet loss (bad connection to the server).",
@@ -274,10 +277,13 @@ public void OnPluginStart()
 
 	AutoExecConfig(true, "lilac_config", "");
 
-	CreateTimer(0.5, timer_check_aimlock, _, TIMER_REPEAT);
-	CreateTimer(3.0, timer_query, _, TIMER_REPEAT);
+	forwardhandle = CreateGlobalForward("lilac_cheater_detected",
+		ET_Ignore, Param_Cell, Param_Cell);
+
+	CreateTimer(5.0, timer_query, _, TIMER_REPEAT);
 	CreateTimer(5.0, timer_check_ping, _, TIMER_REPEAT);
 	CreateTimer(5.0, timer_check_nolerp, _, TIMER_REPEAT);
+	CreateTimer(0.5, timer_check_aimlock, _, TIMER_REPEAT);
 
 	if (icvar[CVAR_LOG])
 		lilac_log_first_time_setup();
@@ -466,8 +472,7 @@ public Action event_player_death(Event event, const char[] name,
 
 	int userid = GetEventInt(event, "attacker", -1);
 	int client = GetClientOfUserId(userid);
-	int victimid = GetEventInt(event, "userid", -1);
-	int victim = GetClientOfUserId(victimid);
+	int victim = GetClientOfUserId(GetEventInt(event, "userid", -1));
 
 	event_death_shared(userid, client, victim, false);
 	return Plugin_Continue;
@@ -483,12 +488,12 @@ public Action event_player_death_tf2(Event event, const char[] name,
 	char wep[64];
 	int userid = GetEventInt(event, "attacker", -1);
 	int client = GetClientOfUserId(userid);
-	int victimid = GetEventInt(event, "userid", -1);
-	int victim = GetClientOfUserId(victimid);
+	int victim = GetClientOfUserId(GetEventInt(event, "userid", -1));
 	int killtype = GetEventInt(event, "customkill", 0);
 	GetEventString(event, "weapon_logclassname", wep, sizeof(wep), "");
 
-	if (!strncmp(wep, "obj_", 4, false)) // Ignore sentry
+	// Ignore sentries in TF2.
+	if (!strncmp(wep, "obj_", 4, false))
 		return Plugin_Continue;
 
 	// Killtype 3 = flamethrower.
@@ -532,7 +537,6 @@ void event_death_shared(int userid, int client, int victim, bool skip_delta)
 	pack.WriteFloat(deathpos[0]);
 	pack.WriteFloat(deathpos[1]);
 	pack.WriteFloat(deathpos[2]);
-
 }
 
 public Action timer_query(Handle timer)
@@ -548,9 +552,11 @@ public Action timer_query(Handle timer)
 		if (!is_player_valid(i) || IsFakeClient(i))
 			continue;
 
+		// Player recently joined, wait before querying.
 		if (GetClientTime(i) < 60.0)
 			continue;
 
+		// Don't query already banned players.
 		if (player[i].banned_flags[CHEAT_CONVAR])
 			continue;
 
@@ -572,6 +578,7 @@ public void query_reply(QueryCookie cookie, int client,
 			ConVarQueryResult result, const char[] cvarName,
 			const char[] cvarValue, any value)
 {
+	// Player NEEDS to answer the query.
 	if (result != ConVarQuery_Okay)
 		return;
 
@@ -588,6 +595,9 @@ public void query_reply(QueryCookie cookie, int client,
 
 	int val = StringToInt(cvarValue);
 
+	// Check for invalid convar responses.
+	// 	This is pretty ugly, but does the job for
+	// 	a simple & basic query system.
 	if ((StrEqual("sv_cheats", cvarName, false) && val)
 		|| (StrEqual("r_drawothermodels", cvarName, false) && val != 1)
 		|| (StrEqual("mat_wireframe", cvarName, false) && val)
@@ -631,9 +641,17 @@ public Action timer_check_nolerp(Handle timer)
 		if (!is_player_valid(i) || IsFakeClient(i))
 			continue;
 
+		// Don't check interp of players who just joined.
+		// 	As far as I know, this isn't actually needed,
+		//  	as checking if the client is valid is enough.
+		// 	But just in case.
+		if (GetClientTime(i) < 10.0)
+			continue;
+
 		float lerp = GetEntPropFloat(i, Prop_Data, "m_fLerpTime");
 
 		if (lerp * 1000.0 > float(icvar[CVAR_MAX_LERP])) {
+			// Todo: Update this kick message to include the correct value (0.1 or lower).
 			KickClient(i, "[Lilac] Exploit detected: Your interp is too high (%.0fms / %dms max).\nPlease set your cl_interp back to 0.1 or lower",
 				lerp * 1000.0, icvar[CVAR_MAX_LERP]);
 
@@ -655,6 +673,8 @@ public Action timer_check_nolerp(Handle timer)
 			continue;
 
 		player[i].banned_flags[CHEAT_NOLERP] = true;
+
+		lilac_forward_client_cheat(i, CHEAT_NOLERP);
 
 		if (icvar[CVAR_LOG]) {
 			lilac_log_setup_client(i);
@@ -719,7 +739,7 @@ public Action timer_check_ping(Handle timer)
 
 // This still isn't a pretty function.
 // Basically, it goes through every player
-// 	and compares how player (i) looks at player2 (k)
+// 	and compares how player1 (i) looks at player2 (k)
 // 	And if the aim snaps 10 degrees and stays on player2 (k)
 // 	Then that counts as a single aimlock suspicion.
 public Action timer_check_aimlock(Handle timer)
@@ -731,8 +751,8 @@ public Action timer_check_aimlock(Handle timer)
 	// When player1 (i) gets detected for an aimlock.
 	// 	Stop looking for more snaps for player1 (i).
 	// 	If enemies are grouped together, it could
-	// 	cause false positives. That's why we stop
-	// 	looking for aimsnaps after the first one.
+	// 	cause several detections based on one snap.
+	// 	That's why only one snap is counter every 0.5 seconds.
 	bool process;
 
 	if (!icvar[CVAR_ENABLE] || !icvar[CVAR_AIMLOCK])
@@ -807,11 +827,12 @@ public Action timer_check_aimlock(Handle timer)
 							lilac_detected_aimlock(i);
 						}
 					}
+
+					lang = ang;
+					aimdist = laimdist;
 				}
-			
+
 				ind--;
-				lang = ang;
-				aimdist = laimdist;
 			}
 
 		}
@@ -854,9 +875,10 @@ public Action timer_check_aimbot(Handle timer, DataPack pack)
 
 	// Locate when the shot was fired.
 	ind = player[client].index;
-	// 0.5 for datapacktimer + 0.5 for snap test + 0.1 buffer
-	// We are looking this far back in case of a projectile aimbot shot.
-	for (int i = 0; i < CMD_LENGTH - time_to_ticks(1.1); i++) {
+	// 0.5 (datapacktimer delay) + 0.5 (snap test) + 0.1 (buffer).
+	// We are looking this far back in case of a projectile aimbot shot,
+	// 	as the death event happens way later after the shot.
+	for (int i = 0; i < CMD_LENGTH - time_to_ticks(0.5 + 0.5 + 0.1); i++) {
 		if (--ind < 0)
 			ind += CMD_LENGTH;
 
@@ -870,19 +892,26 @@ public Action timer_check_aimbot(Handle timer, DataPack pack)
 		}
 	}
 
-	// Shot not found, skip some detections and use fallback tick.
+	// Shot not found, use fallback.
 	if (shotindex == -1) {
 		shotindex = fallback;
-		skip_repeat = true;
-		skip_autoshoot = true;
+
+		// If the latest index is the same as the fallback, then no
+		// 	more usercmds have been processed since the death event.
+		// 	These detections are thus unstable and will will be ignored.
+		// 	(They require at least one tick after the shot to work)
+		if (player[client].index == fallback) {
+			skip_autoshoot = true;
+			skip_repeat = true;
+		}
 	} else {
-		// Don't investigate this tick again.
+		// Don't detect the same shot twice.
 		player[client].actions[shotindex] = 0;
 	}
 
 	// Player taunted within 0.5 seconds of taking a shot leading to a kill.
 	// Ignore snap detections.
-	if (player[client].time_usercmd[shotindex] - player[client].time_teleported < 0.5)
+	if (/* 0.0 < */ player[client].time_usercmd[shotindex] - player[client].time_teleported < 0.5)
 		skip_snap = true;
 
 	// Aimsnap and total delta test.
@@ -890,7 +919,7 @@ public Action timer_check_aimbot(Handle timer, DataPack pack)
 		aim_at_point(killpos, deathpos, ideal);
 
 		ind = shotindex;
-		ang[2] = 0.0;
+		// Not needed: ang[2] = 0.0;
 		for (int i = 0; i < time_to_ticks(0.5); i++) {
 			if (ind < 0)
 				ind += CMD_LENGTH;
@@ -998,8 +1027,8 @@ public Action OnPlayerRunCmd(int client, int& buttons, int& impulse,
 
 	// Store angles.
 	player[client].angles[player[client].index * 3] = angles[0];
-	player[client].angles[player[client].index * 3 + 1] = angles[1];
-	player[client].angles[player[client].index * 3 + 2] = angles[2];
+	player[client].angles[(player[client].index * 3) + 1] = angles[1];
+	player[client].angles[(player[client].index * 3) + 2] = angles[2];
 
 	// Store actions.
 	player[client].buttons[player[client].index] = buttons;
@@ -1007,6 +1036,8 @@ public Action OnPlayerRunCmd(int client, int& buttons, int& impulse,
 	if ((buttons & IN_ATTACK) && bullettime_can_shoot(client))
 		player[client].actions[player[client].index] |= ACTION_SHOT;
 
+	// We need to store information even if the plugin is disabled,
+	// 	incase it gets turned on again mid-game.
 	if (!icvar[CVAR_ENABLE]) {
 		lbuttons[client] = buttons;
 		player[client].tickcount = tickcount;
@@ -1076,7 +1107,6 @@ public Action OnPlayerRunCmd(int client, int& buttons, int& impulse,
 		}
 	}
 
-
 	lbuttons[client] = buttons;
 
 	return Plugin_Continue;
@@ -1109,6 +1139,9 @@ void lilac_detected_aimlock(int client)
 		return;
 
 	// Suspicions reset after 3 minutes.
+	// 	This means you need to get two aimlocks within
+	// 	three minutes of each other to get a single
+	// 	detection.
 	if (GetGameTime() - player[client].time_aimlock < 180.0)
 		player[client].aimlock_sus++;
 	else
@@ -1124,6 +1157,9 @@ void lilac_detected_aimlock(int client)
 	// Detection expires in 10 minutes.
 	CreateTimer(600.0, timer_decrement_aimlock, GetClientUserId(client));
 
+	lilac_forward_client_cheat(client, CHEAT_AIMLOCK);
+
+	// Don't log the first detection.
 	if (++(player[client].aimlock) < 2)
 		return;
 
@@ -1161,7 +1197,7 @@ void lilac_detected_bhop(int client)
 		return;
 
 	// Mode 1:
-	// 	Safe mode, only ban on the 10th bhop.
+	// 	Simplistic mode, only ban on the 10th bhop.
 	// Mode 2:
 	// 	Advanced mode, ban on 5th bhop if the jump count is lower than 15.
 	// 	Else, ban on 10th bhop.
@@ -1179,6 +1215,8 @@ void lilac_detected_bhop(int client)
 	}
 
 	player[client].banned_flags[CHEAT_BHOP] = true;
+
+	lilac_forward_client_cheat(client, CHEAT_BHOP);
 
 	if (icvar[CVAR_LOG]) {
 		lilac_log_setup_client(client);
@@ -1201,6 +1239,8 @@ void lilac_detected_antiaim(int client)
 		return;
 
 	player[client].banned_flags[CHEAT_ANGLES] = true;
+
+	lilac_forward_client_cheat(client, CHEAT_ANGLES);
 
 	if (icvar[CVAR_LOG]) {
 		lilac_log_setup_client(client);
@@ -1227,6 +1267,8 @@ void lilac_detected_aimbot(int client, float delta, float td, int flags)
 
 	// Detection expires in 10 minutes.
 	CreateTimer(600.0, timer_decrement_aimbot, GetClientUserId(client));
+
+	lilac_forward_client_cheat(client, CHEAT_AIMBOT);
 
 	// Don't log the first detection.
 	if (++(player[client].aimbot) < 2)
@@ -1267,10 +1309,8 @@ void lilac_detected_aimbot(int client, float delta, float td, int flags)
 
 public Action OnClientSayCommand(int client, const char[] command, const char[] sArgs)
 {
-	// Prevent players banned for Chat-Clear
-	// 	from spamming chat.
-	// 	Helps legit players see the cheater
-	// 	was banned in chat (disconnect reason).
+	// Prevent players banned for Chat-Clear from spamming chat.
+	// 	Helps legit players see the cheater was banned.
 	if (player[client].banned_flags[CHEAT_CHATCLEAR])
 		return Plugin_Stop;
 
@@ -1293,7 +1333,7 @@ public void OnClientSayCommand_Post(int client, const char[] command,
 
 	if (does_string_contain_newline(sArgs)) {
 		player[client].banned_flags[CHEAT_CHATCLEAR] = true;
-		//lilac_forward_client_cheat(client, CHEAT_CHATCLEAR);
+		lilac_forward_client_cheat(client, CHEAT_CHATCLEAR);
 
 		if (icvar[CVAR_LOG]) {
 			lilac_log_setup_client(client);
@@ -1439,7 +1479,6 @@ That is all, have a wonderful day~\n\n\n", VERSION);
 
 void lilac_ban_client(int client, int cheat)
 {
-
 	char reason[128];
 
 	switch (cheat) {
@@ -1500,10 +1539,11 @@ float angle_delta(float []a1, float []a2)
 {
 	int normal = 5;
 	float p1[3], p2[3], delta;
+
 	p1[0] = a1[0];
-	p1[1] = a1[1];
 	p2[0] = a2[0];
 	p2[1] = a2[1];
+	p1[1] = a1[1];
 
 	p1[2] = 0.0;
 	p2[2] = 0.0;
@@ -1533,7 +1573,8 @@ int normalize_index(int index)
 
 bool skip_due_to_loss(int client)
 {
-	// Skip detection if the loss is more than 50%
+	// Debate: What percentage should this be at?
+	// 	Skip detection if the loss is more than 50%
 	if (icvar[CVAR_LOSS_FIX])
 		return GetClientAvgLoss(client, NetFlow_Both) > 0.5;
 
@@ -1578,7 +1619,7 @@ public Action timer_decrement_aimlock(Handle timer, int userid)
 
 void lilac_forward_client_cheat(int client, int cheat)
 {
-	/*int dummy;
+	int dummy;
 
 	if (forwardhandle == null)
 		return;
@@ -1586,8 +1627,21 @@ void lilac_forward_client_cheat(int client, int cheat)
 	Call_StartForward(forwardhandle);
 	Call_PushCell(client);
 	Call_PushCell(cheat);
-	Call_Finish(dummy);*/
+	Call_Finish(dummy);
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
