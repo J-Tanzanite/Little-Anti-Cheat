@@ -16,16 +16,6 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-/*
-	Special thanks to:
-		Bottiger for letting me know structures in SM *DO* exist,
-		I was told something else in the past.
-		Bottiger also gave me some really helpful criticisms.
-		Lastly... He also fixed this plugin not loading in CS:GO... What a hero.
-
-		Jermaphobe for introducing me to Bottiger and for being a fam.
-*/
-
 #include <sourcemod>
 #include <sdktools_engine>
 #undef REQUIRE_PLUGIN
@@ -34,7 +24,7 @@
 #include <tf2>
 #include <tf2_stocks>
 
-#define VERSION "1.0.0-ReWrite Draft 2"
+#define VERSION "1.0.0"
 
 #define CMD_LENGTH 	330
 
@@ -52,28 +42,34 @@
 #define CHEAT_MAX 		7
 
 #define CVAR_ENABLE 		0
-#define CVAR_SB			1
-#define CVAR_LOG 		2
-#define CVAR_LOG_EXTRA 		3
-#define CVAR_LOG_DATE 		4
-#define CVAR_ANGLES 		5
-#define CVAR_PATCH_ANGLES 	6
-#define CVAR_CHAT 		7
-#define CVAR_CONVAR 		8
-#define CVAR_NOLERP 		9
-#define CVAR_BHOP 		10
-#define CVAR_AIMBOT 		11
-#define CVAR_AIMLOCK 		12
-#define CVAR_BACKTRACK_PATCH 	13
-#define CVAR_MAX_PING		14
-#define CVAR_MAX_LERP 		15
-#define CVAR_LOSS_FIX 		16
-#define CVAR_MAX 		17
+#define CVAR_WELCOME 		1
+#define CVAR_SB			2
+#define CVAR_LOG 		3
+#define CVAR_LOG_EXTRA 		4
+#define CVAR_LOG_MISC 		5
+#define CVAR_LOG_DATE 		6
+#define CVAR_ANGLES 		7
+#define CVAR_PATCH_ANGLES 	8
+#define CVAR_CHAT 		9
+#define CVAR_CONVAR 		10
+#define CVAR_NOLERP 		11
+#define CVAR_BHOP 		12
+#define CVAR_AIMBOT 		13
+#define CVAR_AIMLOCK 		14
+#define CVAR_AIMLOCK_LIGHT 	15
+#define CVAR_BACKTRACK_PATCH 	16
+#define CVAR_MAX_PING		17
+#define CVAR_MAX_LERP 		18
+#define CVAR_LOSS_FIX 		19
+#define CVAR_MAX 		20
 
 #define ACTION_SHOT 	1
 
-#define QUERY_MAX_FAILURES 	30
-#define QUERY_TIMEOUT 		30.0
+#define QUERY_MAX_FAILURES 	12
+#define QUERY_TIMEOUT 		30
+#define QUERY_TIMER 		5.0
+
+#define AIMLOCK_BAN_MIN 	5
 
 #define AIMBOT_BAN_MIN 			5
 #define AIMBOT_MAX_TOTAL_DELTA 		(180.0 * 2.5)
@@ -97,6 +93,7 @@ char line[2048];
 char dateformat[512] = "%Y/%m/%d %H:%M:%S";
 float max_angles[3] = {89.01, 0.0, 50.01};
 Handle forwardhandle = INVALID_HANDLE;
+Handle forwardhandleban = INVALID_HANDLE;
 bool sourcebans_exist = false;
 
 // Logging.
@@ -117,11 +114,62 @@ enum struct struct_player {
 	float time_teleported;
 	float time_aimlock;
 	float time_backtrack;
+	float time_process_aimlock;
 	// Two dimentional arrays aren't allowed yet.
 	float angles[CMD_LENGTH * 3];
 	float time_usercmd[CMD_LENGTH];
 	bool banned_flags[CHEAT_MAX];
 	bool ignore_lerp;
+
+	// Basic wrapers to make the code easier to follow.
+	float get_pitch(int tick)
+	{
+		if (tick < 0 || tick >= CMD_LENGTH)
+			ThrowError("get_pitch(int tick) - Illegal tick request (%d).", tick);
+
+		return this.angles[tick * 3];
+	}
+
+	float get_pitch_latest()
+	{
+		return this.angles[this.index * 3];
+	}
+
+	float get_yaw(int tick)
+	{
+		if (tick < 0 || tick >= CMD_LENGTH)
+			ThrowError("get_yaw(int tick) - Illegal tick request (%d).", tick);
+
+		return this.angles[(tick * 3) + 1];
+	}
+
+	float get_yaw_latest()
+	{
+		return this.angles[(this.index * 3) + 1];
+	}
+
+	float get_roll(int tick)
+	{
+		if (tick < 0 || tick >= CMD_LENGTH)
+			ThrowError("get_roll(int tick) - Illegal tick request (%d).", tick);
+
+		return this.angles[(tick * 3) + 2];
+	}
+
+	float get_roll_latest()
+	{
+		return this.angles[(this.index * 3) + 2];
+	}
+
+	void set_angles(float ang[3], int tick)
+	{
+		if (tick < 0 || tick >= CMD_LENGTH)
+			ThrowError("set_angles(float ang[3], int tick) - Illegal tick request (%d).", tick);
+
+		this.angles[(tick * 3)] = ang[0];
+		this.angles[(tick * 3) + 1] = ang[1];
+		this.angles[(tick * 3) + 2] = ang[2];
+	}
 }
 struct_player player[MAXPLAYERS + 1];
 
@@ -196,6 +244,9 @@ public void OnPluginStart()
 	cvar[CVAR_ENABLE] = CreateConVar("lilac_enable", "1",
 		"Enable Little Anti-Cheat.",
 		FCVAR_PROTECTED, true, 0.0, true, 1.0);
+	cvar[CVAR_WELCOME] = CreateConVar("lilac_welcome", "0",
+		"Welcome connecting players saying that the server is protected.",
+		FCVAR_PROTECTED, true, 0.0, true, 1.0);
 	cvar[CVAR_SB] = CreateConVar("lilac_sourcebans", "1",
 		"Ban players via sourcebans++ (If it isn't installed, it will default to basebans).",
 		FCVAR_PROTECTED, true, 0.0, true, 1.0);
@@ -203,7 +254,10 @@ public void OnPluginStart()
 		"Enable cheat logging.",
 		FCVAR_PROTECTED, true, 0.0, true, 1.0);
 	cvar[CVAR_LOG_EXTRA] = CreateConVar("lilac_log_extra", "1",
-		"Log extra information when players are banned.",
+		"0 = Disabled.\n1 = Log extra information on player banned.\n2 = Log extra information on everything.",
+		FCVAR_PROTECTED, true, 0.0, true, 2.0);
+	cvar[CVAR_LOG_MISC] = CreateConVar("lilac_log_misc", "0",
+		"Log when players are kicked for misc features, like interp exploits, too high ping and on convar response failure.",
 		FCVAR_PROTECTED, true, 0.0, true, 1.0);
 	cvar[CVAR_LOG_DATE] = CreateConVar("lilac_log_date", "{year}/{month}/{day} {hour}:{minute}:{second}",
 		"Which date & time format to use when logging. Type: \"lilac_date_list\" for more info.",
@@ -232,6 +286,9 @@ public void OnPluginStart()
 	cvar[CVAR_AIMLOCK] = CreateConVar("lilac_aimlock", "10",
 		"Detect Aimlock.\n0 = Disabled.\n1 = Log only.\n5 or more = ban on n'th detection (Minimum possible is 5).",
 		FCVAR_PROTECTED, true, 0.0, false, 0.0);
+	cvar[CVAR_AIMLOCK_LIGHT] = CreateConVar("lilac_aimlock_light", "1",
+		"Only process at most 5 suspicious players for aimlock.\nDO NOT DISABLE THIS UNLESS YOUR SERVER CAN HANDLE IT!",
+		FCVAR_PROTECTED, true, 0.0, true, 1.0);
 	cvar[CVAR_BACKTRACK_PATCH] = CreateConVar("lilac_backtrack_patch", "0",
 		"Patch Backtrack.\n0 = Disabled (Recommended).\n1 = Enabled (Not recommended, may cause hitreg issues).",
 		FCVAR_PROTECTED, true, 0.0, true, 1.0);
@@ -279,14 +336,25 @@ public void OnPluginStart()
 
 	forwardhandle = CreateGlobalForward("lilac_cheater_detected",
 		ET_Ignore, Param_Cell, Param_Cell);
+	forwardhandleban = CreateGlobalForward("lilac_cheater_banned",
+		ET_Ignore, Param_Cell, Param_Cell);
 
-	CreateTimer(5.0, timer_query, _, TIMER_REPEAT);
+	CreateTimer(QUERY_TIMER, timer_query, _, TIMER_REPEAT);
 	CreateTimer(5.0, timer_check_ping, _, TIMER_REPEAT);
 	CreateTimer(5.0, timer_check_nolerp, _, TIMER_REPEAT);
 	CreateTimer(0.5, timer_check_aimlock, _, TIMER_REPEAT);
 
 	if (icvar[CVAR_LOG])
 		lilac_log_first_time_setup();
+}
+
+public void OnAllPluginsLoaded()
+{
+	// Sourcebans compat...
+	sourcebans_exist = LibraryExists("sourcebans");
+
+	// Startup message.
+	PrintToServer("[Little Anti-Cheat %s] Successfully loaded!", VERSION);
 }
 
 public Action lilac_date_list(int args)
@@ -298,9 +366,9 @@ public Action lilac_date_list(int args)
 	PrintToServer("\t        (see: http://www.cplusplus.com/reference/ctime/strftime/).");
 	PrintToServer("Example:\n\t{raw}%%Y/%%m/%%d %%H:%%M:%%S");
 	PrintToServer("Dates:");
-	PrintToServer("\t{year}  = Numerical year  (2020).");
-	PrintToServer("\t{month} = Numerical month   (12).");
-	PrintToServer("\t{day}   = Numerical day     (28).");
+	PrintToServer("\t{year}    = Numerical year  (2020).");
+	PrintToServer("\t{month}   = Numerical month   (12).");
+	PrintToServer("\t{day}     = Numerical day     (28).");
 	PrintToServer("Time:");
 	PrintToServer("\t{hour}    = 24 hour format.");
 	PrintToServer("\t{hours}   = 24 hour format.");
@@ -314,6 +382,7 @@ public Action lilac_date_list(int args)
 	PrintToServer("\t{minutes} = Minute.");
 	PrintToServer("\t{second}  = Second.");
 	PrintToServer("\t{seconds} = Second.");
+	PrintToServer("Using flags example: {year}/{month}/{day} {hour}:{minute}:{second}");
 }
 
 public APLRes AskPluginLoad2(Handle hMyself, bool bLate, char[] sError, int err_max)
@@ -322,11 +391,6 @@ public APLRes AskPluginLoad2(Handle hMyself, bool bLate, char[] sError, int err_
 	MarkNativeAsOptional("SBPP_BanPlayer");
 
 	return APLRes_Success;
-}
-
-public void OnAllPluginsLoaded()
-{
-	sourcebans_exist = LibraryExists("sourcebans");
 }
 
 public void OnLibraryAdded(const char []name)
@@ -353,12 +417,16 @@ public void cvar_change(ConVar convar, const char[] oldValue,
 	// 	doing this? :)
 	if (StrEqual(cvarname, "lilac_enable", false)) {
 		icvar[CVAR_ENABLE] = StringToInt(newValue, 10);
+	} else if (StrEqual(cvarname, "lilac_welcome", false)) {
+		icvar[CVAR_WELCOME] = StringToInt(newValue, 10);
 	} else if (StrEqual(cvarname, "lilac_sourcebans", false)) {
 		icvar[CVAR_SB] = StringToInt(newValue, 10);
 	} else if (StrEqual(cvarname, "lilac_log", false)) {
 		icvar[CVAR_LOG] = StringToInt(newValue, 10);
 	} else if (StrEqual(cvarname, "lilac_log_extra", false)) {
 		icvar[CVAR_LOG_EXTRA] = StringToInt(newValue, 10);
+	} else if (StrEqual(cvarname, "lilac_log_misc", false)) {
+		icvar[CVAR_LOG_MISC] = StringToInt(newValue, 10);
 	} else if (StrEqual(cvarname, "lilac_log_date", false)) {
 		lilac_setup_date_format(newValue);
 
@@ -386,8 +454,10 @@ public void cvar_change(ConVar convar, const char[] oldValue,
 		icvar[CVAR_AIMLOCK] = StringToInt(newValue, 10);
 
 		if (icvar[CVAR_AIMLOCK] > 1
-			&& icvar[CVAR_AIMLOCK] < AIMBOT_BAN_MIN)
+			&& icvar[CVAR_AIMLOCK] < AIMLOCK_BAN_MIN)
 			icvar[CVAR_AIMLOCK] = 5;
+	} else if (StrEqual(cvarname, "lilac_aimlock_light", false)) {
+		icvar[CVAR_AIMLOCK_LIGHT] = StringToInt(newValue, 10);
 	} else if (StrEqual(cvarname, "lilac_backtrack_patch", false)) {
 		icvar[CVAR_BACKTRACK_PATCH] = StringToInt(newValue, 10);
 	} else if (StrEqual(cvarname, "lilac_max_ping", false)) {
@@ -409,13 +479,15 @@ public void cvar_change(ConVar convar, const char[] oldValue,
 		sv_cheats = StringToInt(newValue);
 
 		// Delay convar checks for 30 seconds.
-		time_sv_cheats = GetTime() + 30;
+		time_sv_cheats = GetTime() + QUERY_TIMEOUT;
 	}
 }
 
 public void OnClientPutInServer(int client)
 {
 	lilac_reset_client(client);
+
+	CreateTimer(20.0, timer_welcome, GetClientUserId(client));
 }
 
 void lilac_reset_client(int client)
@@ -435,6 +507,7 @@ void lilac_reset_client(int client)
 	player[client].time_teleported = 0.0;
 	player[client].time_aimlock = 0.0;
 	player[client].time_backtrack = 0.0;
+	player[client].time_process_aimlock = 0.0;
 
 	for (int i = 0; i < CHEAT_MAX; i++)
 		player[client].banned_flags[i] = false;
@@ -444,8 +517,7 @@ void lilac_reset_client(int client)
 		player[client].actions[i] = 0;
 		player[client].time_usercmd[i] = 0.0;
 
-		for (int x = 0; x < 3; x++)
-			player[client].angles[(i * 3) + x] = 0.0;
+		player[client].set_angles(Float:{0.0, 0.0, 0.0}, i);
 	}
 }
 
@@ -467,7 +539,7 @@ public Action event_teleported(Event event, const char[] name,
 public Action event_player_death(Event event, const char[] name,
 					bool dontBroadcast)
 {
-	if (!icvar[CVAR_ENABLE] || !icvar[CVAR_AIMBOT])
+	if (!icvar[CVAR_ENABLE])
 		return Plugin_Continue;
 
 	int userid = GetEventInt(event, "attacker", -1);
@@ -482,7 +554,7 @@ public Action event_player_death(Event event, const char[] name,
 public Action event_player_death_tf2(Event event, const char[] name,
 					bool dontBroadcast)
 {
-	if (!icvar[CVAR_ENABLE] || !icvar[CVAR_AIMBOT])
+	if (!icvar[CVAR_ENABLE])
 		return Plugin_Continue;
 
 	char wep[64];
@@ -518,6 +590,12 @@ void event_death_shared(int userid, int client, int victim, bool skip_delta)
 		|| GetClientTime(client) < 10.1)
 		return;
 
+	if (icvar[CVAR_AIMLOCK_LIGHT])
+		lilac_aimlock_light_test(client);
+
+	if (!icvar[CVAR_AIMBOT])
+		return;
+
 	GetClientEyePosition(client, killpos);
 	GetClientEyePosition(victim, deathpos);
 
@@ -537,6 +615,14 @@ void event_death_shared(int userid, int client, int victim, bool skip_delta)
 	pack.WriteFloat(deathpos[0]);
 	pack.WriteFloat(deathpos[1]);
 	pack.WriteFloat(deathpos[2]);
+}
+
+public Action timer_welcome(Handle timer, int userid)
+{
+	int client = GetClientOfUserId(userid);
+
+	if (is_player_valid(client) && icvar[CVAR_WELCOME] && icvar[CVAR_ENABLE])
+		PrintToChat(client, "[Lilac] This server is protected by Little Anti-Cheat %s", VERSION);
 }
 
 public Action timer_query(Handle timer)
@@ -562,13 +648,28 @@ public Action timer_query(Handle timer)
 
 		// Only increments query index if the player
 		// 	has responded to the last one.
-		if (!player[i].query_failed)
-			player[i].query_index = (player[i].query_index + 1) % 12;
+		if (!player[i].query_failed) {
+			if (++(player[i].query_index) >= 12)
+				player[i].query_index = 0;
+		}
 
 		QueryClientConVar(i, query_list[player[i].query_index], query_reply, 0);
 
-		if (++(player[i].query_failed) > QUERY_MAX_FAILURES)
+		if (++(player[i].query_failed) > QUERY_MAX_FAILURES) {
+			if (icvar[CVAR_LOG_MISC]) {
+				lilac_log_setup_client(i);
+				Format(line, sizeof(line),
+					"%s was kicked for failing to respond to %d queries in %.0f seconds.",
+					line, QUERY_MAX_FAILURES, QUERY_TIMER * QUERY_MAX_FAILURES);
+
+				lilac_log(true);
+
+				if (icvar[CVAR_LOG_EXTRA] == 2)
+					lilac_log_extra(i);
+			}
+
 			KickClient(i, "[Lilac] Error: Query response failure, please restart your game if this issue persists");
+		}
 	}
 
 	return Plugin_Continue;
@@ -641,19 +742,23 @@ public Action timer_check_nolerp(Handle timer)
 		if (!is_player_valid(i) || IsFakeClient(i))
 			continue;
 
-		// Don't check interp of players who just joined.
-		// 	As far as I know, this isn't actually needed,
-		//  	as checking if the client is valid is enough.
-		// 	But just in case.
-		if (GetClientTime(i) < 10.0)
-			continue;
-
 		float lerp = GetEntPropFloat(i, Prop_Data, "m_fLerpTime");
 
 		if (lerp * 1000.0 > float(icvar[CVAR_MAX_LERP])) {
-			// Todo: Update this kick message to include the correct value (0.1 or lower).
-			KickClient(i, "[Lilac] Exploit detected: Your interp is too high (%.0fms / %dms max).\nPlease set your cl_interp back to 0.1 or lower",
-				lerp * 1000.0, icvar[CVAR_MAX_LERP]);
+			if (icvar[CVAR_LOG_MISC]) {
+				lilac_log_setup_client(i);
+				Format(line, sizeof(line),
+					"%s was kicked for exploiting interpolation (%.3fms / %dms max).",
+					line, lerp * 1000.0, icvar[CVAR_MAX_LERP]);
+
+				lilac_log(true);
+
+				if (icvar[CVAR_LOG_EXTRA] == 2)
+					lilac_log_extra(i);
+			}
+
+			KickClient(i, "[Lilac] Exploit detected: Your interp is too high (%.0fms / %dms max).\nPlease set your cl_interp back to %.3f or lower",
+				lerp * 1000.0, icvar[CVAR_MAX_LERP], float(icvar[CVAR_MAX_LERP]) / 999.9);
 
 			continue;
 		}
@@ -679,7 +784,7 @@ public Action timer_check_nolerp(Handle timer)
 		if (icvar[CVAR_LOG]) {
 			lilac_log_setup_client(i);
 			Format(line, sizeof(line),
-				"%s was detected and banned for NoLerp (%fms)",
+				"%s was detected and banned for NoLerp (%fms).",
 				line, lerp * 1000.0);
 
 			lilac_log(true);
@@ -724,6 +829,18 @@ public Action timer_check_ping(Handle timer)
 		if (++(player[i].high_ping) < 9)
 			continue;
 
+		if (icvar[CVAR_LOG_MISC]) {
+			lilac_log_setup_client(i);
+			Format(line, sizeof(line),
+				"%s was kicked for having too high ping (%.3fms / %dms max).",
+				line, ping, icvar[CVAR_MAX_PING]);
+
+			lilac_log(true);
+
+			if (icvar[CVAR_LOG_EXTRA] == 2)
+				lilac_log_extra(i);
+		}
+
 		Format(reason, sizeof(reason),
 			"[Lilac] Your ping is too high (%.0f / %d max)",
 			ping, icvar[CVAR_MAX_PING]);
@@ -742,6 +859,8 @@ public Action timer_check_ping(Handle timer)
 // 	and compares how player1 (i) looks at player2 (k)
 // 	And if the aim snaps 10 degrees and stays on player2 (k)
 // 	Then that counts as a single aimlock suspicion.
+// If lilac_aimlock_light (lightmode) is on, then only 5 players
+// 	are processed at a time.
 public Action timer_check_aimlock(Handle timer)
 {
 	float ang[3], lang[3], ideal[3], pos[3], pos2[3];
@@ -754,11 +873,16 @@ public Action timer_check_aimlock(Handle timer)
 	// 	cause several detections based on one snap.
 	// 	That's why only one snap is counter every 0.5 seconds.
 	bool process;
+	int players_processed = 0;
 
 	if (!icvar[CVAR_ENABLE] || !icvar[CVAR_AIMLOCK])
 		return Plugin_Continue;
 
 	for (int i = 1; i <= MaxClients; i++) {
+		// Don't process more than 5 players!
+		if (players_processed > 5 && icvar[CVAR_AIMLOCK_LIGHT] == 1)
+			return Plugin_Continue;
+
 		if (!is_player_valid(i) || IsFakeClient(i))
 			continue;
 
@@ -778,6 +902,11 @@ public Action timer_check_aimlock(Handle timer)
 		if (player[i].banned_flags[CHEAT_AIMLOCK])
 			continue;
 
+		// If lightmode is enabled, the player must be in the process que.
+		if (icvar[CVAR_AIMLOCK_LIGHT] == 1 && lilac_is_player_in_aimlock_que(i) == false)
+			continue;
+
+		players_processed++;
 		process = true;
 		GetClientEyePosition(i, pos);
 
@@ -809,8 +938,8 @@ public Action timer_check_aimlock(Handle timer)
 
 				// Only process ticks that happened 0.5 seconds ago.
 				if (GetGameTime() - player[i].time_usercmd[ind] < 0.5) {
-					ang[0] = player[i].angles[ind * 3];
-					ang[1] = player[i].angles[(ind * 3) + 1];
+					ang[0] = player[i].get_pitch(ind);
+					ang[1] = player[i].get_yaw(ind);
 					laimdist = angle_delta(ang, ideal);
 
 					if (l) {
@@ -834,7 +963,6 @@ public Action timer_check_aimlock(Handle timer)
 
 				ind--;
 			}
-
 		}
 	}
 
@@ -898,8 +1026,8 @@ public Action timer_check_aimbot(Handle timer, DataPack pack)
 
 		// If the latest index is the same as the fallback, then no
 		// 	more usercmds have been processed since the death event.
-		// 	These detections are thus unstable and will will be ignored.
-		// 	(They require at least one tick after the shot to work)
+		// 	These detections are thus unstable and will be ignored
+		// 	(They require at least one tick after the shot to work).
 		if (player[client].index == fallback) {
 			skip_autoshoot = true;
 			skip_repeat = true;
@@ -911,7 +1039,7 @@ public Action timer_check_aimbot(Handle timer, DataPack pack)
 
 	// Player taunted within 0.5 seconds of taking a shot leading to a kill.
 	// Ignore snap detections.
-	if (/* 0.0 < */ player[client].time_usercmd[shotindex] - player[client].time_teleported < 0.5)
+	if (-0.1 < player[client].time_usercmd[shotindex] - player[client].time_teleported < 0.5 + 0.1)
 		skip_snap = true;
 
 	// Aimsnap and total delta test.
@@ -1020,15 +1148,14 @@ public Action OnPlayerRunCmd(int client, int& buttons, int& impulse,
 		return Plugin_Continue;
 
 	// Increment the index.
-	player[client].index = (player[client].index + 1) % CMD_LENGTH;
+	if (++(player[client].index) >= CMD_LENGTH)
+		player[client].index = 0;
 
 	// Store when the tick was processed.
 	player[client].time_usercmd[player[client].index] = GetGameTime();
 
 	// Store angles.
-	player[client].angles[player[client].index * 3] = angles[0];
-	player[client].angles[(player[client].index * 3) + 1] = angles[1];
-	player[client].angles[(player[client].index * 3) + 2] = angles[2];
+	player[client].set_angles(angles, player[client].index);
 
 	// Store actions.
 	player[client].buttons[player[client].index] = buttons;
@@ -1045,19 +1172,18 @@ public Action OnPlayerRunCmd(int client, int& buttons, int& impulse,
 		return Plugin_Continue;
 	}
 
-	// Patch backtracking, tickcount must increment from the last one.
-	// 	This will cause hitreg issues for players with packetloss.
+	// Patch backtracking.
+	// 	This will cause hitreg issues for players with packetloss (and some teleporting??).
 	if (icvar[CVAR_BACKTRACK_PATCH]) {
-		if (player[client].tickcount + 1 != tickcount
-			&& player[client].time_backtrack < GetGameTime())
-			player[client].time_backtrack = GetGameTime() + 5.0;
+		if (lilac_client_tickcount_incremented(client, tickcount) == false
+			&& lilac_is_player_in_backtrack_timeout(client) == false)
+			lilac_set_client_in_backtrack_timeout(client);
 
+		// Store tickcount before modifying (For future tests).
 		player[client].tickcount = tickcount;
 
-		if (GetGameTime() < player[client].time_backtrack)
-			tickcount = player[client].tickcount
-				+ GetRandomInt(0, time_to_ticks(0.4))
-				- time_to_ticks(0.2);
+		if (lilac_is_player_in_backtrack_timeout(client))
+			tickcount = lilac_random_tickcount(client);
 	} else {
 		player[client].tickcount = tickcount;
 	}
@@ -1110,6 +1236,47 @@ public Action OnPlayerRunCmd(int client, int& buttons, int& impulse,
 	lbuttons[client] = buttons;
 
 	return Plugin_Continue;
+}
+
+int lilac_random_tickcount(int client)
+{
+	int tick, ping, forwardtrack;
+
+	// Latency/Ping in ticks.
+	ping = RoundToNearest(GetClientAvgLatency(client, NetFlow_Outgoing) / GetTickInterval());
+
+	// Forwardtracking is maximum 200ms.
+	forwardtrack = ping;
+	if (forwardtrack > time_to_ticks(0.2))
+		forwardtrack = time_to_ticks(0.2);
+
+	// Randomize tickcount to be what it should be (server tickcount - ping)
+	// 	- a random value between -200ms and forwardtracking (max 200ms).
+	tick = GetGameTickCount() - ping + GetRandomInt(0, time_to_ticks(0.2) + forwardtrack) - time_to_ticks(0.2);
+
+	// Tickcount cannot be larger than server tickcount.
+	if (tick > GetGameTickCount())
+		return GetGameTickCount();
+
+	return tick;
+}
+
+bool lilac_client_tickcount_incremented(int client, int tickcount)
+{
+	// Tickcount should increment for legit players 99% of the time... Or at least it seems so.
+	// Packetloss or teleporting players may get false detections tho.
+	return (tickcount == player[client].tickcount + 1);
+}
+
+void lilac_set_client_in_backtrack_timeout(int client)
+{
+	// Set the player in backtrack timeout for 5 seconds.
+	player[client].time_backtrack = GetGameTime() + 5.0;
+}
+
+bool lilac_is_player_in_backtrack_timeout(int client)
+{
+	return (GetGameTime() < player[client].time_backtrack);
 }
 
 // Todo: I should update this soon...
@@ -1170,10 +1337,13 @@ void lilac_detected_aimlock(int client)
 			line, player[client].aimlock);
 
 		lilac_log(true);
+
+		if (icvar[CVAR_LOG_EXTRA] == 2)
+			lilac_log_extra(client);
 	}
 
 	if (player[client].aimlock >= icvar[CVAR_AIMLOCK]
-		&& icvar[CVAR_AIMLOCK] >= 5) {
+		&& icvar[CVAR_AIMLOCK] >= AIMLOCK_BAN_MIN) {
 		player[client].banned_flags[CHEAT_AIMLOCK] = true;
 
 		if (icvar[CVAR_LOG]) {
@@ -1247,9 +1417,9 @@ void lilac_detected_antiaim(int client)
 		Format(line, sizeof(line),
 			"%s was detected and banned for Angle-Cheats (Pitch: %.2f, Yaw: %.2f, Roll: %.2f).",
 			line,
-			player[client].angles[player[client].index * 3],
-			player[client].angles[(player[client].index * 3) + 1],
-			player[client].angles[(player[client].index * 3) + 2]);
+			player[client].get_pitch_latest(),
+			player[client].get_yaw_latest(),
+			player[client].get_roll_latest());
 
 		lilac_log(true);
 
@@ -1286,6 +1456,9 @@ void lilac_detected_aimbot(int client, float delta, float td, int flags)
 			((td > AIMBOT_MAX_TOTAL_DELTA)   ? " Total-Delta"  : ""));
 
 		lilac_log(true);
+
+		if (icvar[CVAR_LOG_EXTRA] == 2)
+			lilac_log_extra(client);
 	}
 
 	if (player[client].aimbot >= icvar[CVAR_AIMBOT]
@@ -1362,6 +1535,48 @@ bool does_string_contain_newline(const char []string)
 	return false;
 }
 
+void lilac_aimlock_light_test(int client)
+{
+	int ind;
+	float lastang[3], ang[3];
+
+	// Player recently teleported, spawned or taunted. Ignore.
+	if (GetGameTime() - player[client].time_teleported < 3.0)
+		return;
+
+	ind = player[client].index;
+	for (int i = 0; i < time_to_ticks(0.5); i++) {
+		if (ind < 0)
+			ind += CMD_LENGTH;
+
+		ang[0] = player[client].get_pitch(ind);
+		ang[1] = player[client].get_yaw(ind);
+
+		if (i) {
+			// This player has a somewhat big delta,
+			// 	test this player for aimlock for 200 seconds.
+			// Even if we end up flagging more than 5 players
+			// 	for this, that's fine as only 5 players
+			// 	can be processed in the aimlock check timer.
+			if (angle_delta(lastang, ang) > 20.0) {
+				player[client].time_process_aimlock = GetGameTime() + 200.0;
+				return;
+			}
+		}
+
+		lastang = ang;
+		ind--;
+	}
+}
+
+bool lilac_is_player_in_aimlock_que(int client)
+{
+	// Test for aimlock on players who:
+	return (GetGameTime() < player[client].time_process_aimlock // Are in the que.
+		|| player[client].aimlock // Already has a detection.
+		|| (GetGameTime() - player[client].time_aimlock < 180.0 && player[client].time_aimlock > 1.0)); // Had one aimlock the past three minutes.
+}
+
 // Todo: / Debate: Add everything listed here?
 // 	http://www.cplusplus.com/reference/ctime/strftime/
 void lilac_setup_date_format(const char []format)
@@ -1418,9 +1633,9 @@ void lilac_log_extra(int client)
 	Format(line, sizeof(line),
 		"\tPos={%.0f,%.0f,%.0f}, Angles={%.5f,%.5f,%.5f}, Map=\"%s\", Team={%d}, Weapon=\"%s\", Latency={Inc:%f,Out:%f}, Loss={Inc:%f,Out:%f}, Choke={Inc:%f,Out:%f}, ConnectionTime={%f seconds}, GameTime={%f seconds}",
 		pos[0], pos[1], pos[2],
-		player[client].angles[player[client].index],
-		player[client].angles[player[client].index + 1],
-		player[client].angles[player[client].index + 2],
+		player[client].get_pitch_latest(),
+		player[client].get_yaw_latest(),
+		player[client].get_roll_latest(),
 		map, GetClientTeam(client), weapon,
 		GetClientAvgLatency(client, NetFlow_Incoming),
 		GetClientAvgLatency(client, NetFlow_Outgoing),
@@ -1492,13 +1707,15 @@ void lilac_ban_client(int client, int cheat)
 	case CHEAT_NOLERP: { Format(reason, sizeof(reason),
 		"[Little Anti-Cheat %s] Invalid ConVar Detected", VERSION); }
 	case CHEAT_BHOP: { Format(reason, sizeof(reason),
-		"[Little Anti-Cheat %s] BHop Detected", VERSION); }
+		"[Little Anti-Cheat %s] Bhop Detected", VERSION); }
 	case CHEAT_AIMBOT: { Format(reason, sizeof(reason),
 		"[Little Anti-Cheat %s] Aimbot Detected", VERSION); }
 	case CHEAT_AIMLOCK: { Format(reason, sizeof(reason),
 		"[Little Anti-Cheat %s] Aimlock Detected", VERSION); }
 	default: return;
 	}
+
+	lilac_forward_client_ban(client, cheat);
 
 	if (sourcebans_exist && icvar[CVAR_SB])
 		SBPP_BanPlayer(0, client, 0, reason);
@@ -1545,6 +1762,7 @@ float angle_delta(float []a1, float []a2)
 	p2[1] = a2[1];
 	p1[1] = a1[1];
 
+	// We don't care about roll.
 	p1[2] = 0.0;
 	p2[2] = 0.0;
 
@@ -1613,8 +1831,8 @@ public Action timer_decrement_aimlock(Handle timer, int userid)
 	if (!is_player_valid(client))
 		return;
 
-	if (player[client].aimbot > 0)
-		player[client].aimbot--;
+	if (player[client].aimlock > 0)
+		player[client].aimlock--;
 }
 
 void lilac_forward_client_cheat(int client, int cheat)
@@ -1625,6 +1843,19 @@ void lilac_forward_client_cheat(int client, int cheat)
 		return;
 
 	Call_StartForward(forwardhandle);
+	Call_PushCell(client);
+	Call_PushCell(cheat);
+	Call_Finish(dummy);
+}
+
+void lilac_forward_client_ban(int client, int cheat)
+{
+	int dummy;
+
+	if (forwardhandleban == null)
+		return;
+
+	Call_StartForward(forwardhandleban);
 	Call_PushCell(client);
 	Call_PushCell(cheat);
 	Call_Finish(dummy);
