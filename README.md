@@ -30,6 +30,12 @@ This Anti-Cheat is by no means perfect, and it is bypassable to some extent, but
  - [L4D2] Left 4 Dead 2
  - [GMOD] Garry's Mod
 
+### Credits / Special Thanks to:
+ - J_Tanzanite... Yeah I'm crediting myself for writing this AC...
+ - foon, for fixing sourcebans++ not working (https://forums.alliedmods.net/showthread.php?p=2689297#post2689297).
+ - Rasi, for French translations.
+ - Bottiger, for fixing this plugin not working in CS:GO and general criticisms.
+
 ### Current languages supported:
  - Norwegian (By me, the translations could be better).
  - French (By Rasi / GreenGuyRasi).
