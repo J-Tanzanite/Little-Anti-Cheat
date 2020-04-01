@@ -30,6 +30,17 @@ This Anti-Cheat is by no means perfect, and it is bypassable to some extent, but
  - [L4D2] Left 4 Dead 2
  - [GMOD] Garry's Mod
 
+### Current languages supported:
+ - Norwegian (By me, the translations could be better).
+ - French (By Rasi / GreenGuyRasi).
+ - English (By me lol duh hue hue hue).
+ - Russian (By an awesome person c:).\
+\
+I do hope to add more languages in the future.\
+But at least you can add or improve on the translations already provided.\
+My friends who did some of the translations were told by me that the translations don't have to be perfect.\
+Just understandable to those who don't speak English too well.
+
 ### Requirements:
  - Sourcemod 1.10 or higher.
 
