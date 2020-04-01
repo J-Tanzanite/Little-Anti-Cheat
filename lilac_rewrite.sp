@@ -203,6 +203,9 @@ public void OnPluginStart()
 {
 	Handle tcvar;
 	char gamefolder[32];
+
+	LoadTranslations("lilac.phrases.txt");
+
 	GetGameFolderName(gamefolder, sizeof(gamefolder));
 
 	if (StrEqual(gamefolder, "tf", false)) {
@@ -351,7 +354,7 @@ public void OnPluginStart()
 public void OnAllPluginsLoaded()
 {
 	// Sourcebans compat...
-	sourcebans_exist = LibraryExists("sourcebans");
+	sourcebans_exist = LibraryExists("sourcebans++");
 
 	// Startup message.
 	PrintToServer("[Little Anti-Cheat %s] Successfully loaded!", VERSION);
@@ -395,13 +398,13 @@ public APLRes AskPluginLoad2(Handle hMyself, bool bLate, char[] sError, int err_
 
 public void OnLibraryAdded(const char []name)
 {
-	if (StrEqual(name, "sourcebans"))
+	if (StrEqual(name, "sourcebans++"))
 		sourcebans_exist = true;
 }
 
 public void OnLibraryRemoved(const char []name)
 {
-	if (StrEqual(name, "sourcebans"))
+	if (StrEqual(name, "sourcebans++"))
 		sourcebans_exist = false;
 }
 
@@ -622,7 +625,7 @@ public Action timer_welcome(Handle timer, int userid)
 	int client = GetClientOfUserId(userid);
 
 	if (is_player_valid(client) && icvar[CVAR_WELCOME] && icvar[CVAR_ENABLE])
-		PrintToChat(client, "[Lilac] This server is protected by Little Anti-Cheat %s", VERSION);
+		PrintToChat(client, "[Lilac] %T", "welcome_msg", client, VERSION);
 }
 
 public Action timer_query(Handle timer)
@@ -668,7 +671,7 @@ public Action timer_query(Handle timer)
 					lilac_log_extra(i);
 			}
 
-			KickClient(i, "[Lilac] Error: Query response failure, please restart your game if this issue persists");
+			KickClient(i, "[Lilac] %T", "kick_query_failure", i);
 		}
 	}
 
@@ -757,7 +760,7 @@ public Action timer_check_nolerp(Handle timer)
 					lilac_log_extra(i);
 			}
 
-			KickClient(i, "[Lilac] Exploit detected: Your interp is too high (%.0fms / %dms max).\nPlease set your cl_interp back to %.3f or lower",
+			KickClient(i, "[Lilac] %T", "kick_interp_exploit", i,
 				lerp * 1000.0, icvar[CVAR_MAX_LERP], float(icvar[CVAR_MAX_LERP]) / 999.9);
 
 			continue;
@@ -842,7 +845,7 @@ public Action timer_check_ping(Handle timer)
 		}
 
 		Format(reason, sizeof(reason),
-			"[Lilac] Your ping is too high (%.0f / %d max)",
+			"[Lilac] %T", "tban_ping_high", i,
 			ping, icvar[CVAR_MAX_PING]);
 
 		// Ban the client for three minutes to avoid instant reconnects.
@@ -1698,20 +1701,20 @@ void lilac_ban_client(int client, int cheat)
 
 	switch (cheat) {
 	case CHEAT_ANGLES: { Format(reason, sizeof(reason),
-		"[Little Anti-Cheat %s] Angle-Cheats Detected", VERSION); }
+		"[Little Anti-Cheat %s] %T", VERSION, "ban_angle", client); }
 	case CHEAT_CHATCLEAR: { Format(reason, sizeof(reason),
-		"[Little Anti-Cheat %s] Chat-Clear Detected", VERSION); }
+		"[Little Anti-Cheat %s] %T", VERSION, "ban_chat_clear", client); }
 	case CHEAT_CONVAR: { Format(reason, sizeof(reason),
-		"[Little Anti-Cheat %s] Invalid ConVar Detected", VERSION); }
+		"[Little Anti-Cheat %s] %T", VERSION, "ban_convar", client); }
 	// It saying "convar violation" for nolerp is intentional.
 	case CHEAT_NOLERP: { Format(reason, sizeof(reason),
-		"[Little Anti-Cheat %s] Invalid ConVar Detected", VERSION); }
+		"[Little Anti-Cheat %s] %T", VERSION, "ban_convar", client); }
 	case CHEAT_BHOP: { Format(reason, sizeof(reason),
-		"[Little Anti-Cheat %s] Bhop Detected", VERSION); }
+		"[Little Anti-Cheat %s] %T", VERSION, "ban_bhop", client); }
 	case CHEAT_AIMBOT: { Format(reason, sizeof(reason),
-		"[Little Anti-Cheat %s] Aimbot Detected", VERSION); }
+		"[Little Anti-Cheat %s] %T", VERSION, "ban_aimbot", client); }
 	case CHEAT_AIMLOCK: { Format(reason, sizeof(reason),
-		"[Little Anti-Cheat %s] Aimlock Detected", VERSION); }
+		"[Little Anti-Cheat %s] %T", VERSION, "ban_aimlock", client); }
 	default: return;
 	}
 
@@ -1731,7 +1734,7 @@ public Action timer_kick(Handle timer, int userid)
 	int client = GetClientOfUserId(userid);
 
 	if (is_player_valid(client))
-		KickClient(client, "You have been banned from this server");
+		KickClient(client, "%T", "kick_ban_genetic", client);
 }
 
 void aim_at_point(const float p1[3], const float p2[3], float writeto[3])
