@@ -604,7 +604,7 @@ void event_death_shared(int userid, int client, int victim, bool skip_delta)
 
 	// Killer and victim are too close to each other,
 	// Skip some detections.
-	if (GetVectorDistance(killpos, deathpos) < 200.0 || skip_delta)
+	if (GetVectorDistance(killpos, deathpos) < 350.0 || skip_delta)
 		skip_snap = 1;
 
 	CreateDataTimer(0.5, timer_check_aimbot, pack);
@@ -1039,6 +1039,11 @@ public Action timer_check_aimbot(Handle timer, DataPack pack)
 		// Don't detect the same shot twice.
 		player[client].actions[shotindex] = 0;
 	}
+
+	// Forgot to add this in the past, oops...
+	// 	Skip repeat detections if players are too close to each other.
+	if (skip_snap)
+		skip_repeat = true;
 
 	// Player taunted within 0.5 seconds of taking a shot leading to a kill.
 	// Ignore snap detections.
