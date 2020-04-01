@@ -1,0 +1,60 @@
+"Phrases"
+{
+	"welcome_msg"
+	{
+		"#format"	"{1:s}"
+		"no"		"Denne serveren er beskyttet av Little Anti-Cheat {1}"
+	}
+
+	"kick_query_failure"
+	{
+		"no"	"Error: Spillet svarte ikke på forespørsler i tide. Start spillet på nytt om problemet fortsetter"
+	}
+
+	"kick_interp_exploit"
+	{
+		"#format"	"{1:.0f},{2:d},{3:.3f}"
+		"no"		"Exploit oppdaget: Interpen din er for høy ({1}ms / {2}ms maks). Sett ned din cl_interp til {3} eller lavere"
+	}
+
+	"tban_ping_high"
+	{
+		"#format"	"{1:.0f},{2:d}"
+		"no"		"Din ping er for høy ({1} / {2} maks)"
+	}
+
+	"kick_ban_genetic"
+	{
+		"no"	"Du har blitt utestengt fra denne serveren på grunn av juksing"
+	}
+
+	"ban_angle"
+	{
+		"no"	"Ugyldig synsrettning oppdaget"
+	}
+
+	"ban_chat_clear"
+	{
+		"no"	"Fjerning av chat oppdaget"
+	}
+
+	"ban_convar"
+	{
+		"no"	"Ugyldig console verdi oppdaget"
+	}
+
+	"ban_bhop"
+	{
+		"no"	"Bhop oppdaget"
+	}
+
+	"ban_aimbot"
+	{
+		"no"	"Aimbot oppdaget"
+	}
+
+	"ban_aimlock"
+	{
+		"no"	"Aimlock oppdaget"
+	}
+}
