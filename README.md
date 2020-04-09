@@ -40,7 +40,8 @@ This Anti-Cheat is by no means perfect, and it is bypassable to some extent, but
  - Norwegian (By me, the translations could be better).
  - French (By Rasi / GreenGuyRasi).
  - English (By me lol duh hue hue hue).
- - Russian (By an awesome person c:).\
+ - Russian (By an awesome person c:).
+ - Czech (By an awesome person <3).\
 \
 I do hope to add more languages in the future.\
 But at least you can add or improve on the translations already provided.\
