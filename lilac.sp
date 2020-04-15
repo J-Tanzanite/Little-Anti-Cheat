@@ -24,7 +24,7 @@
 #include <tf2>
 #include <tf2_stocks>
 
-#define VERSION "1.0.0"
+#define VERSION "1.1.0"
 
 #define CMD_LENGTH 	330
 
@@ -94,6 +94,7 @@ char dateformat[512] = "%Y/%m/%d %H:%M:%S";
 float max_angles[3] = {89.01, 0.0, 50.01};
 Handle forwardhandle = INVALID_HANDLE;
 Handle forwardhandleban = INVALID_HANDLE;
+Handle forwardhandleallow = INVALID_HANDLE;
 bool sourcebans_exist = false;
 
 // Logging.
@@ -341,6 +342,8 @@ public void OnPluginStart()
 		ET_Ignore, Param_Cell, Param_Cell);
 	forwardhandleban = CreateGlobalForward("lilac_cheater_banned",
 		ET_Ignore, Param_Cell, Param_Cell);
+	forwardhandleallow = CreateGlobalForward("lilac_allow_cheat_detection",
+		ET_Event, Param_Cell, Param_Cell);
 
 	CreateTimer(QUERY_TIMER, timer_query, _, TIMER_REPEAT);
 	CreateTimer(5.0, timer_check_ping, _, TIMER_REPEAT);
@@ -715,6 +718,9 @@ public void query_reply(QueryCookie cookie, int client,
 		|| (StrEqual("mat_fullbright", cvarName, false) && val)
 		|| (StrEqual("r_modelwireframedecal", cvarName, false) && val)) {
 
+		if (lilac_forward_allow_cheat_detection(client, CHEAT_CONVAR) == false)
+			return;
+
 		lilac_forward_client_cheat(client, CHEAT_CONVAR);
 
 		if (icvar[CVAR_LOG]) {
@@ -778,6 +784,9 @@ public Action timer_check_nolerp(Handle timer)
 			continue;
 
 		if (lerp > min * 0.95 /* buffer */)
+			continue;
+
+		if (lilac_forward_allow_cheat_detection(i, CHEAT_NOLERP) == false)
 			continue;
 
 		player[i].banned_flags[CHEAT_NOLERP] = true;
@@ -875,13 +884,18 @@ public Action timer_check_aimlock(Handle timer)
 	// 	If enemies are grouped together, it could
 	// 	cause several detections based on one snap.
 	// 	That's why only one snap is counter every 0.5 seconds.
-	bool process;
+	bool skip_report[MAXPLAYERS + 1]; // Skip reporting this player.
+	bool report[MAXPLAYERS + 1]; // report this player.
+	bool process; // Keep processing the player.
 	int players_processed = 0;
 
 	if (!icvar[CVAR_ENABLE] || !icvar[CVAR_AIMLOCK])
 		return Plugin_Continue;
 
 	for (int i = 1; i <= MaxClients; i++) {
+		skip_report[i] = true;
+		report[i] = false;
+
 		// Don't process more than 5 players!
 		if (players_processed > 5 && icvar[CVAR_AIMLOCK_LIGHT] == 1)
 			return Plugin_Continue;
@@ -909,6 +923,8 @@ public Action timer_check_aimlock(Handle timer)
 		if (icvar[CVAR_AIMLOCK_LIGHT] == 1 && lilac_is_player_in_aimlock_que(i) == false)
 			continue;
 
+		skip_report[i] = false;
+
 		players_processed++;
 		process = true;
 		GetClientEyePosition(i, pos);
@@ -927,9 +943,13 @@ public Action timer_check_aimlock(Handle timer)
 
 			GetClientEyePosition(k, pos2);
 
-			// Players are too close.
-			if (GetVectorDistance(pos, pos2) < 300.0)
+			// Players are too close, never report aimlock.
+			if (GetVectorDistance(pos, pos2) < 300.0) {
+				skip_report[i] = true;
 				continue;
+			}
+
+			// todo, teleport tes.t
 
 			aim_at_point(pos, pos2, ideal);
 
@@ -952,11 +972,11 @@ public Action timer_check_aimlock(Handle timer)
 							lock = 0;
 
 						if (aimdist < laimdist * 0.1
-							&& angle_delta(ang, lang) > 10.0
-							&& lock > time_to_ticks(0.1)) {
+							&& angle_delta(ang, lang) > 20.0
+							&& lock > time_to_ticks(0.2)) {
 
 							process = false;
-							lilac_detected_aimlock(i);
+							report[i] = true;
 						}
 					}
 
@@ -967,6 +987,13 @@ public Action timer_check_aimlock(Handle timer)
 				ind--;
 			}
 		}
+	}
+
+	for (int i = 1; i <= MaxClients; i++) {
+		if (skip_report[i] || !report[i])
+			continue;
+
+		lilac_detected_aimlock(i);
 	}
 
 	return Plugin_Continue;
@@ -1278,8 +1305,8 @@ bool lilac_client_tickcount_incremented(int client, int tickcount)
 
 void lilac_set_client_in_backtrack_timeout(int client)
 {
-	// Set the player in backtrack timeout for 5 seconds.
-	player[client].time_backtrack = GetGameTime() + 5.0;
+	// Set the player in backtrack timeout for 1 second.
+	player[client].time_backtrack = GetGameTime() + 1.0;
 }
 
 bool lilac_is_player_in_backtrack_timeout(int client)
@@ -1328,6 +1355,9 @@ void lilac_detected_aimlock(int client)
 		return;
 
 	player[client].aimlock_sus = 0;
+
+	if (lilac_forward_allow_cheat_detection(client, CHEAT_AIMLOCK) == false)
+		return;
 
 	// Detection expires in 10 minutes.
 	CreateTimer(600.0, timer_decrement_aimlock, GetClientUserId(client));
@@ -1392,6 +1422,9 @@ void lilac_detected_bhop(int client)
 	}
 	}
 
+	if (lilac_forward_allow_cheat_detection(client, CHEAT_BHOP) == false)
+		return;
+
 	player[client].banned_flags[CHEAT_BHOP] = true;
 
 	lilac_forward_client_cheat(client, CHEAT_BHOP);
@@ -1414,6 +1447,10 @@ void lilac_detected_bhop(int client)
 void lilac_detected_antiaim(int client)
 {
 	if (player[client].banned_flags[CHEAT_ANGLES])
+		return;
+
+	// Todo, set timeout to prevent constant spamming?
+	if (lilac_forward_allow_cheat_detection(client, CHEAT_ANGLES) == false)
 		return;
 
 	player[client].banned_flags[CHEAT_ANGLES] = true;
@@ -1441,6 +1478,9 @@ void lilac_detected_antiaim(int client)
 void lilac_detected_aimbot(int client, float delta, float td, int flags)
 {
 	if (player[client].banned_flags[CHEAT_AIMBOT])
+		return;
+
+	if (lilac_forward_allow_cheat_detection(client, CHEAT_AIMBOT) == false)
 		return;
 
 	// Detection expires in 10 minutes.
@@ -1513,6 +1553,9 @@ public void OnClientSayCommand_Post(int client, const char[] command,
 		return;
 
 	if (does_string_contain_newline(sArgs)) {
+		if (lilac_forward_allow_cheat_detection(client, CHEAT_CHATCLEAR) == false)
+			return;
+
 		player[client].banned_flags[CHEAT_CHATCLEAR] = true;
 		lilac_forward_client_cheat(client, CHEAT_CHATCLEAR);
 
@@ -1869,6 +1912,23 @@ void lilac_forward_client_ban(int client, int cheat)
 	Call_Finish(dummy);
 }
 
+bool lilac_forward_allow_cheat_detection(int client, int cheat)
+{
+	Action result = Plugin_Continue;
+
+	if (forwardhandleallow == null)
+		return true;
+
+	Call_StartForward(forwardhandleallow);
+	Call_PushCell(client);
+	Call_PushCell(cheat);
+	Call_Finish(result);
+
+	if (result == Plugin_Continue)
+		return true;
+
+	return false;
+}
 
 
 
