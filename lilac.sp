@@ -897,7 +897,7 @@ public Action timer_check_aimlock(Handle timer)
 		report[i] = false;
 
 		// Don't process more than 5 players!
-		if (players_processed > 5 && icvar[CVAR_AIMLOCK_LIGHT] == 1)
+		if (players_processed >= 5 && icvar[CVAR_AIMLOCK_LIGHT] == 1)
 			return Plugin_Continue;
 
 		if (!is_player_valid(i) || IsFakeClient(i))
@@ -949,7 +949,9 @@ public Action timer_check_aimlock(Handle timer)
 				continue;
 			}
 
-			// todo, teleport tes.t
+			// Player target teleported, skip testing.
+			if (GetGameTime() - player[k].time_teleported < 2.0)
+				continue;
 
 			aim_at_point(pos, pos2, ideal);
 
