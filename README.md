@@ -35,6 +35,7 @@ This Anti-Cheat is by no means perfect, and it is bypassable to some extent, but
  - foon, for fixing sourcebans++ not working (https://forums.alliedmods.net/showthread.php?p=2689297#post2689297).
  - Rasi, for French translations.
  - Bottiger, for fixing this plugin not working in CS:GO and general criticisms.
+ - MAGNAT2645 for suggesting a cleaner method of handling convar changes.
 
 ### Current languages supported:
  - Norwegian (By me, the translations could be better).
