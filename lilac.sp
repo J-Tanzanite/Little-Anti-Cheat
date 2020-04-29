@@ -24,7 +24,7 @@
 #include <tf2>
 #include <tf2_stocks>
 
-#define VERSION "1.2.0"
+#define VERSION "1.3.0"
 
 #define CMD_LENGTH 	330
 
@@ -235,7 +235,8 @@ public void OnPluginStart()
 
 		HookEvent("player_teleported",
 			event_teleported, EventHookMode_Post);
-	} else if (StrEqual(gamefolder, "csgo", false)) {
+	}
+	else if (StrEqual(gamefolder, "csgo", false)) {
 		ggame = GAME_CSGO;
 
 		// Pitch Anti-Aim doesn't work for CSGO anymore,
@@ -252,7 +253,15 @@ public void OnPluginStart()
 
 			PrintToServer("[Lilac] Unable to to find convar \"sv_autobunnyhopping\", bhop checks have been forcefully disabled.");
 		}
-	} else {
+	}
+	else if (StrEqual(gamefolder, "left4dead2", false)) {
+		// Pitch AA isn't really used much in L4D2 afaik, plus,
+		// 	like larrybrains reported, causes false positives for
+		// 	the infected team memeber smoker.
+		// Thanks to Larrybrains for reporting this!
+		max_angles = Float:{0.0, 0.0, 50.01};
+	}
+	else {
 		ggame = GAME_UNKNOWN;
 		PrintToServer("[Lilac] This game currently isn't supported, Little Anti-Cheat will still run, but expect some bugs and false positives/bans!");
 	}
@@ -324,8 +333,8 @@ public void OnPluginStart()
 		"Ban players with too high of a ping for 3 minutes.\nThis is meant to deal with fakelatency, the ban length is just to prevent instant reconnects.\n0 = no ling limit, minimum possible is 100.",
 		FCVAR_PROTECTED, true, 0.0, true, 1000.0);
 	cvar[CVAR_MAX_LERP] = CreateConVar("lilac_max_lerp", "105",
-		"Kick players with an interp higher than this in ms (minimum possible is 105ms, default value in Source games is 100ms).\nThis is done to patch an exploit in the game that makes facestabbing players in TF2 easier (aka cl_interp 0.5).",
-		FCVAR_PROTECTED, true, 105.0, true, 510.0); // 500 is max possible.
+		"Kick players with an interp higher than this in ms (minimum possible is 105ms, default value in Source games is 100ms).\nThis is done to patch an exploit in the game that makes facestabbing players in TF2 easier (aka cl_interp 0.5).\n0 = Disabled.\n105+ = Kick larger than this.",
+		FCVAR_PROTECTED, true, 0.0, true, 510.0); // 500 is max possible.
 	cvar[CVAR_LOSS_FIX] = CreateConVar("lilac_loss_fix", "1",
 		"Ignore some cheat detections for players who have too much packet loss (bad connection to the server).",
 		FCVAR_PROTECTED, true, 0.0, true, 1.0);
@@ -652,6 +661,7 @@ void event_death_shared(int userid, int client, int victim, bool skip_delta)
 		return;
 
 	if (!is_player_valid(client)
+		|| !is_player_valid(victim)
 		|| IsFakeClient(client)
 		|| playerinfo_banned_flags[client][CHEAT_AIMBOT]
 		|| GetClientTime(client) < 10.1)
@@ -814,7 +824,7 @@ public Action timer_check_nolerp(Handle timer)
 
 		float lerp = GetEntPropFloat(i, Prop_Data, "m_fLerpTime");
 
-		if (lerp * 1000.0 > float(icvar[CVAR_MAX_LERP])) {
+		if (lerp * 1000.0 > float(icvar[CVAR_MAX_LERP]) && icvar[CVAR_MAX_LERP] >= 105) {
 			if (icvar[CVAR_LOG_MISC]) {
 				lilac_log_setup_client(i);
 				Format(line, sizeof(line),
@@ -1304,10 +1314,12 @@ public Action OnPlayerRunCmd(int client, int& buttons, int& impulse,
 	// Patch out of bounds angles.
 	if (icvar[CVAR_PATCH_ANGLES]) {
 		// Patch Pitch.
-		if (angles[0] > max_angles[0])
-			angles[0] = max_angles[0];
-		else if (angles[0] < (max_angles[0] * -1.0))
-			angles[0] = (max_angles[0] * -1.0);
+		if (max_angles[0] != 0.0) {
+			if (angles[0] > max_angles[0])
+				angles[0] = max_angles[0];
+			else if (angles[0] < (max_angles[0] * -1.0))
+				angles[0] = (max_angles[0] * -1.0);
+		}
 
 		// Patching yaw AA will interfere with aimbot/aimlock tests.
 
@@ -1765,7 +1777,7 @@ void lilac_log_extra(int client)
 
 void lilac_log(bool cleanup)
 {
-	Handle file = OpenFile("lilac.log", "a");
+	Handle file = OpenFile("addons/sourcemod/logs/lilac.log", "a");
 
 	if (file == null) {
 		PrintToServer("[Lilac] Cannot open log file.");
@@ -1793,7 +1805,7 @@ void lilac_log_first_time_setup()
 	// Some admins may not understand how to interpret cheat logs
 	// correctly, thus, we should warn them so they don't panic
 	// over trivial stuff.
-	if (!FileExists("lilac.log", false, NULL_STRING)) {
+	if (!FileExists("addons/sourcemod/logs/lilac.log", false, NULL_STRING)) {
 		Format(line, sizeof(line),
 "=========[Notice]=========\n\
 Thank you for installing Little Anti-Cheat %s!\n\
