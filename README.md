@@ -59,8 +59,5 @@ But at least you can add or improve on the translations already provided.\
 My friends who did some of the translations were told by me that the translations don't have to be perfect.\
 Just understandable to those who don't speak English too well.
 
-### Requirements:
- - Sourcemod 1.10 or higher.
-
 ### Optional:
  - Sourcebans++
