@@ -20,15 +20,24 @@ This Anti-Cheat is by no means perfect, and it is bypassable to some extent, but
  - Backtrack Patch (Patches backtrack cheats (Disabled by default)).
 
 ### Supported Games:
- - [TF2] Team Fortress 2 (Full support)
- - [CS:GO] Counter-Strike:Global Offensive (Semi-support)
+ - [TF2] Team Fortress 2
+ - [CS:GO] Counter-Strike:Global Offensive
+ - [L4D2] Left 4 Dead 2
+ - [DoD:S] Day of Defeat: Source
 
 ### Untested, but should work in:
  - [CS:S] Counter-Strike:Source
- - [DoD:S] Day of Defeat:Source
  - [HL2:DM] Half-Life 2:DeathMatch
- - [L4D2] Left 4 Dead 2
  - [GMOD] Garry's Mod
+
+## HEADS-UP:
+Version 1.2.0 & 1.3.0 changed where detection logs are stored!\
+Detections are **NO LONGER** stored in {gamefolder}/lilac.log\
+Detections are **NOW STORED** here: {gamefolder}/addons/sourcemod/logs/lilac.log\
+\
+Configuration files have also changed location, but won't break if you are using the old location.\
+If your config file is in cfg/lilac_config.cfg, it will still read that file and work fine.\
+If you are just installing Lilac or wanna use the new config location, it is at **cfg/sourcemod/lilac_config.cfg**
 
 ### Credits / Special Thanks to:
  - J_Tanzanite... Yeah I'm crediting myself for writing this AC...
@@ -36,6 +45,7 @@ This Anti-Cheat is by no means perfect, and it is bypassable to some extent, but
  - Rasi, for French translations.
  - Bottiger, for fixing this plugin not working in CS:GO and general criticisms.
  - MAGNAT2645 for suggesting a cleaner method of handling convar changes.
+ - Larry/LarryBrains for informing me of false Angle-Cheat detections in L4D2.
 
 ### Current languages supported:
  - Norwegian (By me, the translations could be better).
