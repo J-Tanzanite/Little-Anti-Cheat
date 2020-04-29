@@ -360,7 +360,15 @@ public void OnPluginStart()
 	RegServerCmd("lilac_date_list", lilac_date_list,
 		"Lists date formatting options", 0);
 
-	AutoExecConfig(true, "lilac_config", "");
+	// Server is using the old config location, execute it.
+	if (FileExists("cfg/lilac_config.cfg", false, NULL_STRING)) {
+		AutoExecConfig(true, "lilac_config", "");
+	}
+	else {
+		// Server either just installed Lilac, or wants to use
+		// 	the more traditional config folder.
+		AutoExecConfig(true, "lilac_config", "sourcemod");
+	}
 
 	forwardhandle = CreateGlobalForward("lilac_cheater_detected",
 		ET_Ignore, Param_Cell, Param_Cell);
