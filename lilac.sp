@@ -294,8 +294,8 @@ public void OnPluginStart()
 	cvar[CVAR_SB] = CreateConVar("lilac_sourcebans", "1",
 		"Ban players via sourcebans++ (If it isn't installed, it will default to basebans).",
 		FCVAR_PROTECTED, true, 0.0, true, 1.0);
-	cvar[CVAR_MA] = CreateConVar("lilac_materialadmin", "0",
-		"Ban players via Material-Admin (Fork of Sourcebans++, if set to 1, will overwrite sourcebans++).\n Leave off if you don't know what this is.",
+	cvar[CVAR_MA] = CreateConVar("lilac_materialadmin", "1",
+		"Ban players via Material-Admin (Fork of Sourcebans++. If it isn't installed, will default to sourcebans++ or basebans).",
 		FCVAR_PROTECTED, true, 0.0, true, 1.0);
 	cvar[CVAR_LOG] = CreateConVar("lilac_log", "1",
 		"Enable cheat logging.",
