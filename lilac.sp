@@ -20,17 +20,20 @@
 #include <sdktools_engine>
 #undef REQUIRE_PLUGIN
 #undef REQUIRE_EXTENSIONS
-#include <sourcebanspp>
+#tryinclude <materialadmin>
+#tryinclude <sourcebanspp>
 #include <tf2>
 #include <tf2_stocks>
 
-#define VERSION "1.3.0"
+#define VERSION "1.4.0"
 
 #define CMD_LENGTH 	330
 
 #define GAME_UNKNOWN 	0
 #define GAME_TF2 	1
 #define GAME_CSGO 	2
+#define GAME_DODS 	3
+#define GAME_L4D2 	4
 
 #define CHEAT_ANGLES 		0
 #define CHEAT_CHATCLEAR 	1
@@ -44,25 +47,26 @@
 #define CVAR_ENABLE 		0
 #define CVAR_WELCOME 		1
 #define CVAR_SB			2
-#define CVAR_LOG 		3
-#define CVAR_LOG_EXTRA 		4
-#define CVAR_LOG_MISC 		5
-#define CVAR_LOG_DATE 		6
-#define CVAR_BAN 		7
-#define CVAR_ANGLES 		8
-#define CVAR_PATCH_ANGLES 	9
-#define CVAR_CHAT 		10
-#define CVAR_CONVAR 		11
-#define CVAR_NOLERP 		12
-#define CVAR_BHOP 		13
-#define CVAR_AIMBOT 		14
-#define CVAR_AIMLOCK 		15
-#define CVAR_AIMLOCK_LIGHT 	16
-#define CVAR_BACKTRACK_PATCH 	17
-#define CVAR_MAX_PING		18
-#define CVAR_MAX_LERP 		19
-#define CVAR_LOSS_FIX 		20
-#define CVAR_MAX 		21
+#define CVAR_MA 		3
+#define CVAR_LOG 		4
+#define CVAR_LOG_EXTRA 		5
+#define CVAR_LOG_MISC 		6
+#define CVAR_LOG_DATE 		7
+#define CVAR_BAN 		8
+#define CVAR_ANGLES 		9
+#define CVAR_PATCH_ANGLES 	10
+#define CVAR_CHAT 		11
+#define CVAR_CONVAR 		12
+#define CVAR_NOLERP 		13
+#define CVAR_BHOP 		14
+#define CVAR_AIMBOT 		15
+#define CVAR_AIMLOCK 		16
+#define CVAR_AIMLOCK_LIGHT 	17
+#define CVAR_BACKTRACK_PATCH 	18
+#define CVAR_MAX_PING		19
+#define CVAR_MAX_LERP 		20
+#define CVAR_LOSS_FIX 		21
+#define CVAR_MAX 		22
 
 #define ACTION_SHOT 	1
 
@@ -97,6 +101,7 @@ Handle forwardhandle = INVALID_HANDLE;
 Handle forwardhandleban = INVALID_HANDLE;
 Handle forwardhandleallow = INVALID_HANDLE;
 bool sourcebans_exist = false;
+bool materialadmin_exist = false;
 
 // Logging.
 int playerinfo_index[MAXPLAYERS + 1];
@@ -255,11 +260,16 @@ public void OnPluginStart()
 		}
 	}
 	else if (StrEqual(gamefolder, "left4dead2", false)) {
+		ggame = GAME_L4D2;
+
 		// Pitch AA isn't really used much in L4D2 afaik, plus,
 		// 	like larrybrains reported, causes false positives for
 		// 	the infected team memeber smoker.
 		// Thanks to Larrybrains for reporting this!
 		max_angles = Float:{0.0, 0.0, 50.01};
+	}
+	else if (StrEqual(gamefolder, "dod", false)) {
+		ggame = GAME_DODS;
 	}
 	else {
 		ggame = GAME_UNKNOWN;
@@ -283,6 +293,9 @@ public void OnPluginStart()
 		FCVAR_PROTECTED, true, 0.0, true, 1.0);
 	cvar[CVAR_SB] = CreateConVar("lilac_sourcebans", "1",
 		"Ban players via sourcebans++ (If it isn't installed, it will default to basebans).",
+		FCVAR_PROTECTED, true, 0.0, true, 1.0);
+	cvar[CVAR_MA] = CreateConVar("lilac_materialadmin", "0",
+		"Ban players via Material-Admin (Fork of Sourcebans++, if set to 1, will overwrite sourcebans++).\n Leave off if you don't know what this is.",
 		FCVAR_PROTECTED, true, 0.0, true, 1.0);
 	cvar[CVAR_LOG] = CreateConVar("lilac_log", "1",
 		"Enable cheat logging.",
@@ -399,6 +412,7 @@ public void OnAllPluginsLoaded()
 {
 	// Sourcebans compat...
 	sourcebans_exist = LibraryExists("sourcebans++");
+	materialadmin_exist = LibraryExists("materialadmin");
 
 	// Startup message.
 	PrintToServer("[Little Anti-Cheat %s] Successfully loaded!", VERSION);
@@ -436,6 +450,7 @@ public APLRes AskPluginLoad2(Handle hMyself, bool bLate, char[] sError, int err_
 {
 	// Been told this isn't needed, but just in case.
 	MarkNativeAsOptional("SBPP_BanPlayer");
+	MarkNativeAsOptional("MABanPlayer");
 
 	return APLRes_Success;
 }
@@ -444,12 +459,16 @@ public void OnLibraryAdded(const char []name)
 {
 	if (StrEqual(name, "sourcebans++"))
 		sourcebans_exist = true;
+	else if (StrEqual(name, "materialadmin"))
+		materialadmin_exist = true;
 }
 
 public void OnLibraryRemoved(const char []name)
 {
 	if (StrEqual(name, "sourcebans++"))
 		sourcebans_exist = false;
+	else if (StrEqual(name, "materialadmin"))
+		materialadmin_exist = false;
 }
 
 public void cvar_change(ConVar convar, const char[] oldValue,
@@ -467,6 +486,9 @@ public void cvar_change(ConVar convar, const char[] oldValue,
 	}
 	else if (view_as<Handle>(convar) == cvar[CVAR_SB]) {
 		icvar[CVAR_SB] = StringToInt(newValue, 10);
+	}
+	else if (view_as<Handle>(convar) == cvar[CVAR_MA]) {
+		icvar[CVAR_MA] = StringToInt(newValue, 10);
 	}
 	else if (view_as<Handle>(convar) == cvar[CVAR_LOG]) {
 		icvar[CVAR_LOG] = StringToInt(newValue, 10);
@@ -1269,7 +1291,6 @@ public Action OnPlayerRunCmd(int client, int& buttons, int& impulse,
 	playerinfo_buttons[client][playerinfo_index[client]] = buttons;
 	playerinfo_actions[client][playerinfo_index[client]] = 0;
 	if ((buttons & IN_ATTACK) && bullettime_can_shoot(client))
-		//player[client].actions[player[client].index] |= ACTION_SHOT;
 		playerinfo_actions[client][playerinfo_index[client]] |= ACTION_SHOT;
 
 	// We need to store information even if the plugin is disabled,
@@ -1848,10 +1869,25 @@ void lilac_ban_client(int client, int cheat)
 
 	lilac_forward_client_ban(client, cheat);
 
-	if (sourcebans_exist && icvar[CVAR_SB])
+#if defined _materialadmin_included
+	if (materialadmin_exist && icvar[CVAR_MA]) {
+		MABanPlayer(0, client, MA_BAN_STEAM, 0, reason);
+		CreateTimer(5.0, timer_kick, GetClientUserId(client));
+		return;
+	}
+#endif
+
+
+#if defined _sourcebanspp_included
+	if (sourcebans_exist && icvar[CVAR_SB]) {
 		SBPP_BanPlayer(0, client, 0, reason);
-	else
-		BanClient(client, 0, BANFLAG_AUTO, reason, reason, "lilac", 0);
+		CreateTimer(5.0, timer_kick, GetClientUserId(client));
+		return;
+	}
+#endif
+
+	// "Else"
+	BanClient(client, 0, BANFLAG_AUTO, reason, reason, "lilac", 0);
 
 	// Kick the client in case they are still on the server.
 	CreateTimer(5.0, timer_kick, GetClientUserId(client));
