@@ -61,3 +61,4 @@ Just understandable to those who don't speak English too well.
 
 ### Optional:
  - Sourcebans++
+ - MaterialAdmin
