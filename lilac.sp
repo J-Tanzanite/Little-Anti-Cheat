@@ -53,20 +53,21 @@
 #define CVAR_LOG_MISC 		6
 #define CVAR_LOG_DATE 		7
 #define CVAR_BAN 		8
-#define CVAR_ANGLES 		9
-#define CVAR_PATCH_ANGLES 	10
-#define CVAR_CHAT 		11
-#define CVAR_CONVAR 		12
-#define CVAR_NOLERP 		13
-#define CVAR_BHOP 		14
-#define CVAR_AIMBOT 		15
-#define CVAR_AIMLOCK 		16
-#define CVAR_AIMLOCK_LIGHT 	17
-#define CVAR_BACKTRACK_PATCH 	18
-#define CVAR_MAX_PING		19
-#define CVAR_MAX_LERP 		20
-#define CVAR_LOSS_FIX 		21
-#define CVAR_MAX 		22
+#define CVAR_BAN_LENGTH 	9
+#define CVAR_ANGLES 		10
+#define CVAR_PATCH_ANGLES 	11
+#define CVAR_CHAT 		12
+#define CVAR_CONVAR 		13
+#define CVAR_NOLERP 		14
+#define CVAR_BHOP 		15
+#define CVAR_AIMBOT 		16
+#define CVAR_AIMLOCK 		17
+#define CVAR_AIMLOCK_LIGHT 	18
+#define CVAR_BACKTRACK_PATCH 	19
+#define CVAR_MAX_PING		20
+#define CVAR_MAX_LERP 		21
+#define CVAR_LOSS_FIX 		22
+#define CVAR_MAX 		23
 
 #define ACTION_SHOT 	1
 
@@ -312,6 +313,9 @@ public void OnPluginStart()
 	cvar[CVAR_BAN] = CreateConVar("lilac_ban", "1",
 		"Enable banning of cheaters, set to 0 if you want to test Lilac before fully trusting it with bans.",
 		FCVAR_PROTECTED, true, 0.0, true, 1.0);
+	cvar[CVAR_BAN_LENGTH] = CreateConVar("lilac_ban_length", "0",
+		"How long bans should last in minutes (0 = forever).",
+		FCVAR_PROTECTED, true, 0.0, false, 0.0);
 	cvar[CVAR_ANGLES] = CreateConVar("lilac_angles", "1",
 		"Detect Angle-Cheats (Basic Anti-Aim, Legit Anti-Backstab and Duckspeed).",
 		FCVAR_PROTECTED, true, 0.0, true, 1.0);
@@ -510,6 +514,9 @@ public void cvar_change(ConVar convar, const char[] oldValue,
 
 		if (!icvar[CVAR_BAN])
 			PrintToServer("[Little Anti-Cheat %s] WARNING: 'lilac_ban' has been set to 0, banning of cheaters has been disabled.", VERSION);
+	}
+	else if (view_as<Handle>(convar) == cvar[CVAR_BAN_LENGTH]) {
+		icvar[CVAR_BAN_LENGTH] = StringToInt(newValue, 10);
 	}
 	else if (view_as<Handle>(convar) == cvar[CVAR_ANGLES]) {
 		icvar[CVAR_ANGLES] = StringToInt(newValue, 10);
@@ -748,13 +755,13 @@ public Action timer_query(Handle timer)
 		// Only increments query index if the player
 		// 	has responded to the last one.
 		if (!playerinfo_query_failed[i]) {
-			if (++(playerinfo_query_index[i]) >= 12)
+			if (++playerinfo_query_index[i] >= 12)
 				playerinfo_query_index[i] = 0;
 		}
 
 		QueryClientConVar(i, query_list[playerinfo_query_index[i]], query_reply, 0);
 
-		if (++(playerinfo_query_failed[i]) > QUERY_MAX_FAILURES) {
+		if (++playerinfo_query_failed[i] > QUERY_MAX_FAILURES) {
 			if (icvar[CVAR_LOG_MISC]) {
 				lilac_log_setup_client(i);
 				Format(line, sizeof(line),
@@ -931,7 +938,7 @@ public Action timer_check_ping(Handle timer)
 		}
 
 		// Player has a higher ping than maximum for 45 seconds.
-		if (++(playerinfo_high_ping[i]) < 9)
+		if (++playerinfo_high_ping[i] < 9)
 			continue;
 
 		if (icvar[CVAR_LOG_MISC]) {
@@ -959,24 +966,12 @@ public Action timer_check_ping(Handle timer)
 	return Plugin_Continue;
 }
 
-// This still isn't a pretty function.
-// Basically, it goes through every player
-// 	and compares how player1 (i) looks at player2 (k)
-// 	And if the aim snaps 10 degrees and stays on player2 (k)
-// 	Then that counts as a single aimlock suspicion.
-// If lilac_aimlock_light (lightmode) is on, then only 5 players
-// 	are processed at a time.
 public Action timer_check_aimlock(Handle timer)
 {
 	float ang[3], lang[3], ideal[3], pos[3], pos2[3];
 	float aimdist, laimdist;
 	int lock;
 
-	// When player1 (i) gets detected for an aimlock.
-	// 	Stop looking for more snaps for player1 (i).
-	// 	If enemies are grouped together, it could
-	// 	cause several detections based on one snap.
-	// 	That's why only one snap is counter every 0.5 seconds.
 	bool skip_report[MAXPLAYERS + 1]; // Skip reporting this player.
 	bool report[MAXPLAYERS + 1]; // report this player.
 	bool process; // Keep processing the player.
@@ -1177,7 +1172,6 @@ public Action timer_check_aimbot(Handle timer, DataPack pack)
 		aim_at_point(killpos, deathpos, ideal);
 
 		ind = shotindex;
-		// Not needed: ang[2] = 0.0;
 		for (int i = 0; i < time_to_ticks(0.5); i++) {
 			if (ind < 0)
 				ind += CMD_LENGTH;
@@ -1256,7 +1250,7 @@ public Action timer_check_aimbot(Handle timer, DataPack pack)
 		// Players must get two of them in a row leading to a kill
 		// 	or something else must have been detected to get this flag.
 		if (tmp == 1) {
-			if (detected || ++(playerinfo_autoshoot[client]) > 1)
+			if (detected || ++playerinfo_autoshoot[client] > 1)
 				detected |= AIMBOT_FLAG_AUTOSHOOT;
 		} else {
 			playerinfo_autoshoot[client] = 0;
@@ -1278,7 +1272,7 @@ public Action OnPlayerRunCmd(int client, int& buttons, int& impulse,
 		return Plugin_Continue;
 
 	// Increment the index.
-	if (++(playerinfo_index[client]) >= CMD_LENGTH)
+	if (++playerinfo_index[client] >= CMD_LENGTH)
 		playerinfo_index[client] = 0;
 
 	// Store when the tick was processed.
@@ -1462,7 +1456,7 @@ void lilac_detected_aimlock(int client)
 	lilac_forward_client_cheat(client, CHEAT_AIMLOCK);
 
 	// Don't log the first detection.
-	if (++(playerinfo_aimlock[client]) < 2)
+	if (++playerinfo_aimlock[client] < 2)
 		return;
 
 	if (icvar[CVAR_LOG]) {
@@ -1586,7 +1580,7 @@ void lilac_detected_aimbot(int client, float delta, float td, int flags)
 	lilac_forward_client_cheat(client, CHEAT_AIMBOT);
 
 	// Don't log the first detection.
-	if (++(playerinfo_aimbot[client]) < 2)
+	if (++playerinfo_aimbot[client] < 2)
 		return;
 
 	if (icvar[CVAR_LOG]) {
@@ -1871,7 +1865,7 @@ void lilac_ban_client(int client, int cheat)
 
 #if defined _materialadmin_included
 	if (materialadmin_exist && icvar[CVAR_MA]) {
-		MABanPlayer(0, client, MA_BAN_STEAM, 0, reason);
+		MABanPlayer(0, client, MA_BAN_STEAM, icvar[CVAR_BAN_LENGTH], reason);
 		CreateTimer(5.0, timer_kick, GetClientUserId(client));
 		return;
 	}
@@ -1880,14 +1874,14 @@ void lilac_ban_client(int client, int cheat)
 
 #if defined _sourcebanspp_included
 	if (sourcebans_exist && icvar[CVAR_SB]) {
-		SBPP_BanPlayer(0, client, 0, reason);
+		SBPP_BanPlayer(0, client, icvar[CVAR_BAN_LENGTH], reason);
 		CreateTimer(5.0, timer_kick, GetClientUserId(client));
 		return;
 	}
 #endif
 
 	// "Else"
-	BanClient(client, 0, BANFLAG_AUTO, reason, reason, "lilac", 0);
+	BanClient(client, icvar[CVAR_BAN_LENGTH], BANFLAG_AUTO, reason, reason, "lilac", 0);
 
 	// Kick the client in case they are still on the server.
 	CreateTimer(5.0, timer_kick, GetClientUserId(client));
