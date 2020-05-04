@@ -1811,7 +1811,7 @@ void lilac_log(bool cleanup)
 		}
 	}
 
-	WriteFileLine(file, line);
+	WriteFileLine(file, "%s", line);
 	CloseHandle(file);
 }
 
