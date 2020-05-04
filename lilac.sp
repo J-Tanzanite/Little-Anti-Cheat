@@ -25,7 +25,7 @@
 #include <tf2>
 #include <tf2_stocks>
 
-#define VERSION "1.4.0"
+#define VERSION "1.5.0"
 
 #define CMD_LENGTH 	330
 
@@ -1045,12 +1045,12 @@ public Action timer_check_aimlock(Handle timer)
 
 			lock = 0;
 			int ind = playerinfo_index[i];
-			for (int l = 0; l < time_to_ticks(0.5); l++) {
+			for (int l = 0; l < time_to_ticks(0.7); l++) {
 				if (ind < 0)
 					ind += CMD_LENGTH;
 
 				// Only process ticks that happened 0.5 seconds ago.
-				if (GetGameTime() - playerinfo_time_usercmd[i][ind] < 0.5) {
+				if (GetGameTime() - playerinfo_time_usercmd[i][ind] < 0.7) {
 					ang[0] = get_player_pitch(i, ind);
 					ang[1] = get_player_yaw(i, ind);
 					laimdist = angle_delta(ang, ideal);
