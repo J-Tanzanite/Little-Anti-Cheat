@@ -406,7 +406,7 @@ public void OnPluginStart()
 	CreateTimer(QUERY_TIMER, timer_query, _, TIMER_REPEAT);
 	CreateTimer(5.0, timer_check_ping, _, TIMER_REPEAT);
 	CreateTimer(5.0, timer_check_nolerp, _, TIMER_REPEAT);
-	CreateTimer(0.5, timer_check_aimlock, _, TIMER_REPEAT);
+	CreateTimer(0.7, timer_check_aimlock, _, TIMER_REPEAT);
 
 	if (icvar[CVAR_LOG])
 		lilac_log_first_time_setup();
