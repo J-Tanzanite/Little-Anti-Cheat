@@ -34,6 +34,7 @@
 #define GAME_CSGO 	2
 #define GAME_DODS 	3
 #define GAME_L4D2 	4
+#define GAME_L4D 	5
 
 #define CHEAT_ANGLES 		0
 #define CHEAT_CHATCLEAR 	1
@@ -269,6 +270,13 @@ public void OnPluginStart()
 		// Thanks to Larrybrains for reporting this!
 		max_angles = Float:{0.0, 0.0, 50.01};
 	}
+	else if (StrEqual(gamefolder, "left4dead", false)) {
+		ggame = GAME_L4D;
+		
+		// Same as L4D2, the smoker handles pitch differently it seems.
+		// Thanks to finishlast for reporting this!
+		max_angles = Float:{0.0, 0.0, 50.01};
+	}
 	else if (StrEqual(gamefolder, "dod", false)) {
 		ggame = GAME_DODS;
 	}
@@ -405,8 +413,10 @@ public void OnPluginStart()
 
 	CreateTimer(QUERY_TIMER, timer_query, _, TIMER_REPEAT);
 	CreateTimer(5.0, timer_check_ping, _, TIMER_REPEAT);
-	CreateTimer(5.0, timer_check_nolerp, _, TIMER_REPEAT);
 	CreateTimer(0.7, timer_check_aimlock, _, TIMER_REPEAT);
+
+	if (ggame != GAME_L4D)
+		CreateTimer(5.0, timer_check_nolerp, _, TIMER_REPEAT);
 
 	if (icvar[CVAR_LOG])
 		lilac_log_first_time_setup();
