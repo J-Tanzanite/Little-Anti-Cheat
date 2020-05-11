@@ -1,0 +1,60 @@
+﻿"Phrases"
+{
+	"welcome_msg"
+	{
+		"#format"	"{1:s}"
+		"pt"		"Este servidor é protegido por Little Anti-Cheat {1}"
+	}
+
+	"kick_query_failure"
+	{
+		"pt"		"Erro: Falha de resposta de Query, por favor reinicie seu jogo se o problema persistir"
+	}
+
+	"kick_interp_exploit"
+	{
+		"#format"	"{1:.0f},{2:d},{3:.3f}"
+		"pt"		"Exploit detectado: Seu interp está muito alto ({1}ms / {2}ms max). Por favor configure seu cl_interp de volta para {3} ou menor"
+	}
+
+	"tban_ping_high"
+	{
+		"#format"	"{1:.0f},{2:d}"
+		"pt"		"Seu ping está muito alto ({1} / {2} max)"
+	}
+
+	"kick_ban_genetic"
+	{
+		"pt"	"Você foi banido deste servidor"
+	}
+
+	"ban_angle"
+	{
+		"pt"	"Angle-Cheats Detectado"
+	}
+
+	"ban_chat_clear"
+	{
+		"pt"	"Limpador de Chat Detectado"
+	}
+
+	"ban_convar"
+	{
+		"pt"	"ConVar Inválido Detectado"
+	}
+
+	"ban_bhop"
+	{
+		"pt"	"Bhop Detectado"
+	}
+
+	"ban_aimbot"
+	{
+		"pt"	"Aimbot Detectado"
+	}
+
+	"ban_aimlock"
+	{
+		"pt"	"Aimlock Detectado"
+	}
+}
