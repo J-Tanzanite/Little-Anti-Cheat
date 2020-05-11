@@ -23,7 +23,7 @@
 		"pt"		"Seu ping está muito alto ({1} / {2} max)"
 	}
 
-	"kick_ban_generic"
+	"kick_ban_genetic"
 	{
 		"pt"	"Você foi banido deste servidor"
 	}
