@@ -42,7 +42,6 @@ If you are just installing Lilac or wanna use the new config location, it is at 
 ### Credits / Special Thanks to:
  - J_Tanzanite... Yeah I'm crediting myself for writing this AC...
  - foon, for fixing sourcebans++ not working (https://forums.alliedmods.net/showthread.php?p=2689297#post2689297).
- - Rasi, for French translations.
  - Bottiger, for fixing this plugin not working in CS:GO and general criticisms.
  - MAGNAT2645 for suggesting a cleaner method of handling convar changes.
  - Larry/LarryBrains for informing me of false Angle-Cheat detections in L4D2.
