@@ -25,7 +25,7 @@
 
 	"kick_ban_genetic"
 	{
-		"de"	"Sie wurden von diesem Server gesperrt."
+		"de"	"Sie wurden von diesem Server gesperrt"
 	}
 
 	"ban_angle"
