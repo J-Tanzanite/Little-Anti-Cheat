@@ -62,13 +62,14 @@
 #define CVAR_NOLERP 		14
 #define CVAR_BHOP 		15
 #define CVAR_AIMBOT 		16
-#define CVAR_AIMLOCK 		17
-#define CVAR_AIMLOCK_LIGHT 	18
-#define CVAR_BACKTRACK_PATCH 	19
-#define CVAR_MAX_PING		20
-#define CVAR_MAX_LERP 		21
-#define CVAR_LOSS_FIX 		22
-#define CVAR_MAX 		23
+#define CVAR_AIMBOT_AUTOSHOOT 	17
+#define CVAR_AIMLOCK 		18
+#define CVAR_AIMLOCK_LIGHT 	19
+#define CVAR_BACKTRACK_PATCH 	20
+#define CVAR_MAX_PING		21
+#define CVAR_MAX_LERP 		22
+#define CVAR_LOSS_FIX 		23
+#define CVAR_MAX 		24
 
 #define ACTION_SHOT 	1
 
@@ -93,6 +94,9 @@ int sv_cheats = 0;
 int time_sv_cheats = 0;
 int cvar_bhop_value = 0;
 int sv_maxupdaterate = 0;
+
+// Banlength overwrite.
+int ban_length_overwrite[CHEAT_MAX];
 
 // Misc.
 int ggame;
@@ -128,80 +132,6 @@ float playerinfo_time_usercmd[MAXPLAYERS + 1][CMD_LENGTH];
 bool playerinfo_banned_flags[MAXPLAYERS + 1][CHEAT_MAX];
 bool playerinfo_ignore_lerp[MAXPLAYERS + 1];
 
-
-// Basic functions to make the code easier to follow.
-float get_player_pitch(int client, int tick)
-{
-	int i = tick;
-
-	// Normalize tick.
-	while (i < 0)
-		i += CMD_LENGTH;
-	while (i >= CMD_LENGTH)
-		i -= CMD_LENGTH;
-
-	return playerinfo_angles[client][i][0];
-}
-
-float get_player_pitch_latest(int client)
-{
-	return playerinfo_angles[client][playerinfo_index[client]][0];
-}
-
-float get_player_yaw(int client, int tick)
-{
-	int i = tick;
-
-	// Normalize tick.
-	while (i < 0)
-		i += CMD_LENGTH;
-	while (i >= CMD_LENGTH)
-		i -= CMD_LENGTH;
-
-	return playerinfo_angles[client][i][1];
-}
-
-float get_player_yaw_latest(int client)
-{
-	return playerinfo_angles[client][playerinfo_index[client]][1];
-}
-
-// Note:
-// 	This is actually never used.
-stock float get_player_roll(int client, int tick)
-{
-	int i = tick;
-
-	// Normalize tick.
-	while (i < 0)
-		i += CMD_LENGTH;
-	while (i >= CMD_LENGTH)
-		i -= CMD_LENGTH;
-
-	return playerinfo_angles[client][i][2];
-}
-
-float get_player_roll_latest(int client)
-{
-	return playerinfo_angles[client][playerinfo_index[client]][2];
-}
-
-void set_player_log_angles(int client, float ang[3], int tick)
-{
-	int i = tick;
-
-	// Normalize tick.
-	while (i < 0)
-		i += CMD_LENGTH;
-	while (i >= CMD_LENGTH)
-		i -= CMD_LENGTH;
-
-	playerinfo_angles[client][i][0] = ang[0];
-	playerinfo_angles[client][i][1] = ang[1];
-	playerinfo_angles[client][i][2] = ang[2];
-}
-
-
 // Basic query list.
 char query_list[][] = {
 	"sv_cheats",
@@ -214,7 +144,6 @@ char query_list[][] = {
 	"r_shadowwireframe",
 	"r_showenvcubemap",
 	"r_drawrenderboxes",
-	"mat_fullbright",
 	"r_modelwireframedecal"
 };
 
@@ -253,7 +182,8 @@ public void OnPluginStart()
 		if ((cvar_bhop = FindConVar("sv_autobunnyhopping")) != null) {
 			cvar_bhop_value = GetConVarInt(cvar_bhop);
 			HookConVarChange(cvar_bhop, cvar_change);
-		} else {
+		}
+		else {
 			// We weren't able to get the cvar,
 			// disable bhop checks just in case.
 			cvar_bhop_value = 1;
@@ -345,6 +275,9 @@ public void OnPluginStart()
 	cvar[CVAR_AIMBOT] = CreateConVar("lilac_aimbot", "5",
 		"Detect basic Aimbots.\n0 = Disabled.\n1 = Log only.\n5 or more = ban on n'th detection (Minimum possible is 5)",
 		FCVAR_PROTECTED, true, 0.0, false, 0.0);
+	cvar[CVAR_AIMBOT_AUTOSHOOT] = CreateConVar("lilac_aimbot_autoshoot", "1",
+		"Detect Autoshoot.",
+		FCVAR_PROTECTED, true, 0.0, true, 1.0);
 	cvar[CVAR_AIMLOCK] = CreateConVar("lilac_aimlock", "10",
 		"Detect Aimlock.\n0 = Disabled.\n1 = Log only.\n5 or more = ban on n'th detection (Minimum possible is 5).",
 		FCVAR_PROTECTED, true, 0.0, false, 0.0);
@@ -379,9 +312,13 @@ public void OnPluginStart()
 	if ((tcvar = FindConVar("sv_cheats")) != null) {
 		HookConVarChange(tcvar, cvar_change);
 		sv_cheats = GetConVarInt(tcvar);
-	} else {
+	}
+	else {
 		sv_cheats = 1;
 	}
+
+	for (int i = 0; i < CHEAT_MAX; i++)
+		ban_length_overwrite[i] = -1;
 
 	// If sv_maxupdaterate is changed mid-game and then this plugin
 	// 	is loaded, then it could lead to false positives.
@@ -393,6 +330,8 @@ public void OnPluginStart()
 
 	RegServerCmd("lilac_date_list", lilac_date_list,
 		"Lists date formatting options", 0);
+	RegServerCmd("lilac_set_ban_length", lilac_set_ban_length,
+		"Sets custom ban lengths for specific cheats.", 0);
 
 	// Server is using the old config location, execute it.
 	if (FileExists("cfg/lilac_config.cfg", false, NULL_STRING)) {
@@ -413,10 +352,8 @@ public void OnPluginStart()
 
 	CreateTimer(QUERY_TIMER, timer_query, _, TIMER_REPEAT);
 	CreateTimer(5.0, timer_check_ping, _, TIMER_REPEAT);
-	CreateTimer(0.7, timer_check_aimlock, _, TIMER_REPEAT);
-
-	if (ggame != GAME_L4D)
-		CreateTimer(5.0, timer_check_nolerp, _, TIMER_REPEAT);
+	CreateTimer(5.0, timer_check_lerp, _, TIMER_REPEAT);
+	CreateTimer(0.5, timer_check_aimlock, _, TIMER_REPEAT);
 
 	if (icvar[CVAR_LOG])
 		lilac_log_first_time_setup();
@@ -430,6 +367,67 @@ public void OnAllPluginsLoaded()
 
 	// Startup message.
 	PrintToServer("[Little Anti-Cheat %s] Successfully loaded!", VERSION);
+}
+
+public Action lilac_set_ban_length(int args)
+{
+	char feature[32], length[32];
+	int index = -1;
+	int time;
+
+	if (args < 2) {
+		PrintToServer("Error: Too few arguments.\n\nUsage:\t\tlilac_set_ban_length <cheat> <minutes>");
+		PrintToServer("Example:\tlilac_set_ban_length bhop 15\n\nSets bhop ban to 15 minutes.");
+		PrintToServer("If ban length is -1, then the length will be ConVar lilac_ban_length\n");
+		PrintToServer("Possible cheat arguments:");
+		PrintToServer("\tlilac_set_ban_length angles <minutes>");
+		PrintToServer("\tlilac_set_ban_length chatclear <minutes>");
+		PrintToServer("\tlilac_set_ban_length convar <minutes>");
+		PrintToServer("\tlilac_set_ban_length nolerp <minutes>");
+		PrintToServer("\tlilac_set_ban_length bhop <minutes>");
+		PrintToServer("\tlilac_set_ban_length aimbot <minutes>");
+		PrintToServer("\tlilac_set_ban_length aimlock <minutes>\n");
+
+		return Plugin_Handled;
+	}
+
+	GetCmdArg(1, feature, sizeof(feature));
+	
+	if (StrEqual(feature, "angles", false) || StrEqual(feature, "angle", false)) {
+		index = CHEAT_ANGLES;
+	}
+	else if (StrEqual(feature, "chat", false) || StrEqual(feature, "chatclear", false)) {
+		index = CHEAT_CHATCLEAR;
+	}
+	else if (StrEqual(feature, "convar", false) || StrEqual(feature, "cvar", false)) {
+		index = CHEAT_CONVAR;
+	}
+	else if (StrEqual(feature, "nolerp", false)) {
+		index = CHEAT_NOLERP;
+	}
+	else if (StrEqual(feature, "bhop", false) || StrEqual(feature, "bunnyhop", false)) {
+		index = CHEAT_BHOP;
+	}
+	else if (StrEqual(feature, "aimbot", false) || StrEqual(feature, "aim", false)) {
+		index = CHEAT_AIMBOT;
+	}
+	else if (StrEqual(feature, "aimlock", false)) {
+		index = CHEAT_AIMLOCK;
+	}
+	else {
+		PrintToServer("Error: Unknown cheat feature \"%s\"", feature);
+		return Plugin_Handled;
+	}
+
+	GetCmdArg(2, length, sizeof(length));
+	time = StringToInt(length, 10);
+
+	if (time < -1)
+		time = -1;
+
+	ban_length_overwrite[index] = time;
+
+	return Plugin_Handled;
 }
 
 public Action lilac_date_list(int args)
@@ -552,6 +550,9 @@ public void cvar_change(ConVar convar, const char[] oldValue,
 		if (icvar[CVAR_AIMBOT] > 1 &&
 			icvar[CVAR_AIMBOT] < AIMBOT_BAN_MIN)
 			icvar[CVAR_AIMBOT] = 5;
+	}
+	else if (view_as<Handle>(convar) == cvar[CVAR_AIMBOT_AUTOSHOOT]) {
+		icvar[CVAR_AIMBOT_AUTOSHOOT] = StringToInt(newValue, 10);
 	}
 	else if (view_as<Handle>(convar) == cvar[CVAR_AIMLOCK]) {
 		icvar[CVAR_AIMLOCK] = StringToInt(newValue, 10);
@@ -765,7 +766,7 @@ public Action timer_query(Handle timer)
 		// Only increments query index if the player
 		// 	has responded to the last one.
 		if (!playerinfo_query_failed[i]) {
-			if (++playerinfo_query_index[i] >= 12)
+			if (++playerinfo_query_index[i] >= 11)
 				playerinfo_query_index[i] = 0;
 		}
 
@@ -850,12 +851,17 @@ public void query_reply(QueryCookie cookie, int client,
 	}
 }
 
-public Action timer_check_nolerp(Handle timer)
+public Action timer_check_lerp(Handle timer)
 {
 	float min;
 
 	if (!icvar[CVAR_ENABLE])
 		return Plugin_Continue;
+
+	if (sv_maxupdaterate > 0)
+		min = 1.0 / float(sv_maxupdaterate);
+	else
+		min = 0.0;
 
 	for (int i = 1; i <= MaxClients; i++) {
 		if (!is_player_valid(i) || IsFakeClient(i))
@@ -881,11 +887,6 @@ public Action timer_check_nolerp(Handle timer)
 
 			continue;
 		}
-
-		if (sv_maxupdaterate > 0)
-			min = 1.0 / float(sv_maxupdaterate);
-		else
-			min = 0.0;
 
 		if (!icvar[CVAR_NOLERP]
 			|| playerinfo_ignore_lerp[i]
@@ -1044,6 +1045,7 @@ public Action timer_check_aimlock(Handle timer)
 			// Players are too close, never report aimlock.
 			if (GetVectorDistance(pos, pos2) < 300.0) {
 				skip_report[i] = true;
+				process = false;
 				continue;
 			}
 
@@ -1055,25 +1057,24 @@ public Action timer_check_aimlock(Handle timer)
 
 			lock = 0;
 			int ind = playerinfo_index[i];
-			for (int l = 0; l < time_to_ticks(0.7); l++) {
+			for (int l = 0; l < time_to_ticks(0.5 + 0.1); l++) {
 				if (ind < 0)
 					ind += CMD_LENGTH;
 
-				// Only process ticks that happened 0.5 seconds ago.
-				if (GetGameTime() - playerinfo_time_usercmd[i][ind] < 0.7) {
-					ang[0] = get_player_pitch(i, ind);
-					ang[1] = get_player_yaw(i, ind);
+				// Only process ticks that happened 0.5 seconds ago... Plus lock_time.
+				if (GetGameTime() - playerinfo_time_usercmd[i][ind] < 0.5 + 0.1) {
+					get_player_log_angles(i, ind, false, ang);
 					laimdist = angle_delta(ang, ideal);
 
 					if (l) {
-						if (aimdist < 10.0)
+						if (aimdist < 5.0)
 							lock++;
 						else
 							lock = 0;
 
 						if (aimdist < laimdist * 0.1
 							&& angle_delta(ang, lang) > 20.0
-							&& lock > time_to_ticks(0.2)) {
+							&& lock > time_to_ticks(0.1)) {
 
 							process = false;
 							report[i] = true;
@@ -1162,7 +1163,8 @@ public Action timer_check_aimbot(Handle timer, DataPack pack)
 			skip_autoshoot = true;
 			skip_repeat = true;
 		}
-	} else {
+	}
+	else {
 		// Don't detect the same shot twice.
 		playerinfo_actions[client][shotindex] = 0;
 	}
@@ -1191,8 +1193,7 @@ public Action timer_check_aimbot(Handle timer, DataPack pack)
 				break;
 
 			laimdist = angle_delta(playerinfo_angles[client][ind], ideal);
-			ang[0] = get_player_pitch(client, ind);
-			ang[1] = get_player_yaw(client, ind);
+			get_player_log_angles(client, ind, false, ang);
 
 			if (i) {
 				tdelta = angle_delta(lang, ang);
@@ -1224,16 +1225,10 @@ public Action timer_check_aimbot(Handle timer, DataPack pack)
 
 	// Angle-repeat test.
 	if (skip_repeat == false) {
-		ang[0] = get_player_pitch(client, shotindex - 1);
-		ang[1] = get_player_yaw(client, shotindex - 1);
-
-		lang[0] = get_player_pitch(client, shotindex + 1);
-		lang[1] = get_player_yaw(client, shotindex + 1);
-
+		get_player_log_angles(client, shotindex - 1, false, ang);
+		get_player_log_angles(client, shotindex + 1, false, lang);
 		tdelta = angle_delta(ang, lang);
-
-		lang[0] = get_player_pitch(client, shotindex);
-		lang[1] = get_player_yaw(client, shotindex);
+		get_player_log_angles(client, shotindex, false, lang);
 
 		if (tdelta < 10.0 && angle_delta(ang, lang) > 0.5
 			&& angle_delta(ang, lang) > tdelta * 5.0)
@@ -1241,7 +1236,7 @@ public Action timer_check_aimbot(Handle timer, DataPack pack)
 	}
 
 	// Autoshoot test.
-	if (skip_autoshoot == false) {
+	if (skip_autoshoot == false && icvar[CVAR_AIMBOT_AUTOSHOOT]) {
 		int tmp = 0;
 		ind = shotindex+1;
 		for (int i = 0; i < 3; i++) {
@@ -1262,7 +1257,8 @@ public Action timer_check_aimbot(Handle timer, DataPack pack)
 		if (tmp == 1) {
 			if (detected || ++playerinfo_autoshoot[client] > 1)
 				detected |= AIMBOT_FLAG_AUTOSHOOT;
-		} else {
+		}
+		else {
 			playerinfo_autoshoot[client] = 0;
 		}
 	}
@@ -1318,7 +1314,8 @@ public Action OnPlayerRunCmd(int client, int& buttons, int& impulse,
 
 		if (lilac_is_player_in_backtrack_timeout(client))
 			tickcount = lilac_random_tickcount(client);
-	} else {
+	}
+	else {
 		playerinfo_tickcount[client] = tickcount;
 	}
 
@@ -1363,7 +1360,8 @@ public Action OnPlayerRunCmd(int client, int& buttons, int& impulse,
 			}
 
 			playerinfo_jumps[client]++;
-		} else if ((flags & FL_ONGROUND)) {
+		}
+		else if ((flags & FL_ONGROUND)) {
 			playerinfo_bhop[client] = 0;
 			playerinfo_jumps[client] = 0;
 		}
@@ -1547,6 +1545,8 @@ void lilac_detected_bhop(int client)
 
 void lilac_detected_antiaim(int client)
 {
+	float ang[3];
+
 	if (playerinfo_banned_flags[client][CHEAT_ANGLES])
 		return;
 
@@ -1559,13 +1559,13 @@ void lilac_detected_antiaim(int client)
 	lilac_forward_client_cheat(client, CHEAT_ANGLES);
 
 	if (icvar[CVAR_LOG]) {
+		get_player_log_angles(client, 0, true, ang);
+
 		lilac_log_setup_client(client);
 		Format(line, sizeof(line),
 			"%s was detected and banned for Angle-Cheats (Pitch: %.2f, Yaw: %.2f, Roll: %.2f).",
 			line,
-			get_player_pitch_latest(client),
-			get_player_yaw_latest(client),
-			get_player_roll_latest(client));
+			ang[0], ang[1], ang[2]);
 
 		lilac_log(true);
 
@@ -1701,8 +1701,7 @@ void lilac_aimlock_light_test(int client)
 		if (ind < 0)
 			ind += CMD_LENGTH;
 
-		ang[0] = get_player_pitch(client, ind);
-		ang[1] = get_player_yaw(client, ind);
+		get_player_log_angles(client, ind, false, ang);
 
 		if (i) {
 			// This player has a somewhat big delta,
@@ -1726,6 +1725,7 @@ bool lilac_is_player_in_aimlock_que(int client)
 	// Test for aimlock on players who:
 	return (GetGameTime() < playerinfo_time_process_aimlock[client] // Are in the que.
 		|| playerinfo_aimlock[client] // Already has a detection.
+		|| playerinfo_aimbot[client] > 1 // Already have been detected for aimbot twice.
 		|| (GetGameTime() - playerinfo_time_aimlock[client] < 180.0 && playerinfo_time_aimlock[client] > 1.0)); // Had one aimlock the past three minutes.
 }
 
@@ -1776,18 +1776,18 @@ void lilac_log_setup_client(int client)
 void lilac_log_extra(int client)
 {
 	char map[128], weapon[64];
-	float pos[3];
+	float pos[3], ang[3];
 
 	GetClientAbsOrigin(client, pos);
 	GetCurrentMap(map, sizeof(map));
 	GetClientWeapon(client, weapon, sizeof(weapon));
 
+	get_player_log_angles(client, 0, true, ang);
+
 	Format(line, sizeof(line),
 		"\tPos={%.0f,%.0f,%.0f}, Angles={%.5f,%.5f,%.5f}, Map=\"%s\", Team={%d}, Weapon=\"%s\", Latency={Inc:%f,Out:%f}, Loss={Inc:%f,Out:%f}, Choke={Inc:%f,Out:%f}, ConnectionTime={%f seconds}, GameTime={%f seconds}",
 		pos[0], pos[1], pos[2],
-		get_player_pitch_latest(client),
-		get_player_yaw_latest(client),
-		get_player_roll_latest(client),
+		ang[0], ang[1], ang[2],
 		map, GetClientTeam(client), weapon,
 		GetClientAvgLatency(client, NetFlow_Incoming),
 		GetClientAvgLatency(client, NetFlow_Outgoing),
@@ -1875,7 +1875,7 @@ void lilac_ban_client(int client, int cheat)
 
 #if defined _materialadmin_included
 	if (materialadmin_exist && icvar[CVAR_MA]) {
-		MABanPlayer(0, client, MA_BAN_STEAM, icvar[CVAR_BAN_LENGTH], reason);
+		MABanPlayer(0, client, MA_BAN_STEAM, get_ban_length(cheat), reason);
 		CreateTimer(5.0, timer_kick, GetClientUserId(client));
 		return;
 	}
@@ -1884,14 +1884,14 @@ void lilac_ban_client(int client, int cheat)
 
 #if defined _sourcebanspp_included
 	if (sourcebans_exist && icvar[CVAR_SB]) {
-		SBPP_BanPlayer(0, client, icvar[CVAR_BAN_LENGTH], reason);
+		SBPP_BanPlayer(0, client, get_ban_length(cheat), reason);
 		CreateTimer(5.0, timer_kick, GetClientUserId(client));
 		return;
 	}
 #endif
 
 	// "Else"
-	BanClient(client, icvar[CVAR_BAN_LENGTH], BANFLAG_AUTO, reason, reason, "lilac", 0);
+	BanClient(client, get_ban_length(cheat), BANFLAG_AUTO, reason, reason, "lilac", 0);
 
 	// Kick the client in case they are still on the server.
 	CreateTimer(5.0, timer_kick, GetClientUserId(client));
@@ -1903,6 +1903,45 @@ public Action timer_kick(Handle timer, int userid)
 
 	if (is_player_valid(client))
 		KickClient(client, "%T", "kick_ban_genetic", client);
+}
+
+int get_ban_length(int cheat)
+{
+	return ((ban_length_overwrite[cheat] <= -1) ? icvar[CVAR_BAN_LENGTH] : ban_length_overwrite[cheat]);
+}
+
+void get_player_log_angles(int client, int tick, bool latest, float writeto[3])
+{
+	int i = tick;
+
+	if (latest) {
+		i = playerinfo_index[client];
+	}
+	else {
+		while (i < 0)
+			i += CMD_LENGTH;
+		while (i >= CMD_LENGTH)
+			i -= CMD_LENGTH;
+	}
+
+	writeto[0] = playerinfo_angles[client][i][0];
+	writeto[1] = playerinfo_angles[client][i][1];
+	writeto[2] = playerinfo_angles[client][i][2];
+}
+
+void set_player_log_angles(int client, float ang[3], int tick)
+{
+	int i = tick;
+
+	// Normalize tick.
+	while (i < 0)
+		i += CMD_LENGTH;
+	while (i >= CMD_LENGTH)
+		i -= CMD_LENGTH;
+
+	playerinfo_angles[client][i][0] = ang[0];
+	playerinfo_angles[client][i][1] = ang[1];
+	playerinfo_angles[client][i][2] = ang[2];
 }
 
 void aim_at_point(const float p1[3], const float p2[3], float writeto[3])
