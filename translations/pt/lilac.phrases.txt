@@ -14,7 +14,7 @@
 	"kick_interp_exploit"
 	{
 		"#format"	"{1:.0f},{2:d},{3:.3f}"
-		"pt"		"Violação detectada: Sua interpolação é muito alta ({1}ms / máx. {2}ms). Por favor, defina seu cl_interp de volta para {3} ou menor"
+		"pt"		"Violação detectada: Sua interpolação está muito alta ({1}ms / máx. {2}ms). Por favor, defina seu cl_interp de volta para {3} ou menor"
 	}
 
 	"tban_ping_high"
