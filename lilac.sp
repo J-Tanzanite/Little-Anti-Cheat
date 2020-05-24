@@ -25,7 +25,7 @@
 #include <tf2>
 #include <tf2_stocks>
 
-#define VERSION "1.5.0"
+#define VERSION "1.5.1"
 
 #define CMD_LENGTH 	330
 
@@ -332,6 +332,8 @@ public void OnPluginStart()
 		"Lists date formatting options", 0);
 	RegServerCmd("lilac_set_ban_length", lilac_set_ban_length,
 		"Sets custom ban lengths for specific cheats.", 0);
+	RegServerCmd("lilac_ban_status", lilac_ban_status,
+		"Prints banning status to server console.", 0);
 
 	// Server is using the old config location, execute it.
 	if (FileExists("cfg/lilac_config.cfg", false, NULL_STRING)) {
@@ -367,6 +369,25 @@ public void OnAllPluginsLoaded()
 
 	// Startup message.
 	PrintToServer("[Little Anti-Cheat %s] Successfully loaded!", VERSION);
+}
+
+public Action lilac_ban_status(int args)
+{
+	PrintToServer("==[Little Anti-Cheat %s]==", VERSION);
+	PrintToServer("Checking ban plugins:");
+	PrintToServer("Material-Admin:");
+	PrintToServer("\tLoaded: %s", ((materialadmin_exist) ? "Yes" : "No"));
+	PrintToServer("\tConVar lilac_materialadmin = %d", icvar[CVAR_MA]);
+	#if !defined _materialadmin_included
+	// Honestly, due to how mainly russians use MA, this should be in Russian as well.
+	PrintToServer("\tWARNING: Material-Admin was NOT included when compiled, banning through MA won't work!");
+	#endif
+	PrintToServer("Sourcebans++:");
+	PrintToServer("\tLoaded: %s", ((sourcebans_exist) ? "Yes" : "No"));
+	PrintToServer("\tConVar lilac_sourcebans = %d", icvar[CVAR_SB]);
+	#if !defined _sourcebanspp_included
+	PrintToServer("\tWARNING: Sourcebans++ was NOT included when compiled, banning through SB++ won't work!");
+	#endif
 }
 
 public Action lilac_set_ban_length(int args)
@@ -826,7 +847,6 @@ public void query_reply(QueryCookie cookie, int client,
 		|| (StrEqual("r_shadowwireframe", cvarName, false) && val)
 		|| (StrEqual("r_showenvcubemap", cvarName, false) && val)
 		|| (StrEqual("r_drawrenderboxes", cvarName, false) && val)
-		|| (StrEqual("mat_fullbright", cvarName, false) && val)
 		|| (StrEqual("r_modelwireframedecal", cvarName, false) && val)) {
 
 		if (lilac_forward_allow_cheat_detection(client, CHEAT_CONVAR) == false)
