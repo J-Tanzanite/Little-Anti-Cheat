@@ -30,7 +30,7 @@
 
 	"ban_angle"
 	{
-		"pt"	"Fake Angles detectado"
+		"pt"	"Angle-Cheats detectado"
 	}
 
 	"ban_chat_clear"
