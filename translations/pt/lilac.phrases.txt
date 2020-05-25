@@ -30,31 +30,31 @@
 
 	"ban_angle"
 	{
-		"pt"	"Trapaça de Ângulos Detectada"
+		"pt"	"Fake Angles detectado"
 	}
 
 	"ban_chat_clear"
 	{
-		"pt"	"Limpador de Chat Detectado"
+		"pt"	"Limpador de Chat detectado"
 	}
 
 	"ban_convar"
 	{
-		"pt"	"ConVar Inválida Detectada"
+		"pt"	"Cvar inválida detectada"
 	}
 
 	"ban_bhop"
 	{
-		"pt"	"Bhop Detectado"
+		"pt"	"Bhop detectado"
 	}
 
 	"ban_aimbot"
 	{
-		"pt"	"Aimbot Detectado"
+		"pt"	"Aimbot detectado"
 	}
 
 	"ban_aimlock"
 	{
-		"pt"	"Aimlock Detectado"
+		"pt"	"Aimlock detectado"
 	}
 }
