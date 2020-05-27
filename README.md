@@ -52,8 +52,13 @@ If you are just installing Lilac or wanna use the new config location, it is at 
  - English (By me lol duh hue hue hue).
  - Russian (By an awesome person c:).
  - Czech (By an awesome person <3).
- - Portuguese (By SheepyChris https://github.com/SheepyChris ).
- - German (By a humble nice German c:).\
+ - Portuguese By:
+   - SheepyChris github.com/SheepyChris
+   - Perkzitos github.com/Perkzitos
+ - German (By a humble nice German c:).
+ - Spanish (By ALEJANDRO ^-^).
+ - Ukrainian (By panikajo ;D).
+ - Turkish (By ShiroNje).\
 \
 I do hope to add more languages in the future.\
 But at least you can add or improve on the translations already provided.\
