@@ -8,7 +8,7 @@
 
 	"kick_query_failure"
 	{
-		"es"	"Error: No hay respuesta en la consulta, reinicia el juego si el problema continua."
+		"es"	"Error: No hay respuesta en la consulta, reinicia el juego si el problema continúa."
 	}
 
 	"kick_interp_exploit"
