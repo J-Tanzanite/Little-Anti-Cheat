@@ -86,8 +86,6 @@
 #define AIMBOT_FLAG_SNAP 		(1 << 2)
 #define AIMBOT_FLAG_SNAP2 		(1 << 3)
 
-#define prefix "[Lilac]"
-
 // Convars.
 Handle cvar_bhop = null;
 Handle cvar[CVAR_MAX];
@@ -762,7 +760,7 @@ public Action timer_welcome(Handle timer, int userid)
 	int client = GetClientOfUserId(userid);
 
 	if (is_player_valid(client) && icvar[CVAR_WELCOME] && icvar[CVAR_ENABLE] && icvar[CVAR_BAN])
-		PrintToChat(client, "%s %T", prefix, "welcome_msg", client, VERSION);
+		PrintToChat(client, "[Lilac] %T", "welcome_msg", client, VERSION);
 }
 
 public Action timer_query(Handle timer)
@@ -808,7 +806,7 @@ public Action timer_query(Handle timer)
 					lilac_log_extra(i);
 			}
 
-			KickClient(i, "%s %T", prefix, "kick_query_failure", i);
+			KickClient(i, "[Lilac] %T", "kick_query_failure", i);
 		}
 	}
 
@@ -904,7 +902,7 @@ public Action timer_check_lerp(Handle timer)
 					lilac_log_extra(i);
 			}
 
-			KickClient(i, "%s %T", prefix, "kick_interp_exploit", i,
+			KickClient(i, "[Lilac] %T", "kick_interp_exploit", i,
 				lerp * 1000.0, icvar[CVAR_MAX_LERP], float(icvar[CVAR_MAX_LERP]) / 999.9);
 
 			continue;
@@ -987,7 +985,7 @@ public Action timer_check_ping(Handle timer)
 		}
 
 		Format(reason, sizeof(reason),
-			"%s %T", prefix, "tban_ping_high", i,
+			"[Lilac] %T", "tban_ping_high", i,
 			ping, icvar[CVAR_MAX_PING]);
 
 		// Ban the client for three minutes to avoid instant reconnects.
