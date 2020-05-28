@@ -25,7 +25,7 @@
 
 	"kick_ban_genetic"
 	{
-		"pt"	"Você foi banido deste servidor"
+		"pt"	"Você foi banido(a) deste servidor"
 	}
 
 	"ban_angle"
