@@ -8,7 +8,7 @@
 
 	"kick_query_failure"
 	{
-		"pt"	"Erro: Seu cliente falhou em responder o pedido a tempo, por favor, reinicie seu jogo se este problema persistir"
+		"pt"		"Erro: Seu cliente falhou em responder o pedido a tempo, por favor, reinicie seu jogo se este problema persistir"
 	}
 
 	"kick_interp_exploit"
@@ -25,36 +25,36 @@
 
 	"kick_ban_genetic"
 	{
-		"pt"	"Você foi banido deste servidor"
+		"pt"		"Você foi banido(a) deste servidor"
 	}
 
 	"ban_angle"
 	{
-		"pt"	"Angle-Cheats detectado"
+		"pt"		"Angle-Cheats detectado"
 	}
 
 	"ban_chat_clear"
 	{
-		"pt"	"Limpador de Chat detectado"
+		"pt"		"Limpador de Chat detectado"
 	}
 
 	"ban_convar"
 	{
-		"pt"	"Cvar inválida detectada"
+		"pt"		"Cvar inválida detectada"
 	}
 
 	"ban_bhop"
 	{
-		"pt"	"Bhop detectado"
+		"pt"		"Bhop detectado"
 	}
 
 	"ban_aimbot"
 	{
-		"pt"	"Aimbot detectado"
+		"pt"		"Aimbot detectado"
 	}
 
 	"ban_aimlock"
 	{
-		"pt"	"Aimlock detectado"
+		"pt"		"Aimlock detectado"
 	}
 }

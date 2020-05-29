@@ -8,7 +8,7 @@
 
 	"kick_query_failure"
 	{
-		"en"	"Error: Query response failure, please restart your game if this issue persists"
+		"en"		"Error: Query response failure, please restart your game if this issue persists"
 	}
 
 	"kick_interp_exploit"
@@ -25,36 +25,36 @@
 
 	"kick_ban_genetic"
 	{
-		"en"	"You have been banned from this server"
+		"en"		"You have been banned from this server"
 	}
 
 	"ban_angle"
 	{
-		"en"	"Angle-Cheats Detected"
+		"en"		"Angle-Cheats Detected"
 	}
 
 	"ban_chat_clear"
 	{
-		"en"	"Chat-Clear Detected"
+		"en"		"Chat-Clear Detected"
 	}
 
 	"ban_convar"
 	{
-		"en"	"Invalid ConVar Detected"
+		"en"		"Invalid ConVar Detected"
 	}
 
 	"ban_bhop"
 	{
-		"en"	"Bhop Detected"
+		"en"		"Bhop Detected"
 	}
 
 	"ban_aimbot"
 	{
-		"en"	"Aimbot Detected"
+		"en"		"Aimbot Detected"
 	}
 
 	"ban_aimlock"
 	{
-		"en"	"Aimlock Detected"
+		"en"		"Aimlock Detected"
 	}
 }
