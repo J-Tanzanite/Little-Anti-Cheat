@@ -13,7 +13,7 @@ People have asked me to add support for auto update. I think I'll look into addi
 
 3. Anti-Wallhack\
 Some people have asked me to add Anti-Wallhack support.\
-So fine, I'll make an **ALPHA** Anti-Wallhack soon.
+So fine, I'll make an **ALPHA** Anti-Wallhack plugin soon.
 
 4. CS:GO detections\
 Seems like my biggest users are Russian server owners who mainly host servers for CS:GO, and they want me to add more detection methods for CS:GO specific cheats.\
