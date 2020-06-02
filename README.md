@@ -1,6 +1,6 @@
 # Little Anti-Cheat - Development Notes:
 
-### Todo:
+### Notes:
 
 1. NoLerp\
 Oddly enough, two server owners are having issues with NoLerp detections detecting legit players.\
@@ -9,12 +9,14 @@ I suspect the problem lies with the interp settings the server allows... But not
 It is something I will look more into.
 
 2. Auto Update\
-People have asked me to add support for auto update. I think I'll look into adding this for version 1.6.0.
+Autoupdate is now added in version 1.6.0 (Development), I haven't tested it, but it should in theory work.
 
 3. Anti-Wallhack\
 Some people have asked me to add Anti-Wallhack support.\
 So fine, I'll make an **ALPHA** Anti-Wallhack plugin soon.
 
 4. CS:GO detections\
-Seems like my biggest users are Russian server owners who mainly host servers for CS:GO, and they want me to add more detection methods for CS:GO specific cheats.\
-Sadly, I don't play CS:GO, but alright, I'll look into CS:GO cheats soon and add some stuff.
+Just added Anti-Duck-Delay after some people privately messaged me, telling me about this: https://www.unknowncheats.me/forum/counterstrike-global-offensive/308838-duck-cooldown.html \
+I did some basic tests, and seems like IN_BULLRUSH isn't an input legit players can actually do.\
+So, this should be something only cheaters can do, but just in case, the default ban length will be for 1 week.\
+If I get some feedback that this isn't producing false bans - then it will be changed to permanent bans. 
