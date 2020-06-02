@@ -22,10 +22,12 @@
 #undef REQUIRE_EXTENSIONS
 #tryinclude <materialadmin>
 #tryinclude <sourcebanspp>
+#tryinclude <updater>
 #include <tf2>
 #include <tf2_stocks>
 
-#define VERSION "1.5.1"
+#define VERSION "1.6.0-Dev 1"
+#define UPDATE_URL "http://littleanticheat.com/lilac_autoupdate/updatefile.txt"
 
 #define CMD_LENGTH 	330
 
@@ -43,7 +45,8 @@
 #define CHEAT_BHOP 		4
 #define CHEAT_AIMBOT 		5
 #define CHEAT_AIMLOCK 		6
-#define CHEAT_MAX 		7
+#define CHEAT_ANTI_DUCK_DELAY 	7
+#define CHEAT_MAX 		8
 
 #define CVAR_ENABLE 		0
 #define CVAR_WELCOME 		1
@@ -65,11 +68,16 @@
 #define CVAR_AIMBOT_AUTOSHOOT 	17
 #define CVAR_AIMLOCK 		18
 #define CVAR_AIMLOCK_LIGHT 	19
-#define CVAR_BACKTRACK_PATCH 	20
-#define CVAR_MAX_PING		21
-#define CVAR_MAX_LERP 		22
-#define CVAR_LOSS_FIX 		23
-#define CVAR_MAX 		24
+#define CVAR_ANTI_DUCK_DELAY 	20
+#define CVAR_BACKTRACK_PATCH 	21
+#define CVAR_MAX_PING		22
+#define CVAR_MAX_LERP 		23
+#define CVAR_LOSS_FIX 		24
+#define CVAR_AUTO_UPDATE 	25
+#define CVAR_MAX 		26
+
+#define BHOP_SIMPLISTIC 	0
+#define BHOP_ADVANCED 		1
 
 #define ACTION_SHOT 	1
 
@@ -100,13 +108,15 @@ int ban_length_overwrite[CHEAT_MAX];
 
 // Misc.
 int ggame;
+int tick_rate;
+int bhop_max[2];
 char line[2048];
 char dateformat[512] = "%Y/%m/%d %H:%M:%S";
 float max_angles[3] = {89.01, 0.0, 50.01};
 Handle forwardhandle = INVALID_HANDLE;
 Handle forwardhandleban = INVALID_HANDLE;
 Handle forwardhandleallow = INVALID_HANDLE;
-bool sourcebans_exist = false;
+bool sourcebanspp_exist = false;
 bool materialadmin_exist = false;
 
 // Logging.
@@ -174,10 +184,6 @@ public void OnPluginStart()
 	}
 	else if (StrEqual(gamefolder, "csgo", false)) {
 		ggame = GAME_CSGO;
-
-		// Pitch Anti-Aim doesn't work for CSGO anymore,
-		// but horrible cheats may still attempt it.
-		// max_angles = Float:{0.0, 0.0, 50.01};
 
 		if ((cvar_bhop = FindConVar("sv_autobunnyhopping")) != null) {
 			cvar_bhop_value = GetConVarInt(cvar_bhop);
@@ -270,7 +276,7 @@ public void OnPluginStart()
 		"Detect NoLerp.",
 		FCVAR_PROTECTED, true, 0.0, true, 1.0);
 	cvar[CVAR_BHOP] = CreateConVar("lilac_bhop", "2",
-		"Detect Bhop.\n0 = Disabled.\n1 = Simplistic, ban on 10 Bhops.\n2 = Advanced, ban on 5 Bhops depending on jump count, defaults to 10 on jump spam.",
+		"Detect Bhop.\n0 = Disabled.\n1 = Simplistic (Less effective, but safer).\n2 = Advanced (More aggressive, bans faster, less safe).",
 		FCVAR_PROTECTED, true, 0.0, true, 2.0);
 	cvar[CVAR_AIMBOT] = CreateConVar("lilac_aimbot", "5",
 		"Detect basic Aimbots.\n0 = Disabled.\n1 = Log only.\n5 or more = ban on n'th detection (Minimum possible is 5)",
@@ -284,6 +290,9 @@ public void OnPluginStart()
 	cvar[CVAR_AIMLOCK_LIGHT] = CreateConVar("lilac_aimlock_light", "1",
 		"Only process at most 5 suspicious players for aimlock.\nDO NOT DISABLE THIS UNLESS YOUR SERVER CAN HANDLE IT!",
 		FCVAR_PROTECTED, true, 0.0, true, 1.0);
+	cvar[CVAR_ANTI_DUCK_DELAY] = CreateConVar("lilac_anti_duck_delay", "1",
+		"CS:GO Only, detect Anti-Duck-Delay.",
+		FCVAR_PROTECTED, true, 0.0, true, 1.0);
 	cvar[CVAR_BACKTRACK_PATCH] = CreateConVar("lilac_backtrack_patch", "0",
 		"Patch Backtrack.\n0 = Disabled (Recommended).\n1 = Enabled (Not recommended, may cause hitreg issues).",
 		FCVAR_PROTECTED, true, 0.0, true, 1.0);
@@ -295,6 +304,9 @@ public void OnPluginStart()
 		FCVAR_PROTECTED, true, 0.0, true, 510.0); // 500 is max possible.
 	cvar[CVAR_LOSS_FIX] = CreateConVar("lilac_loss_fix", "1",
 		"Ignore some cheat detections for players who have too much packet loss (bad connection to the server).",
+		FCVAR_PROTECTED, true, 0.0, true, 1.0);
+	cvar[CVAR_AUTO_UPDATE] = CreateConVar("lilac_auto_update", "0",
+		"Automatically update Little Anti-Cheat.",
 		FCVAR_PROTECTED, true, 0.0, true, 1.0);
 
 	for (int i = 0; i < CVAR_MAX; i++) {
@@ -319,6 +331,14 @@ public void OnPluginStart()
 
 	for (int i = 0; i < CHEAT_MAX; i++)
 		ban_length_overwrite[i] = -1;
+
+	// Bans for Bhop last 1 month by default.
+	ban_length_overwrite[CHEAT_BHOP] = 24 * 30 * 60;
+
+	// Since Anti-Duck-Delay is new and I want feedback
+	// 	about potential false positives,
+	// 	I'm going limit the ban length by default to 1 week... For now...
+	ban_length_overwrite[CHEAT_ANTI_DUCK_DELAY] = 24 * 7 * 60;
 
 	// If sv_maxupdaterate is changed mid-game and then this plugin
 	// 	is loaded, then it could lead to false positives.
@@ -357,6 +377,17 @@ public void OnPluginStart()
 	CreateTimer(5.0, timer_check_lerp, _, TIMER_REPEAT);
 	CreateTimer(0.5, timer_check_aimlock, _, TIMER_REPEAT);
 
+	tick_rate = RoundToNearest(1.0 / GetTickInterval());
+
+	if (tick_rate > 50) {
+		bhop_max[BHOP_SIMPLISTIC] = 10;
+		bhop_max[BHOP_ADVANCED] = 5;
+	}
+	else {
+		bhop_max[BHOP_SIMPLISTIC] = 20;
+		bhop_max[BHOP_ADVANCED] = 10;
+	}
+
 	if (icvar[CVAR_LOG])
 		lilac_log_first_time_setup();
 }
@@ -364,30 +395,57 @@ public void OnPluginStart()
 public void OnAllPluginsLoaded()
 {
 	// Sourcebans compat...
-	sourcebans_exist = LibraryExists("sourcebans++");
+	sourcebanspp_exist = LibraryExists("sourcebans++");
 	materialadmin_exist = LibraryExists("materialadmin");
+
+	// Updates ;)
+	#if defined _updater_included
+	if (LibraryExists("updater") && icvar[CVAR_AUTO_UPDATE])
+		Updater_AddPlugin(UPDATE_URL);
+	#endif
 
 	// Startup message.
 	PrintToServer("[Little Anti-Cheat %s] Successfully loaded!", VERSION);
+	lilac_ban_status(0);
 }
 
 public Action lilac_ban_status(int args)
 {
-	PrintToServer("==[Little Anti-Cheat %s]==", VERSION);
+	int ban_type = 0;
+	char tmp[16];
+
+	PrintToServer("=====[Lilac Ban status]=====", VERSION);
 	PrintToServer("Checking ban plugins:");
 	PrintToServer("Material-Admin:");
 	PrintToServer("\tLoaded: %s", ((materialadmin_exist) ? "Yes" : "No"));
-	PrintToServer("\tConVar lilac_materialadmin = %d", icvar[CVAR_MA]);
+	PrintToServer("\tConVar: lilac_materialadmin = %d", icvar[CVAR_MA]);
+	
 	#if !defined _materialadmin_included
-	// Honestly, due to how mainly russians use MA, this should be in Russian as well.
 	PrintToServer("\tWARNING: Material-Admin was NOT included when compiled, banning through MA won't work!");
+	PrintToServer("\tПредупреждение: Material-Admin НЕ БЫЛ включен при компиляции, баны через MA не будут работать!");
+	#else
+	ban_type = ((icvar[CVAR_MA] && materialadmin_exist) ? 2 : 0);
 	#endif
+	
 	PrintToServer("Sourcebans++:");
-	PrintToServer("\tLoaded: %s", ((sourcebans_exist) ? "Yes" : "No"));
-	PrintToServer("\tConVar lilac_sourcebans = %d", icvar[CVAR_SB]);
+	PrintToServer("\tLoaded: %s", ((sourcebanspp_exist) ? "Yes" : "No"));
+	PrintToServer("\tConVar: lilac_sourcebans = %d", icvar[CVAR_SB]);
+	
 	#if !defined _sourcebanspp_included
 	PrintToServer("\tWARNING: Sourcebans++ was NOT included when compiled, banning through SB++ won't work!");
+	#else
+	if (!ban_type)
+		ban_type = (icvar[CVAR_SB] && sourcebanspp_exist);
 	#endif
+
+	switch (ban_type) {
+	case 0: { strcopy(tmp, sizeof(tmp), "BaseBans"); }
+	case 1: { strcopy(tmp, sizeof(tmp), "Sourcebans++"); }
+	case 2: { strcopy(tmp, sizeof(tmp), "Material-Admin"); }
+	default: return;
+	}
+
+	PrintToServer("\nBanning will go though %s.\n", tmp);
 }
 
 public Action lilac_set_ban_length(int args)
@@ -407,7 +465,8 @@ public Action lilac_set_ban_length(int args)
 		PrintToServer("\tlilac_set_ban_length nolerp <minutes>");
 		PrintToServer("\tlilac_set_ban_length bhop <minutes>");
 		PrintToServer("\tlilac_set_ban_length aimbot <minutes>");
-		PrintToServer("\tlilac_set_ban_length aimlock <minutes>\n");
+		PrintToServer("\tlilac_set_ban_length aimlock <minutes>");
+		PrintToServer("\tlilac_set_ban_length antiduckdelay <minutes>\n");
 
 		return Plugin_Handled;
 	}
@@ -434,6 +493,11 @@ public Action lilac_set_ban_length(int args)
 	}
 	else if (StrEqual(feature, "aimlock", false)) {
 		index = CHEAT_AIMLOCK;
+	}
+	// ( @~@) Bruh.... This is... B R U H 
+	else if (StrEqual(feature, "duck", false) || StrEqual(feature, "crouch", false)
+		|| StrEqual(feature, "antiduck", false) || StrEqual(feature, "antiduckdelay", false)) {
+		index = CHEAT_ANTI_DUCK_DELAY;
 	}
 	else {
 		PrintToServer("Error: Unknown cheat feature \"%s\"", feature);
@@ -491,15 +555,21 @@ public APLRes AskPluginLoad2(Handle hMyself, bool bLate, char[] sError, int err_
 public void OnLibraryAdded(const char []name)
 {
 	if (StrEqual(name, "sourcebans++"))
-		sourcebans_exist = true;
+		sourcebanspp_exist = true;
 	else if (StrEqual(name, "materialadmin"))
 		materialadmin_exist = true;
+
+	// NOTE: ELSE IF STATEMENT!
+	#if defined _updater_included
+	else if (StrEqual(name, "updater") && icvar[CVAR_AUTO_UPDATE])
+		Updater_AddPlugin(UPDATE_URL);
+	#endif
 }
 
 public void OnLibraryRemoved(const char []name)
 {
 	if (StrEqual(name, "sourcebans++"))
-		sourcebans_exist = false;
+		sourcebanspp_exist = false;
 	else if (StrEqual(name, "materialadmin"))
 		materialadmin_exist = false;
 }
@@ -585,6 +655,9 @@ public void cvar_change(ConVar convar, const char[] oldValue,
 	else if (view_as<Handle>(convar) == cvar[CVAR_AIMLOCK_LIGHT]) {
 		icvar[CVAR_AIMLOCK_LIGHT] = StringToInt(newValue, 10);
 	}
+	else if (view_as<Handle>(convar) == cvar[CVAR_ANTI_DUCK_DELAY]) {
+		icvar[CVAR_ANTI_DUCK_DELAY] = StringToInt(newValue, 10);
+	}
 	else if (view_as<Handle>(convar) == cvar[CVAR_BACKTRACK_PATCH]) {
 		icvar[CVAR_BACKTRACK_PATCH] = StringToInt(newValue, 10);
 	}
@@ -596,6 +669,16 @@ public void cvar_change(ConVar convar, const char[] oldValue,
 	}
 	else if (view_as<Handle>(convar) == cvar[CVAR_LOSS_FIX]) {
 		icvar[CVAR_LOSS_FIX] = StringToInt(newValue, 10);
+	}
+	else if (view_as<Handle>(convar) == cvar[CVAR_AUTO_UPDATE]) {
+		icvar[CVAR_AUTO_UPDATE] = StringToInt(newValue, 10);
+
+		#if defined _updater_included
+		if (icvar[CVAR_AUTO_UPDATE])
+			Updater_AddPlugin(UPDATE_URL);
+		else
+			Updater_RemovePlugin();
+		#endif
 	}
 	else {
 		GetConVarName(convar, cvarname, sizeof(cvarname));
@@ -759,7 +842,8 @@ public Action timer_welcome(Handle timer, int userid)
 {
 	int client = GetClientOfUserId(userid);
 
-	if (is_player_valid(client) && icvar[CVAR_WELCOME] && icvar[CVAR_ENABLE] && icvar[CVAR_BAN])
+	if (is_player_valid(client) && icvar[CVAR_WELCOME]
+		&& icvar[CVAR_ENABLE] && icvar[CVAR_BAN])
 		PrintToChat(client, "[Lilac] %T", "welcome_msg", client, VERSION);
 }
 
@@ -798,7 +882,8 @@ public Action timer_query(Handle timer)
 				lilac_log_setup_client(i);
 				Format(line, sizeof(line),
 					"%s was kicked for failing to respond to %d queries in %.0f seconds.",
-					line, QUERY_MAX_FAILURES, QUERY_TIMER * QUERY_MAX_FAILURES);
+					line, QUERY_MAX_FAILURES,
+					QUERY_TIMER * QUERY_MAX_FAILURES);
 
 				lilac_log(true);
 
@@ -1322,6 +1407,10 @@ public Action OnPlayerRunCmd(int client, int& buttons, int& impulse,
 		return Plugin_Continue;
 	}
 
+	// Detect Anti-Duck-Delay
+	if (ggame == GAME_CSGO && icvar[CVAR_ANTI_DUCK_DELAY] && (buttons & IN_BULLRUSH))
+		lilac_detected_anti_duck_delay(client);
+
 	// Patch backtracking.
 	// 	This will cause hitreg issues for players with packetloss (and some teleporting??).
 	if (icvar[CVAR_BACKTRACK_PATCH]) {
@@ -1363,14 +1452,15 @@ public Action OnPlayerRunCmd(int client, int& buttons, int& impulse,
 				angles[0] = (max_angles[0] * -1.0);
 		}
 
-		// Patching yaw AA will interfere with aimbot/aimlock tests.
-
 		// Patch roll.
 		angles[2] = 0.0;
 	}
 
 	// Detect bhop.
 	if (icvar[CVAR_BHOP] && !cvar_bhop_value) {
+		if ((buttons & IN_JUMP))
+			playerinfo_jumps[client]++;
+
 		int flags = GetEntityFlags(client);
 		if ((buttons & IN_JUMP) && !(lbuttons[client] & IN_JUMP)) {
 			if ((flags & FL_ONGROUND)) {
@@ -1378,8 +1468,6 @@ public Action OnPlayerRunCmd(int client, int& buttons, int& impulse,
 
 				playerinfo_bhop[client]++;
 			}
-
-			playerinfo_jumps[client]++;
 		}
 		else if ((flags & FL_ONGROUND)) {
 			playerinfo_bhop[client] = 0;
@@ -1454,6 +1542,32 @@ bool bullettime_can_shoot(int client)
 	return false;
 }
 
+void lilac_detected_anti_duck_delay(int client)
+{
+	if (playerinfo_banned_flags[client][CHEAT_ANTI_DUCK_DELAY])
+		return;
+
+	// Todo, maybe add timer to prevent spam?
+	if (lilac_forward_allow_cheat_detection(client, CHEAT_ANTI_DUCK_DELAY) == false)
+		return;
+
+	playerinfo_banned_flags[client][CHEAT_ANTI_DUCK_DELAY] = true;
+
+	lilac_forward_client_cheat(client, CHEAT_ANTI_DUCK_DELAY);
+
+	if (icvar[CVAR_LOG]) {
+		lilac_log_setup_client(client);
+		Format(line, sizeof(line), "%s was detected and banned for Anti-Duck-Delay.", line);
+
+		lilac_log(true);
+
+		if (icvar[CVAR_LOG_EXTRA])
+			lilac_log_extra(client);
+	}
+
+	lilac_ban_client(client, CHEAT_ANTI_DUCK_DELAY);
+}
+
 void lilac_detected_aimlock(int client)
 {
 	if (playerinfo_banned_flags[client][CHEAT_AIMLOCK])
@@ -1523,20 +1637,18 @@ void lilac_detected_bhop(int client)
 	if (playerinfo_banned_flags[client][CHEAT_BHOP])
 		return;
 
-	// Mode 1:
-	// 	Simplistic mode, only ban on the 10th bhop.
-	// Mode 2:
-	// 	Advanced mode, ban on 5th bhop if the jump count is lower than 15.
-	// 	Else, ban on 10th bhop.
 	switch (icvar[CVAR_BHOP]) {
+	// Simplistic mode.
 	case 1: {
-		if (playerinfo_bhop[client] < 10)
+		if (playerinfo_bhop[client] < bhop_max[BHOP_SIMPLISTIC])
 			return;
 	}
+	// Advanced mode.
 	case 2: {
-		if (playerinfo_bhop[client] < 5)
+		if (playerinfo_bhop[client] < bhop_max[BHOP_ADVANCED])
 			return;
-		else if (playerinfo_bhop[client] < 10 && playerinfo_jumps[client] > 15)
+		else if (playerinfo_bhop[client] < bhop_max[BHOP_SIMPLISTIC]
+			&& playerinfo_jumps[client] > 15)
 			return;
 	}
 	}
@@ -1552,7 +1664,7 @@ void lilac_detected_bhop(int client)
 		lilac_log_setup_client(client);
 		Format(line, sizeof(line),
 			"%s was detected and banned for Bhop (Jumps Presses: %d | Bhops: %d).",
-			line, playerinfo_jumps[client], playerinfo_bhop[client]);
+			line, playerinfo_jumps[client] - 1, playerinfo_bhop[client]);
 
 		lilac_log(true);
 
@@ -1746,6 +1858,7 @@ bool lilac_is_player_in_aimlock_que(int client)
 	return (GetGameTime() < playerinfo_time_process_aimlock[client] // Are in the que.
 		|| playerinfo_aimlock[client] // Already has a detection.
 		|| playerinfo_aimbot[client] > 1 // Already have been detected for aimbot twice.
+		|| GetClientTime(client) < 240.0 // Client just joined the game.
 		|| (GetGameTime() - playerinfo_time_aimlock[client] < 180.0 && playerinfo_time_aimlock[client] > 1.0)); // Had one aimlock the past three minutes.
 }
 
@@ -1888,32 +2001,33 @@ void lilac_ban_client(int client, int cheat)
 		"[Little Anti-Cheat %s] %T", VERSION, "ban_aimbot", client); }
 	case CHEAT_AIMLOCK: { Format(reason, sizeof(reason),
 		"[Little Anti-Cheat %s] %T", VERSION, "ban_aimlock", client); }
+	case CHEAT_ANTI_DUCK_DELAY: { Format(reason, sizeof(reason),
+		"[Little Anti-Cheat %s] %T", VERSION, "ban_anti_duck_delay", client); }
 	default: return;
 	}
 
 	lilac_forward_client_ban(client, cheat);
 
-#if defined _materialadmin_included
+
+	#if defined _materialadmin_included
 	if (materialadmin_exist && icvar[CVAR_MA]) {
 		MABanPlayer(0, client, MA_BAN_STEAM, get_ban_length(cheat), reason);
 		CreateTimer(5.0, timer_kick, GetClientUserId(client));
 		return;
 	}
-#endif
+	#endif
 
 
-#if defined _sourcebanspp_included
-	if (sourcebans_exist && icvar[CVAR_SB]) {
+	#if defined _sourcebanspp_included
+	if (sourcebanspp_exist && icvar[CVAR_SB]) {
 		SBPP_BanPlayer(0, client, get_ban_length(cheat), reason);
 		CreateTimer(5.0, timer_kick, GetClientUserId(client));
 		return;
 	}
-#endif
+	#endif
 
-	// "Else"
+
 	BanClient(client, get_ban_length(cheat), BANFLAG_AUTO, reason, reason, "lilac", 0);
-
-	// Kick the client in case they are still on the server.
 	CreateTimer(5.0, timer_kick, GetClientUserId(client));
 }
 
@@ -1969,7 +2083,6 @@ void aim_at_point(const float p1[3], const float p2[3], float writeto[3])
 	SubtractVectors(p2, p1, writeto);
 	GetVectorAngles(writeto, writeto);
 
-	// NormalizeVector() Doesn't work...
 	while (writeto[0] > 90.0)
 		writeto[0] -= 360.0;
 	while (writeto[0] < -90.0)
