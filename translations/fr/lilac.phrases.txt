@@ -57,4 +57,9 @@
 	{
 		"fr"	"Aimlock détecté"
 	}
+
+	"ban_anti_duck_delay"
+	{
+		"fr" 	"Anti délai d'accroupissement détecté"
+	}
 }
