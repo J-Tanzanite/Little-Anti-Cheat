@@ -57,4 +57,9 @@
 	{
 		"en"	"Aimlock Detected"
 	}
+
+	"ban_anti_duck_delay"
+	{
+		"en" 	"Anti-Duck-Delay Detected"
+	}
 }
