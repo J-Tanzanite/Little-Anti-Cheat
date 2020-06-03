@@ -26,8 +26,7 @@
 #include <tf2>
 #include <tf2_stocks>
 
-#define VERSION "1.6.0-Dev 1"
-#define UPDATE_URL "http://littleanticheat.com/lilac_autoupdate/updatefile.txt"
+#define VERSION "1.6.0-Dev 2"
 
 #define CMD_LENGTH 	330
 
@@ -74,7 +73,8 @@
 #define CVAR_MAX_LERP 		23
 #define CVAR_LOSS_FIX 		24
 #define CVAR_AUTO_UPDATE 	25
-#define CVAR_MAX 		26
+#define CVAR_AUTO_UPDATE_URL 	26
+#define CVAR_MAX 		27
 
 #define BHOP_SIMPLISTIC 	0
 #define BHOP_ADVANCED 		1
@@ -300,7 +300,7 @@ public void OnPluginStart()
 		"Ban players with too high of a ping for 3 minutes.\nThis is meant to deal with fakelatency, the ban length is just to prevent instant reconnects.\n0 = no ling limit, minimum possible is 100.",
 		FCVAR_PROTECTED, true, 0.0, true, 1000.0);
 	cvar[CVAR_MAX_LERP] = CreateConVar("lilac_max_lerp", "105",
-		"Kick players with an interp higher than this in ms (minimum possible is 105ms, default value in Source games is 100ms).\nThis is done to patch an exploit in the game that makes facestabbing players in TF2 easier (aka cl_interp 0.5).\n0 = Disabled.\n105+ = Kick larger than this.",
+		"Kicks players attempting to exploit interpolation, any interp higher than this value = kick.\nMinimum value possible = 105 (Default interp in games = 100).\n0 or less than 105 = Disabled.",
 		FCVAR_PROTECTED, true, 0.0, true, 510.0); // 500 is max possible.
 	cvar[CVAR_LOSS_FIX] = CreateConVar("lilac_loss_fix", "1",
 		"Ignore some cheat detections for players who have too much packet loss (bad connection to the server).",
@@ -308,9 +308,12 @@ public void OnPluginStart()
 	cvar[CVAR_AUTO_UPDATE] = CreateConVar("lilac_auto_update", "0",
 		"Automatically update Little Anti-Cheat.",
 		FCVAR_PROTECTED, true, 0.0, true, 1.0);
+	cvar[CVAR_AUTO_UPDATE_URL] = CreateConVar("lilac_auto_update_url", "http://littleanticheat.com/lilac_autoupdate/updatefile.txt",
+		"Sets the URL from where Little Anti-Cheat will update from, DO NOT USE UNTRUSTED SOURCES!",
+		FCVAR_PROTECTED, false, 0.0, false, 0.0);
 
 	for (int i = 0; i < CVAR_MAX; i++) {
-		if (i != CVAR_LOG_DATE)
+		if (i != CVAR_LOG_DATE && i != CVAR_AUTO_UPDATE_URL)
 			icvar[i] = GetConVarInt(cvar[i]);
 
 		HookConVarChange(cvar[i], cvar_change);
@@ -399,10 +402,8 @@ public void OnAllPluginsLoaded()
 	materialadmin_exist = LibraryExists("materialadmin");
 
 	// Updates ;)
-	#if defined _updater_included
 	if (LibraryExists("updater") && icvar[CVAR_AUTO_UPDATE])
-		Updater_AddPlugin(UPDATE_URL);
-	#endif
+		lilac_update_url();
 
 	// Startup message.
 	PrintToServer("[Little Anti-Cheat %s] Successfully loaded!", VERSION);
@@ -414,7 +415,7 @@ public Action lilac_ban_status(int args)
 	int ban_type = 0;
 	char tmp[16];
 
-	PrintToServer("=====[Lilac Ban status]=====", VERSION);
+	PrintToServer("=====[Lilac Ban Status]=====", VERSION);
 	PrintToServer("Checking ban plugins:");
 	PrintToServer("Material-Admin:");
 	PrintToServer("\tLoaded: %s", ((materialadmin_exist) ? "Yes" : "No"));
@@ -548,6 +549,8 @@ public APLRes AskPluginLoad2(Handle hMyself, bool bLate, char[] sError, int err_
 	// Been told this isn't needed, but just in case.
 	MarkNativeAsOptional("SBPP_BanPlayer");
 	MarkNativeAsOptional("MABanPlayer");
+	MarkNativeAsOptional("Updater_AddPlugin");
+	MarkNativeAsOptional("Updater_RemovePlugin");
 
 	return APLRes_Success;
 }
@@ -558,12 +561,8 @@ public void OnLibraryAdded(const char []name)
 		sourcebanspp_exist = true;
 	else if (StrEqual(name, "materialadmin"))
 		materialadmin_exist = true;
-
-	// NOTE: ELSE IF STATEMENT!
-	#if defined _updater_included
 	else if (StrEqual(name, "updater") && icvar[CVAR_AUTO_UPDATE])
-		Updater_AddPlugin(UPDATE_URL);
-	#endif
+		lilac_update_url();
 }
 
 public void OnLibraryRemoved(const char []name)
@@ -673,12 +672,10 @@ public void cvar_change(ConVar convar, const char[] oldValue,
 	else if (view_as<Handle>(convar) == cvar[CVAR_AUTO_UPDATE]) {
 		icvar[CVAR_AUTO_UPDATE] = StringToInt(newValue, 10);
 
-		#if defined _updater_included
-		if (icvar[CVAR_AUTO_UPDATE])
-			Updater_AddPlugin(UPDATE_URL);
-		else
-			Updater_RemovePlugin();
-		#endif
+		lilac_update_url();
+	}
+	else if (view_as<Handle>(convar) == cvar[CVAR_AUTO_UPDATE_URL]) {
+		lilac_update_url();
 	}
 	else {
 		GetConVarName(convar, cvarname, sizeof(cvarname));
@@ -701,6 +698,27 @@ public void cvar_change(ConVar convar, const char[] oldValue,
 			time_sv_cheats = GetTime() + QUERY_TIMEOUT;
 		}
 	}
+}
+
+void lilac_update_url()
+{
+	#if defined _updater_included
+
+	char url[512];
+
+	if (icvar[CVAR_AUTO_UPDATE]) {
+		GetConVarString(cvar[CVAR_AUTO_UPDATE_URL], url, sizeof(url));
+		Updater_AddPlugin(url);
+	}
+	else {
+		Updater_RemovePlugin();
+	}
+
+	#else
+
+	PrintToServer("Error: Auto updater wasn't included when compiled, auto updating won't work!");
+
+	#endif
 }
 
 public void OnClientPutInServer(int client)
