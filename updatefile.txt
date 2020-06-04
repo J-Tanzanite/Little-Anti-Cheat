@@ -1,0 +1,29 @@
+"Updater"
+{
+	"Information"
+	{
+		"Version"
+		{
+			"Latest"	"1.6.0-Dev 3"
+		}
+
+		"Notes" "Auto Update should work now, I think..."
+	}
+
+	"Files"
+	{
+		"Plugin"	"Path_SM/plugins/lilac.smx"
+		"Plugin"	"Path_SM/translations/lilac.phrases.txt"
+		"Plugin"	"Path_SM/translations/cze/lilac.phrases.txt"
+		"Plugin"	"Path_SM/translations/de/lilac.phrases.txt"
+		"Plugin"	"Path_SM/translations/es/lilac.phrases.txt"
+		"Plugin"	"Path_SM/translations/fr/lilac.phrases.txt"
+		"Plugin"	"Path_SM/translations/no/lilac.phrases.txt"
+		"Plugin"	"Path_SM/translations/pt/lilac.phrases.txt"
+		"Plugin"	"Path_SM/translations/ru/lilac.phrases.txt"
+		"Plugin"	"Path_SM/translations/tr/lilac.phrases.txt"
+		"Plugin"	"Path_SM/translations/ua/lilac.phrases.txt"
+
+		"Source"	"Path_SM/scripting/lilac.sp"
+	}
+}
