@@ -26,7 +26,7 @@
 #include <tf2>
 #include <tf2_stocks>
 
-#define VERSION "1.6.0-Dev 2"
+#define VERSION "1.6.0-Dev 3"
 
 #define CMD_LENGTH 	330
 
@@ -308,7 +308,7 @@ public void OnPluginStart()
 	cvar[CVAR_AUTO_UPDATE] = CreateConVar("lilac_auto_update", "0",
 		"Automatically update Little Anti-Cheat.",
 		FCVAR_PROTECTED, true, 0.0, true, 1.0);
-	cvar[CVAR_AUTO_UPDATE_URL] = CreateConVar("lilac_auto_update_url", "http://littleanticheat.com/lilac_autoupdate/updatefile.txt",
+	cvar[CVAR_AUTO_UPDATE_URL] = CreateConVar("lilac_auto_update_url", "https://raw.githubusercontent.com/J-Tanzanite/Little-Anti-Cheat/development/updatefile.txt",
 		"Sets the URL from where Little Anti-Cheat will update from, DO NOT USE UNTRUSTED SOURCES!",
 		FCVAR_PROTECTED, false, 0.0, false, 0.0);
 
