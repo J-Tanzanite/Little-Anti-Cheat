@@ -148,7 +148,8 @@ char query_list[][] = {
 };
 
 
-public Plugin:myinfo = {
+public Plugin myinfo = 
+{
 	name = "[Lilac] Little Anti-Cheat",
 	author = "J_Tanzanite",
 	description = "An opensource Anti-Cheat.",
@@ -288,7 +289,7 @@ public void OnPluginStart()
 		"Patch Backtrack.\n0 = Disabled (Recommended).\n1 = Enabled (Not recommended, may cause hitreg issues).",
 		FCVAR_PROTECTED, true, 0.0, true, 1.0);
 	cvar[CVAR_MAX_PING] = CreateConVar("lilac_max_ping", "0",
-		"Ban players with too high of a ping for 3 minutes.\nThis is meant to deal with fakelatency, the ban length is just to prevent instant reconnects.\n0 = no ling limit, minimum possible is 100.",
+		"Ban players with too high of a ping for 3 minutes.\nThis is meant to deal with fakelatency, the ban length is just to prevent instant reconnects.\n0 = no ping limit, minimum possible is 100.",
 		FCVAR_PROTECTED, true, 0.0, true, 1000.0);
 	cvar[CVAR_MAX_LERP] = CreateConVar("lilac_max_lerp", "105",
 		"Kick players with an interp higher than this in ms (minimum possible is 105ms, default value in Source games is 100ms).\nThis is done to patch an exploit in the game that makes facestabbing players in TF2 easier (aka cl_interp 0.5).\n0 = Disabled.\n105+ = Kick larger than this.",
@@ -2096,65 +2097,3 @@ bool lilac_forward_allow_cheat_detection(int client, int cheat)
 
 	return false;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-//
