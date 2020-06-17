@@ -144,6 +144,7 @@ char query_list[][] = {
 	"r_shadowwireframe",
 	"r_showenvcubemap",
 	"r_drawrenderboxes",
+	"r_aspectratio",
 	"r_modelwireframedecal"
 };
 
@@ -847,6 +848,7 @@ public void query_reply(QueryCookie cookie, int client,
 		|| (StrEqual("r_shadowwireframe", cvarName, false) && val)
 		|| (StrEqual("r_showenvcubemap", cvarName, false) && val)
 		|| (StrEqual("r_drawrenderboxes", cvarName, false) && val)
+		|| (StrEqual("r_aspectratio", cvarName, false) && val)
 		|| (StrEqual("r_modelwireframedecal", cvarName, false) && val)) {
 
 		if (lilac_forward_allow_cheat_detection(client, CHEAT_CONVAR) == false)
