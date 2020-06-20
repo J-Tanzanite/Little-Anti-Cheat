@@ -4,10 +4,10 @@
 	{
 		"Version"
 		{
-			"Latest"	"1.6.0-Dev 3"
+			"Latest"	"1.6.0-RC 1"
 		}
 
-		"Notes" "Auto Update should work now, I think..."
+		"Notes" "General improvements, Release Candidate 1 is ready!"
 	}
 
 	"Files"
