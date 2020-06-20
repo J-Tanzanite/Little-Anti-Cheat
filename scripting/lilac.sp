@@ -26,7 +26,7 @@
 #include <tf2>
 #include <tf2_stocks>
 
-#define VERSION "1.6.0-Dev 3"
+#define VERSION "1.6.0-RC 1"
 
 #define CMD_LENGTH 	330
 
@@ -1059,7 +1059,7 @@ public Action timer_check_ping(Handle timer)
 			continue;
 
 		// Player recently joined, don't check ping yet.
-		if (GetClientTime(i) < 100.0)
+		if (GetClientTime(i) < 120.0)
 			continue;
 
 		ping = GetClientAvgLatency(i, NetFlow_Outgoing) * 1000.0;
@@ -1071,8 +1071,8 @@ public Action timer_check_ping(Handle timer)
 			continue;
 		}
 
-		// Player has a higher ping than maximum for 45 seconds.
-		if (++playerinfo_high_ping[i] < 9)
+		// Player has a higher ping than maximum for 100 seconds.
+		if (++playerinfo_high_ping[i] < 20)
 			continue;
 
 		if (icvar[CVAR_LOG_MISC]) {
@@ -1451,13 +1451,8 @@ public Action OnPlayerRunCmd(int client, int& buttons, int& impulse,
 	if (icvar[CVAR_ANGLES] && IsPlayerAlive(client)
 		&& GetGameTime() > playerinfo_time_teleported[client] + 5.0) {
 
-		for (int i = 0; i < 3; i++) {
-			if (max_angles[i] == 0.0)
-				continue;
-
-			if (FloatAbs(angles[i]) > max_angles[i])
-				lilac_detected_antiaim(client);
-		}
+		if (FloatAbs(angles[0]) > max_angles[0] || FloatAbs(angles[2]) > max_angles[2])
+			lilac_detected_antiaim(client);
 	}
 
 	// Patch out of bounds angles.
