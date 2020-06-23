@@ -23,7 +23,7 @@
 		"es"		"Tu Ping es demasiado alto ({1} / {2} máx)"
 	}
 
-	"kick_ban_genetic"
+	"kick_ban_generic"
 	{
 		"es"	"Has sido prohibido en este servidor"
 	}
