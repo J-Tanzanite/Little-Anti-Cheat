@@ -23,7 +23,7 @@
 		"cze"		"Váš ping je příliš vysoký ({1} / {2} max)"
 	}
 
-	"kick_ban_genetic"
+	"kick_ban_generic"
 	{
 		"cze"	"Byl jste zabanován z tohoto serveru"
 	}
