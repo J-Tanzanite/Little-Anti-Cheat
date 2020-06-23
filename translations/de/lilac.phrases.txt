@@ -23,7 +23,7 @@
 		"de"		"Ihr Ping ist zu hoch ({1} / {2} max)"
 	}
 
-	"kick_ban_genetic"
+	"kick_ban_generic"
 	{
 		"de"	"Sie wurden von diesem Server gesperrt"
 	}
