@@ -4,10 +4,10 @@
 	{
 		"Version"
 		{
-			"Latest"	"1.6.0-RC 1"
+			"Latest"	"1.6.0-RC 2"
 		}
 
-		"Notes" "General improvements, Release Candidate 1 is ready!"
+		"Notes" "Fixed a typo in code and translation files."
 	}
 
 	"Files"
