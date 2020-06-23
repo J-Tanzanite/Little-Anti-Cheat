@@ -26,7 +26,7 @@
 #include <tf2>
 #include <tf2_stocks>
 
-#define VERSION "1.6.0-RC 1"
+#define VERSION "1.6.0-RC 2"
 
 #define CMD_LENGTH 	330
 
@@ -2049,7 +2049,7 @@ public Action timer_kick(Handle timer, int userid)
 	int client = GetClientOfUserId(userid);
 
 	if (is_player_valid(client))
-		KickClient(client, "%T", "kick_ban_genetic", client);
+		KickClient(client, "%T", "kick_ban_generic", client);
 }
 
 int get_ban_length(int cheat)
