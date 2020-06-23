@@ -47,6 +47,7 @@ If you are just installing Lilac or wanna use the new config location, it is at 
  - Larry/LarryBrains for informing me of false Angle-Cheat detections in L4D2.
 
 ### Current languages supported:
+ - Simplified Chinese (by RoyZ https://github.com/RoyZ-CSGO ^-^).
  - Norwegian (By me, the translations could be better).
  - French (By Rasi / GreenGuyRasi).
  - English (By me lol duh hue hue hue).
