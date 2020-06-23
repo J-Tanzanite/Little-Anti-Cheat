@@ -23,7 +23,7 @@
 		"no"		"Nettverk forsinkelsen (Ping) din er for høy ({1} / {2} maks)"
 	}
 
-	"kick_ban_genetic"
+	"kick_ban_generic"
 	{
 		"no"	"Du har blitt utestengt fra denne serveren på grunn av juksing"
 	}
