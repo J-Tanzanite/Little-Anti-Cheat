@@ -788,7 +788,7 @@ public Action timer_query(Handle timer)
 		// Only increments query index if the player
 		// 	has responded to the last one.
 		if (!playerinfo_query_failed[i]) {
-			if (++playerinfo_query_index[i] >= 11)
+			if (++playerinfo_query_index[i] >= 12)
 				playerinfo_query_index[i] = 0;
 		}
 
