@@ -26,7 +26,12 @@
 #include <tf2>
 #include <tf2_stocks>
 
-#define VERSION "1.6.0-RC 2"
+#define NATIVE_MA_EXISTS() 		(GetFeatureStatus(FeatureType_Native, "MABanPlayer") == FeatureStatus_Available)
+#define NATIVE_SBPP_EXISTS() 		(GetFeatureStatus(FeatureType_Native, "SBPP_BanPlayer") == FeatureStatus_Available)
+#define NATIVE_UPDATE_ADD_EXISTS() 	(GetFeatureStatus(FeatureType_Native, "Updater_AddPlugin") == FeatureStatus_Available)
+#define NATIVE_UPDATE_REMOVE_EXISTS() 	(GetFeatureStatus(FeatureType_Native, "Updater_RemovePlugin") == FeatureStatus_Available)
+
+#define VERSION "1.6.0-RC 3"
 
 #define CMD_LENGTH 	330
 
@@ -116,8 +121,11 @@ float max_angles[3] = {89.01, 0.0, 50.01};
 Handle forwardhandle = INVALID_HANDLE;
 Handle forwardhandleban = INVALID_HANDLE;
 Handle forwardhandleallow = INVALID_HANDLE;
+
+// External plugins.
 bool sourcebanspp_exist = false;
 bool materialadmin_exist = false;
+bool updater_exist = false;
 
 // Logging.
 int playerinfo_index[MAXPLAYERS + 1];
@@ -400,9 +408,10 @@ public void OnAllPluginsLoaded()
 	// Sourcebans compat...
 	sourcebanspp_exist = LibraryExists("sourcebans++");
 	materialadmin_exist = LibraryExists("materialadmin");
+	updater_exist = LibraryExists("updater");
 
 	// Updates ;)
-	if (LibraryExists("updater") && icvar[CVAR_AUTO_UPDATE])
+	if (icvar[CVAR_AUTO_UPDATE])
 		lilac_update_url();
 
 	// Startup message.
@@ -419,24 +428,26 @@ public Action lilac_ban_status(int args)
 	PrintToServer("Checking ban plugins:");
 	PrintToServer("Material-Admin:");
 	PrintToServer("\tLoaded: %s", ((materialadmin_exist) ? "Yes" : "No"));
+	PrintToServer("\tNative Exists: %s", ((NATIVE_MA_EXISTS()) ? "Yes" : "No"));
 	PrintToServer("\tConVar: lilac_materialadmin = %d", icvar[CVAR_MA]);
 	
 	#if !defined _materialadmin_included
 	PrintToServer("\tWARNING: Material-Admin was NOT included when compiled, banning through MA won't work!");
 	PrintToServer("\tПредупреждение: Material-Admin НЕ БЫЛ включен при компиляции, баны через MA не будут работать!");
 	#else
-	ban_type = ((icvar[CVAR_MA] && materialadmin_exist) ? 2 : 0);
+	ban_type = ((icvar[CVAR_MA] && materialadmin_exist && NATIVE_MA_EXISTS()) ? 2 : 0);
 	#endif
 	
 	PrintToServer("Sourcebans++:");
 	PrintToServer("\tLoaded: %s", ((sourcebanspp_exist) ? "Yes" : "No"));
+	PrintToServer("\tNative Exists: %s", ((NATIVE_SBPP_EXISTS()) ? "Yes" : "No"));
 	PrintToServer("\tConVar: lilac_sourcebans = %d", icvar[CVAR_SB]);
 	
 	#if !defined _sourcebanspp_included
 	PrintToServer("\tWARNING: Sourcebans++ was NOT included when compiled, banning through SB++ won't work!");
 	#else
 	if (!ban_type)
-		ban_type = (icvar[CVAR_SB] && sourcebanspp_exist);
+		ban_type = (icvar[CVAR_SB] && sourcebanspp_exist && NATIVE_SBPP_EXISTS());
 	#endif
 
 	switch (ban_type) {
@@ -557,12 +568,16 @@ public APLRes AskPluginLoad2(Handle hMyself, bool bLate, char[] sError, int err_
 
 public void OnLibraryAdded(const char []name)
 {
-	if (StrEqual(name, "sourcebans++"))
+	if (StrEqual(name, "sourcebans++")) {
 		sourcebanspp_exist = true;
-	else if (StrEqual(name, "materialadmin"))
+	}
+	else if (StrEqual(name, "materialadmin")) {
 		materialadmin_exist = true;
-	else if (StrEqual(name, "updater") && icvar[CVAR_AUTO_UPDATE])
+	}
+	else if (StrEqual(name, "updater")) {
+		updater_exist = true;
 		lilac_update_url();
+	}
 }
 
 public void OnLibraryRemoved(const char []name)
@@ -571,6 +586,8 @@ public void OnLibraryRemoved(const char []name)
 		sourcebanspp_exist = false;
 	else if (StrEqual(name, "materialadmin"))
 		materialadmin_exist = false;
+	else if (StrEqual(name, "updater"))
+		updater_exist = false;
 }
 
 public void cvar_change(ConVar convar, const char[] oldValue,
@@ -703,21 +720,32 @@ public void cvar_change(ConVar convar, const char[] oldValue,
 void lilac_update_url()
 {
 	#if defined _updater_included
-
 	char url[512];
 
+	if (updater_exist == false) {
+		PrintToServer("Error: \"Updater\" plugin not found to be installed.");
+		return;
+	}
+
 	if (icvar[CVAR_AUTO_UPDATE]) {
+		if (!NATIVE_UPDATE_ADD_EXISTS()) {
+			PrintToServer("Error: Updater_AddPlugin() not found!");
+			return;
+		}
+
 		GetConVarString(cvar[CVAR_AUTO_UPDATE_URL], url, sizeof(url));
 		Updater_AddPlugin(url);
 	}
 	else {
+		if (!NATIVE_UPDATE_REMOVE_EXISTS()) {
+			PrintToServer("Error: Updater_RemovePlugin() not found!");
+			return;
+		}
+
 		Updater_RemovePlugin();
 	}
-
 	#else
-
 	PrintToServer("Error: Auto updater wasn't included when compiled, auto updating won't work!");
-
 	#endif
 }
 
@@ -2023,7 +2051,7 @@ void lilac_ban_client(int client, int cheat)
 
 
 	#if defined _materialadmin_included
-	if (materialadmin_exist && icvar[CVAR_MA]) {
+	if (materialadmin_exist && icvar[CVAR_MA] && NATIVE_MA_EXISTS()) {
 		MABanPlayer(0, client, MA_BAN_STEAM, get_ban_length(cheat), reason);
 		CreateTimer(5.0, timer_kick, GetClientUserId(client));
 		return;
@@ -2032,7 +2060,7 @@ void lilac_ban_client(int client, int cheat)
 
 
 	#if defined _sourcebanspp_included
-	if (sourcebanspp_exist && icvar[CVAR_SB]) {
+	if (sourcebanspp_exist && icvar[CVAR_SB] && NATIVE_SBPP_EXISTS()) {
 		SBPP_BanPlayer(0, client, get_ban_length(cheat), reason);
 		CreateTimer(5.0, timer_kick, GetClientUserId(client));
 		return;
