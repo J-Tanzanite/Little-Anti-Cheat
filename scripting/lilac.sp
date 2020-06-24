@@ -31,7 +31,9 @@
 #define NATIVE_UPDATE_ADD_EXISTS() 	(GetFeatureStatus(FeatureType_Native, "Updater_AddPlugin") == FeatureStatus_Available)
 #define NATIVE_UPDATE_REMOVE_EXISTS() 	(GetFeatureStatus(FeatureType_Native, "Updater_RemovePlugin") == FeatureStatus_Available)
 
-#define VERSION "1.6.0-RC 3"
+#define UPDATE_URL 	"https://raw.githubusercontent.com/J-Tanzanite/Little-Anti-Cheat/development/updatefile.txt"
+
+#define VERSION "1.6.0-RC 4"
 
 #define CMD_LENGTH 	330
 
@@ -78,8 +80,7 @@
 #define CVAR_MAX_LERP 		23
 #define CVAR_LOSS_FIX 		24
 #define CVAR_AUTO_UPDATE 	25
-#define CVAR_AUTO_UPDATE_URL 	26
-#define CVAR_MAX 		27
+#define CVAR_MAX 		26
 
 #define BHOP_SIMPLISTIC 	0
 #define BHOP_ADVANCED 		1
@@ -316,12 +317,9 @@ public void OnPluginStart()
 	cvar[CVAR_AUTO_UPDATE] = CreateConVar("lilac_auto_update", "0",
 		"Automatically update Little Anti-Cheat.",
 		FCVAR_PROTECTED, true, 0.0, true, 1.0);
-	cvar[CVAR_AUTO_UPDATE_URL] = CreateConVar("lilac_auto_update_url", "https://raw.githubusercontent.com/J-Tanzanite/Little-Anti-Cheat/development/updatefile.txt",
-		"Sets the URL from where Little Anti-Cheat will update from, DO NOT USE UNTRUSTED SOURCES!",
-		FCVAR_PROTECTED, false, 0.0, false, 0.0);
 
 	for (int i = 0; i < CVAR_MAX; i++) {
-		if (i != CVAR_LOG_DATE && i != CVAR_AUTO_UPDATE_URL)
+		if (i != CVAR_LOG_DATE)
 			icvar[i] = GetConVarInt(cvar[i]);
 
 		HookConVarChange(cvar[i], cvar_change);
@@ -411,7 +409,7 @@ public void OnAllPluginsLoaded()
 	updater_exist = LibraryExists("updater");
 
 	// Updates ;)
-	if (icvar[CVAR_AUTO_UPDATE])
+	if (updater_exist)
 		lilac_update_url();
 
 	// Startup message.
@@ -691,9 +689,6 @@ public void cvar_change(ConVar convar, const char[] oldValue,
 
 		lilac_update_url();
 	}
-	else if (view_as<Handle>(convar) == cvar[CVAR_AUTO_UPDATE_URL]) {
-		lilac_update_url();
-	}
 	else {
 		GetConVarName(convar, cvarname, sizeof(cvarname));
 
@@ -720,8 +715,6 @@ public void cvar_change(ConVar convar, const char[] oldValue,
 void lilac_update_url()
 {
 	#if defined _updater_included
-	char url[512];
-
 	if (updater_exist == false) {
 		PrintToServer("Error: \"Updater\" plugin not found to be installed.");
 		return;
@@ -733,8 +726,7 @@ void lilac_update_url()
 			return;
 		}
 
-		GetConVarString(cvar[CVAR_AUTO_UPDATE_URL], url, sizeof(url));
-		Updater_AddPlugin(url);
+		Updater_AddPlugin(UPDATE_URL);
 	}
 	else {
 		if (!NATIVE_UPDATE_REMOVE_EXISTS()) {
