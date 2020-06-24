@@ -9,7 +9,8 @@ I suspect the problem lies with the interp settings the server allows... But not
 It is something I will look more into.
 
 2. Auto Update\
-Autoupdate is now added in version 1.6.0 (Development), I haven't tested it, but it should in theory work.
+Autoupdate is now added in version 1.6.0 (Development), I haven't tested it, but it should in theory work.\
+You MUST install this plugin for Auto-Update to work: https://forums.alliedmods.net/showthread.php?p=1570806
 
 3. Anti-Wallhack\
 Some people have asked me to add Anti-Wallhack support.\
