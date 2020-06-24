@@ -4,11 +4,12 @@
 	{
 		"Version"
 		{
-			"Latest"	"1.6.0-RC 3"
+			"Latest"	"1.6.0-RC 4"
 		}
 
 		"Notes" "Added extra error messages for updater plugin."
 		"Notes" "Updated command "lilac_ban_status" to show if native ban functions are available."
+		"Notes" "Removed Update Url ConVar."
 	}
 
 	"Files"
