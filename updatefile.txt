@@ -4,10 +4,11 @@
 	{
 		"Version"
 		{
-			"Latest"	"1.6.0-RC 2"
+			"Latest"	"1.6.0-RC 3"
 		}
 
-		"Notes" "Fixed a typo in code and translation files."
+		"Notes" "Added extra error messages for updater plugin."
+		"Notes" "Updated command "lilac_ban_status" to show if native ban functions are available."
 	}
 
 	"Files"
