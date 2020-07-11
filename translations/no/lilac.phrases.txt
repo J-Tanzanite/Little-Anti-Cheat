@@ -62,4 +62,9 @@
 	{
 		"no" 	"Antidukk-forsinkelse oppdaget"
 	}
+
+	"ban_noisemaker"
+	{
+		"no" 	"Uendelig Noisemaker-bruk oppdaget"
+	}
 }
