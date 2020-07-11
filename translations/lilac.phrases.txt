@@ -62,4 +62,9 @@
 	{
 		"en" 	"Anti-Duck-Delay Detected"
 	}
+
+	"ban_noisemaker"
+	{
+		"en" 	"Infinite Noisemaker Detected"
+	}
 }
