@@ -28,7 +28,7 @@
 
 #define NATIVE_EXISTS(%0) 	(GetFeatureStatus(FeatureType_Native, %0) == FeatureStatus_Available)
 #define UPDATE_URL 		"https://raw.githubusercontent.com/J-Tanzanite/Little-Anti-Cheat/development/updatefile.txt"
-#define VERSION 		"1.6.0-RC 5"
+#define VERSION 		"1.6.1-RC 5"
 
 #define CMD_LENGTH 	330
 
@@ -367,10 +367,12 @@ public void OnPluginStart()
 
 	// If sv_maxupdaterate is changed mid-game and then this plugin
 	// 	is loaded, then it could lead to false positives.
-	// 	Reset all stats on all players already in-game, but ignore lerp.
+	// Reset all stats on all players already in-game, but ignore lerp.
+	// Also check players already in-game for noisemaker.
 	for (int i = 1; i <= MaxClients; i++) {
 		lilac_reset_client(i);
 		playerinfo_ignore_lerp[i] = true;
+		check_inventory_for_noisemaker(i);
 	}
 
 	RegServerCmd("lilac_date_list", lilac_date_list,
@@ -494,7 +496,8 @@ public Action lilac_set_ban_length(int args)
 		PrintToServer("\tlilac_set_ban_length bhop <minutes>");
 		PrintToServer("\tlilac_set_ban_length aimbot <minutes>");
 		PrintToServer("\tlilac_set_ban_length aimlock <minutes>");
-		PrintToServer("\tlilac_set_ban_length antiduckdelay <minutes>\n");
+		PrintToServer("\tlilac_set_ban_length antiduckdelay <minutes>");
+		PrintToServer("\tlilac_set_ban_length noisemaker <minutes>\n");
 
 		return Plugin_Handled;
 	}
@@ -527,6 +530,9 @@ public Action lilac_set_ban_length(int args)
 		|| StrEqual(feature, "antiduck", false) || StrEqual(feature, "antiduckdelay", false)
 		|| StrEqual(feature, "fastduck", false)) {
 		index = CHEAT_ANTI_DUCK_DELAY;
+	}
+	else if (StrEqual(feature, "noisemaker", false) || StrEqual(feature, "noise", false)) {
+		index = CHEAT_NOISEMAKER_SPAM;
 	}
 	else {
 		PrintToServer("Error: Unknown cheat feature \"%s\"", feature);
@@ -822,8 +828,15 @@ public void TF2_OnConditionRemoved(int client, TFCond condition)
 
 public Action event_inventoryupdate(Event event, const char[] name, bool dontBroadcast)
 {
+	int client;
+
+	client = GetClientOfUserId(GetEventInt(event, "userid", 0));
+	check_inventory_for_noisemaker(client);
+}
+
+void check_inventory_for_noisemaker(int client)
+{
 	char classname[32];
-	int client = GetClientOfUserId(GetEventInt(event, "userid", 0));
 	int type;
 
 	if (!is_player_valid(client))
@@ -850,7 +863,7 @@ public Action event_inventoryupdate(Event event, const char[] name, bool dontBro
 		if (type) {
 			playerinfo_noisemaker_type[client] = type;
 			playerinfo_noisemaker_ent[client] = i;
-			break;
+			return;
 		}
 	}
 }
@@ -1493,10 +1506,10 @@ public Action OnClientCommandKeyValues(int client, KeyValues kv)
 	char command[64];
 	KvGetSectionName(kv, command, sizeof(command));
 
-	if (!icvar[CVAR_ENABLE] || !icvar[CVAR_NOISEMAKER_SPAM])
+	if (ggame != GAME_TF2)
 		return Plugin_Continue;
 
-	if (ggame != GAME_TF2)
+	if (!icvar[CVAR_ENABLE] || !icvar[CVAR_NOISEMAKER_SPAM])
 		return Plugin_Continue;
 
 	if (playerinfo_noisemaker_type[client] != NOISEMAKER_TYPE_LIMITED)
@@ -1559,11 +1572,14 @@ public Action OnPlayerRunCmd(int client, int& buttons, int& impulse,
 	if (ggame == GAME_CSGO && icvar[CVAR_ANTI_DUCK_DELAY] && (buttons & IN_BULLRUSH))
 		lilac_detected_anti_duck_delay(client);
 
+	// Backtrack setup, even if patch is disabled, these values
+	// 	need to be stored incase the backtrack patch gets
+	// 	enabled mid-game.
+	playerinfo_tickcount_prev[client] = playerinfo_tickcount[client];
+	playerinfo_tickcount[client] = tickcount;
+
 	// Patch backtracking.
 	if (icvar[CVAR_BACKTRACK_PATCH]) {
-		playerinfo_tickcount_prev[client] = playerinfo_tickcount[client];
-		playerinfo_tickcount[client] = tickcount;
-
 		if (lilac_valid_tickcount(client) == false
 			&& lilac_is_player_in_backtrack_timeout(client) == false)
 			lilac_set_client_in_backtrack_timeout(client);
@@ -1575,9 +1591,6 @@ public Action OnPlayerRunCmd(int client, int& buttons, int& impulse,
 			case 2: { tickcount = lilac_lock_tickcount(client); }
 			}
 		}
-	}
-	else {
-		playerinfo_tickcount[client] = tickcount;
 	}
 
 	// Detect angles that are out of bounds.
