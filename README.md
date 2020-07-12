@@ -22,7 +22,7 @@ I did some basic tests, and seems like IN_BULLRUSH isn't an input legit players 
 So, this should be something only cheaters can do, but just in case, the default ban length will be for 1 week.\
 If I get some feedback that this isn't producing false bans - then it will be changed to permanent bans. 
 
-5. TF2 Infinite Noisemaker\
+5. Infinite Noisemaker-Spam Detection\
 This is a new cheat detection for TF2 only, and it is in beta.\
 So for now, it will ONLY log players it suspects of using infinite noisemaker spam.\
 If no one reports false positives with steps on how to reproduce, then it will get changed to permanent bans in the future.
