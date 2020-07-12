@@ -4,7 +4,7 @@
 	{
 		"Version"
 		{
-			"Latest"	"1.6.0-RC 5"
+			"Latest"	"1.6.1-RC 5"
 		}
 
 		"Notes" "Added new BETA (May not work) TF2 cheat detection for Infinite Noisemaker Spam. Since it is in BETA, it WON'T ban, only log! If no false positives are reported, it will perma ban in the future."
@@ -15,6 +15,9 @@
 		"Notes" "Updated ConVar checker to be more basic and less CPU intensive."
 		"Notes" "Removed Anti-Duck-Delay/FastDuck's 1 week back length, it now perma bans."
 		
+		"Notes" "Version 1.6.1-RC 5 Fixes:"
+		"Notes" "Added noisemaker to lilac_set_ban_length command... Ops, forgot about that."
+		"Notes" "Updated general mistakes here and there."
 	}
 
 	"Files"
