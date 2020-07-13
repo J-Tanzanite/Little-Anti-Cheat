@@ -8,8 +8,8 @@
 		}
 
 		"Notes" "Added new BETA (May not work) TF2 cheat detection for Infinite Noisemaker Spam. Since it is in BETA, it WON'T ban, only log! If no false positives are reported, it will perma ban in the future."
-		"Notes" "Added new backtrack patch method, "Lock". This patch method shouldn't affect laggy legit players much."
-		"Notes" "Added new ConVar "lilac_max_ping_spec" (Default 0), moves players with high ping into team spectator and warns them about potential kick after x many seconds."
+		"Notes" "Added new backtrack patch method, 'Lock'. This patch method shouldn't affect laggy legit players much."
+		"Notes" "Added new ConVar 'lilac_max_ping_spec' (Default 0), moves players with high ping into team spectator and warns them about potential kick after x many seconds."
 		"Notes" "Added a delay for forwards so they won't get spammed to other plugins."
 		"Notes" "Updated how banning works through Sourcebans++/MaterialAdmin, it will now check if the native exists and not if the plugin by name is loaded."
 		"Notes" "Updated ConVar checker to be more basic and less CPU intensive."
