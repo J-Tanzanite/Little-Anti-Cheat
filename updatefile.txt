@@ -14,7 +14,6 @@
 		"Notes" "Updated how banning works through Sourcebans++/MaterialAdmin, it will now check if the native exists and not if the plugin by name is loaded."
 		"Notes" "Updated ConVar checker to be more basic and less CPU intensive."
 		"Notes" "Removed Anti-Duck-Delay/FastDuck's 1 week back length, it now perma bans."
-		
 		"Notes" "Version 1.6.1-RC 5 Fixes:"
 		"Notes" "Added noisemaker to lilac_set_ban_length command... Ops, forgot about that."
 		"Notes" "Updated general mistakes here and there."
@@ -33,7 +32,6 @@
 		"Plugin"	"Path_SM/translations/ru/lilac.phrases.txt"
 		"Plugin"	"Path_SM/translations/tr/lilac.phrases.txt"
 		"Plugin"	"Path_SM/translations/ua/lilac.phrases.txt"
-
 		"Source"	"Path_SM/scripting/lilac.sp"
 	}
 }
