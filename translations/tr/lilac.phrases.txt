@@ -23,7 +23,7 @@
 		"tr"		"Pinginiz çok yüksek (en fazla {1} / {2})"
 	}
 
-	"kick_ban_genetic"
+	"kick_ban_generic"
 	{
 		"tr"	"Bu sunucudan yasaklandınız"
 	}

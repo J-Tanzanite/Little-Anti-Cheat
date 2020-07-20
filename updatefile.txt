@@ -1,0 +1,52 @@
+"Updater"
+{
+	"Information"
+	{
+		"Version"
+		{
+			"Latest"	"1.6.0"
+		}
+
+		"Notes" "Removed redundant code."
+		"Notes" "Added new cheat detection feature for CS:GO (only), Anti-Duck-Delay/FastDuck."
+		"Notes" "Added new BETA (May not work) TF2 (only) cheat detection, infinite noisemaker spam. Since this is beta, it won't ban!"
+		"Notes" "Added BETA auto updater support."
+		"Notes" "Added new ConVar 'lilac_anti_duck_delay' (Default 1)."
+		"Notes" "Added new ConVar 'lilac_noisemaker' (Default 0)."
+		"Notes" "Added new ConVar 'lilac_auto_update' (Default 0)."
+		"Notes" "Added new ConVar 'lilac_max_ping_spec' (Default 0), moves players with high ping to spectator and warns them of an impending kick."
+		"Notes" "Added Russian warning if Material Admin wasn't included when compiled (Command: lilac_ban_status)."
+		"Notes" "Added new Backtrack patch method, Lock. This patch method shouldn't affect laggy legit players as much."
+		"Notes" "Added a delay for forwards so other plugins don't get spammed."
+		"Notes" "Fixed overly long ConVar description for 'lilac_max_lerp'."
+		"Notes" "Fixed typo in max ping ConVar description, thanks 4LEJ4NDRO/ALEJANDRO!"
+		"Notes" "Fixed a typo in code and translation files."
+		"Notes" "Updated Bhop to have a lower chance of a false positives, thanks M4rkey and Thundy!"
+		"Notes" "Updated Ping kicker to wait 100 seconds before kicking instead of 45 seconds."
+		"Notes" "Updated Ping kicker to skip testing players who have not been in game for more than 120 seconds."
+		"Notes" "Updated default ban length for Bho pto be 1 month instead of permanently."
+		"Notes" "Updated Aimlock to check newly connected players for Aimlock."
+		"Notes" "Updated command 'lilac_ban_status' to tell you if bans go through Sourcebans++, Material-Admin or Basebans."
+		"Notes" "Updated command 'lilac_ban_status' to show if native ban functions are available."
+		"Notes" "Updated so ban status will be printed after all plugins are loaded along with a startup message."
+		"Notes" "Updated how banning works through Sourcebans++/Material-Admin, it will now check if the native ban function exists and not if the plugin is loaded by name."
+		"Notes" "Updated ConVar checker to be more basic and less CPU intensive."
+		"Notes" "panikajo, add this to hlmod.ru as well: https://github.com/J-Tanzanite/Little-Anti-Cheat/commit/2e65156b4c8ae731e6ee7932c9d478b31bdcfe58 say it is a part of this update, I don't care, would be nice to have the changes listed :) (you missed this one last time)."
+	}
+
+	"Files"
+	{
+		"Plugin"	"Path_SM/plugins/lilac.smx"
+		"Plugin"	"Path_SM/translations/lilac.phrases.txt"
+		"Plugin"	"Path_SM/translations/cze/lilac.phrases.txt"
+		"Plugin"	"Path_SM/translations/de/lilac.phrases.txt"
+		"Plugin"	"Path_SM/translations/es/lilac.phrases.txt"
+		"Plugin"	"Path_SM/translations/fr/lilac.phrases.txt"
+		"Plugin"	"Path_SM/translations/no/lilac.phrases.txt"
+		"Plugin"	"Path_SM/translations/pt/lilac.phrases.txt"
+		"Plugin"	"Path_SM/translations/ru/lilac.phrases.txt"
+		"Plugin"	"Path_SM/translations/tr/lilac.phrases.txt"
+		"Plugin"	"Path_SM/translations/ua/lilac.phrases.txt"
+		"Source"	"Path_SM/scripting/lilac.sp"
+	}
+}

@@ -12,6 +12,7 @@ This Anti-Cheat is by no means perfect, and it is bypassable to some extent, but
  - BunnyHop (Bhop).
  - Basic Projectile and Hitscan Aimbot.
  - Basic Aimlock.
+ - Anti-Duck-Delay/FastDuck (CS:GO only).
 
 ### Misc features:
  - Angle-Cheats Patch (Patches Angle-Cheats from working).
@@ -23,21 +24,22 @@ This Anti-Cheat is by no means perfect, and it is bypassable to some extent, but
  - [TF2] Team Fortress 2
  - [CS:GO] Counter-Strike:Global Offensive
  - [L4D2] Left 4 Dead 2
+ - [L4D] Left 4 Dead
  - [DoD:S] Day of Defeat: Source
 
 ### Untested, but should work in:
  - [CS:S] Counter-Strike:Source
  - [HL2:DM] Half-Life 2:DeathMatch
- - [GMOD] Garry's Mod
 
 ## HEADS-UP:
-Version 1.2.0 & 1.3.0 changed where detection logs are stored!\
-Detections are **NO LONGER** stored in {gamefolder}/lilac.log\
-Detections are **NOW STORED** here: {gamefolder}/addons/sourcemod/logs/lilac.log\
+Bhop bans has been changed to a 1 month ban instead of permanent.\
+Although the chance of a false positive for a Bhop is low (0.01 to 0.5%), some server owners may not wanna treat Bhop bans as equal to Aimbot bans.\
+Thus, the new default ban length for Bhop is 1 month.\
 \
-Configuration files have also changed location, but won't break if you are using the old location.\
-If your config file is in cfg/lilac_config.cfg, it will still read that file and work fine.\
-If you are just installing Lilac or wanna use the new config location, it is at **cfg/sourcemod/lilac_config.cfg**
+If you think that a 95%+ accuracy of bhop bans justify a perma ban, then add this line to the bottom of your Lilac config:
+``` text
+lilac_set_ban_length bhop -1
+```
 
 ### Credits / Special Thanks to:
  - J_Tanzanite... Yeah I'm crediting myself for writing this AC...
@@ -69,3 +71,4 @@ Just understandable to those who don't speak English too well.
 ### Optional:
  - Sourcebans++
  - MaterialAdmin
+ - Updater
