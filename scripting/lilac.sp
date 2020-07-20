@@ -27,8 +27,8 @@
 #include <tf2_stocks>
 
 #define NATIVE_EXISTS(%0) 	(GetFeatureStatus(FeatureType_Native, %0) == FeatureStatus_Available)
-#define UPDATE_URL 		"https://raw.githubusercontent.com/J-Tanzanite/Little-Anti-Cheat/development/updatefile.txt"
-#define VERSION 		"1.6.1-RC 5"
+#define UPDATE_URL 		"https://raw.githubusercontent.com/J-Tanzanite/Little-Anti-Cheat/master/updatefile.txt"
+#define VERSION 		"1.6.0"
 
 #define CMD_LENGTH 	330
 
@@ -314,8 +314,8 @@ public void OnPluginStart()
 	cvar[CVAR_ANTI_DUCK_DELAY] = CreateConVar("lilac_anti_duck_delay", "1",
 		"CS:GO Only, detect Anti-Duck-Delay/FastDuck.",
 		FCVAR_PROTECTED, true, 0.0, true, 1.0);
-	cvar[CVAR_NOISEMAKER_SPAM] = CreateConVar("lilac_noisemaker", "1",
-		"TF2 Only, detect infinite noisemaker.",
+	cvar[CVAR_NOISEMAKER_SPAM] = CreateConVar("lilac_noisemaker", "0",
+		"TF2 Only, detect infinite noisemaker spam. STILL IN BETA, DOES NOT BAN, ONLY LOGS! MAY HAVE SOME ISSUES!",
 		FCVAR_PROTECTED, true, 0.0, true, 1.0);
 	cvar[CVAR_BACKTRACK_PATCH] = CreateConVar("lilac_backtrack_patch", "0",
 		"Patch Backtrack.\n0 = Disabled (Recommended setting).\n1 = Randomized (Not recommended patch method).\n2 = Locked (Recommended patch method).",
@@ -703,8 +703,8 @@ public void cvar_change(ConVar convar, const char[] oldValue,
 	else if (view_as<Handle>(convar) == cvar[CVAR_BACKTRACK_TOLERANCE]) {
 		icvar[CVAR_BACKTRACK_TOLERANCE] = StringToInt(newValue, 10);
 
-		if (icvar[CVAR_BACKTRACK_TOLERANCE] > 1)
-			PrintToServer("[Little Anti-Cheat %s] WARNING: It is not recommeded to set backtrack tolerance above 1, only do this if you understand what this means.", VERSION);
+		if (icvar[CVAR_BACKTRACK_TOLERANCE] > 2)
+			PrintToServer("[Little Anti-Cheat %s] WARNING: It is not recommeded to set backtrack tolerance above 2, only do this if you understand what this means.", VERSION);
 	}
 	else if (view_as<Handle>(convar) == cvar[CVAR_MAX_PING]) {
 		icvar[CVAR_MAX_PING] = StringToInt(newValue, 10);
