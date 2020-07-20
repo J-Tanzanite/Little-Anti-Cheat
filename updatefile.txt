@@ -38,6 +38,7 @@
 	{
 		"Plugin"	"Path_SM/plugins/lilac.smx"
 		"Plugin"	"Path_SM/translations/lilac.phrases.txt"
+		"Plugin"	"Path_SM/translations/chi/lilac.phrases.txt"
 		"Plugin"	"Path_SM/translations/cze/lilac.phrases.txt"
 		"Plugin"	"Path_SM/translations/de/lilac.phrases.txt"
 		"Plugin"	"Path_SM/translations/es/lilac.phrases.txt"
