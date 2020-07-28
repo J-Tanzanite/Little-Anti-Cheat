@@ -30,7 +30,7 @@
 
 	"ban_angle"
 	{
-		"chi"		"检测到角度作弊"
+		"chi"		"检测到异常角度"
 	}
 
 	"ban_chat_clear"
