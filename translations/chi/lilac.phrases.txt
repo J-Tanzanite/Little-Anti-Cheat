@@ -59,11 +59,11 @@
 	}
 	"ban_anti_duck_delay"
 	{
-		"chi" 	        "检测到下蹲辅助"
+		"chi" 	    "检测到下蹲辅助"
 	}
 
 	"ban_noisemaker"
 	{
-		"chi"           "检测到刷屏"
+		"chi"       "检测到刷屏"
 	}
 }
