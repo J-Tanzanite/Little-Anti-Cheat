@@ -1,3 +1,6 @@
+1.6.1
+- Fixed bug where angle-cheats would ban all players in L4D and L4D2.
+
 1.6.0
  - Removed redundant code.
  - Added new cheat detection feature for CS:GO (Only), Anti-Duck-Delay/FastDuck.
