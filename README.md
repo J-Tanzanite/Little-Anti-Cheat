@@ -50,6 +50,7 @@ lilac_set_ban_length bhop -1
 
 ### Current languages supported:
  - Simplified Chinese (by RoyZ https://github.com/RoyZ-CSGO ^-^).
+ - Dutch (By snowy UwU OwO EwE).
  - Norwegian (By me, the translations could be better).
  - French (By Rasi / GreenGuyRasi).
  - English (By me lol duh hue hue hue).
