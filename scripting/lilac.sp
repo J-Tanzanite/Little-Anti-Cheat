@@ -27,7 +27,7 @@
 #include <tf2_stocks>
 
 #define NATIVE_EXISTS(%0) 	(GetFeatureStatus(FeatureType_Native, %0) == FeatureStatus_Available)
-#define UPDATE_URL 		"https://raw.githubusercontent.com/J-Tanzanite/Little-Anti-Cheat/development/updatefile.txt"
+#define UPDATE_URL 		"https://raw.githubusercontent.com/J-Tanzanite/Little-Anti-Cheat/master/updatefile.txt"
 #define VERSION 		"1.6.1"
 
 #define CMD_LENGTH 	330
