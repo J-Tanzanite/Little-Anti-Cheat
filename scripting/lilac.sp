@@ -26,6 +26,9 @@
 #include <tf2>
 #include <tf2_stocks>
 
+#pragma semicolon 1
+#pragma newdecls required
+
 #define NATIVE_EXISTS(%0) 	(GetFeatureStatus(FeatureType_Native, %0) == FeatureStatus_Available)
 #define UPDATE_URL 		"https://raw.githubusercontent.com/J-Tanzanite/Little-Anti-Cheat/development/updatefile.txt"
 #define VERSION 		"1.7.0-Dev 1"
@@ -177,7 +180,7 @@ char query_list[][] = {
 };
 
 
-public Plugin:myinfo = {
+public Plugin myinfo = {
 	name = "[Lilac] Little Anti-Cheat",
 	author = "J_Tanzanite",
 	description = "An opensource Anti-Cheat.",
@@ -225,14 +228,14 @@ public void OnPluginStart()
 		// 	like larrybrains reported, causes false positives for
 		// 	the infected team memeber smoker.
 		// Thanks to Larrybrains for reporting this!
-		max_angles = Float:{0.0, 0.0, 50.01};
+		max_angles = view_as<float>({0.0, 0.0, 50.01});
 	}
 	else if (StrEqual(gamefolder, "left4dead", false)) {
 		ggame = GAME_L4D;
 		
 		// Same as L4D2, the smoker handles pitch differently it seems.
 		// Thanks to finishlast for reporting this!
-		max_angles = Float:{0.0, 0.0, 50.01};
+		max_angles = view_as<float>({0.0, 0.0, 50.01});
 	}
 	else if (StrEqual(gamefolder, "dod", false)) {
 		ggame = GAME_DODS;
@@ -816,7 +819,7 @@ void lilac_reset_client(int client)
 		playerinfo_actions[client][i] = 0;
 		playerinfo_time_usercmd[client][i] = 0.0;
 
-		set_player_log_angles(client, Float:{0.0, 0.0, 0.0}, i);
+		set_player_log_angles(client, view_as<float>({0.0, 0.0, 0.0}), i);
 	}
 }
 
@@ -2466,65 +2469,3 @@ bool lilac_forward_allow_cheat_detection(int client, int cheat)
 
 	return false;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-//
