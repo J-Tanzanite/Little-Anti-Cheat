@@ -31,7 +31,7 @@
 
 #define NATIVE_EXISTS(%0) 	(GetFeatureStatus(FeatureType_Native, %0) == FeatureStatus_Available)
 #define UPDATE_URL 		"https://raw.githubusercontent.com/J-Tanzanite/Little-Anti-Cheat/development/updatefile.txt"
-#define VERSION 		"1.7.0-Dev 1"
+#define VERSION 		"1.7.0-Dev 2"
 
 #define CMD_LENGTH 	330
 
@@ -63,26 +63,27 @@
 #define CVAR_LOG_DATE 			7
 #define CVAR_BAN 			8
 #define CVAR_BAN_LENGTH 		9
-#define CVAR_ANGLES 			10
-#define CVAR_PATCH_ANGLES 		11
-#define CVAR_CHAT 			12
-#define CVAR_CONVAR 			13
-#define CVAR_NOLERP 			14
-#define CVAR_BHOP 			15
-#define CVAR_AIMBOT 			16
-#define CVAR_AIMBOT_AUTOSHOOT 		17
-#define CVAR_AIMLOCK 			18
-#define CVAR_AIMLOCK_LIGHT 		19
-#define CVAR_ANTI_DUCK_DELAY 		20
-#define CVAR_NOISEMAKER_SPAM 		21
-#define CVAR_BACKTRACK_PATCH 		22
-#define CVAR_BACKTRACK_TOLERANCE 	23
-#define CVAR_MAX_PING			24
-#define CVAR_MAX_PING_SPEC 		25
-#define CVAR_MAX_LERP 			26
-#define CVAR_LOSS_FIX 			27
-#define CVAR_AUTO_UPDATE 		28
-#define CVAR_MAX 			29
+#define CVAR_BAN_LANGUAGE 		10
+#define CVAR_ANGLES 			11
+#define CVAR_PATCH_ANGLES 		12
+#define CVAR_CHAT 			13
+#define CVAR_CONVAR 			14
+#define CVAR_NOLERP 			15
+#define CVAR_BHOP 			16
+#define CVAR_AIMBOT 			17
+#define CVAR_AIMBOT_AUTOSHOOT 		18
+#define CVAR_AIMLOCK 			19
+#define CVAR_AIMLOCK_LIGHT 		20
+#define CVAR_ANTI_DUCK_DELAY 		21
+#define CVAR_NOISEMAKER_SPAM 		22
+#define CVAR_BACKTRACK_PATCH 		23
+#define CVAR_BACKTRACK_TOLERANCE 	24
+#define CVAR_MAX_PING			25
+#define CVAR_MAX_PING_SPEC 		26
+#define CVAR_MAX_LERP 			27
+#define CVAR_LOSS_FIX 			28
+#define CVAR_AUTO_UPDATE 		29
+#define CVAR_MAX 			30
 
 #define NOISEMAKER_TYPE_NONE 		0
 #define NOISEMAKER_TYPE_LIMITED 	1
@@ -128,6 +129,7 @@ float max_angles[3] = {89.01, 0.0, 50.01};
 Handle forwardhandle = INVALID_HANDLE;
 Handle forwardhandleban = INVALID_HANDLE;
 Handle forwardhandleallow = INVALID_HANDLE;
+bool run_status_ban = true;
 
 // External plugins.
 bool sourcebanspp_exist = false;
@@ -284,6 +286,9 @@ public void OnPluginStart()
 	cvar[CVAR_BAN_LENGTH] = CreateConVar("lilac_ban_length", "0",
 		"How long bans should last in minutes (0 = forever).",
 		FCVAR_PROTECTED, true, 0.0, false, 0.0);
+	cvar[CVAR_BAN_LANGUAGE] = CreateConVar("lilac_ban_language", "1",
+		"Ban reason language.\n0 = Use server's language.\n1 = Use the language of the cheater.",
+		FCVAR_PROTECTED, true, 0.0, true, 1.0);
 	cvar[CVAR_ANGLES] = CreateConVar("lilac_angles", "1",
 		"Detect Angle-Cheats (Basic Anti-Aim, Legit Anti-Backstab and Duckspeed).",
 		FCVAR_PROTECTED, true, 0.0, true, 1.0);
@@ -437,7 +442,10 @@ public void OnAllPluginsLoaded()
 
 public void OnConfigsExecuted()
 {
-	lilac_ban_status(0);
+	if (run_status_ban)
+		lilac_ban_status(0);
+
+	run_status_ban = false;
 }
 
 public Action lilac_ban_status(int args)
@@ -652,6 +660,9 @@ public void cvar_change(ConVar convar, const char[] oldValue,
 	}
 	else if (view_as<Handle>(convar) == cvar[CVAR_BAN_LENGTH]) {
 		icvar[CVAR_BAN_LENGTH] = StringToInt(newValue, 10);
+	}
+	else if (view_as<Handle>(convar) == cvar[CVAR_BAN_LANGUAGE]) {
+		icvar[CVAR_BAN_LANGUAGE] = StringToInt(newValue, 10);
 	}
 	else if (view_as<Handle>(convar) == cvar[CVAR_ANGLES]) {
 		icvar[CVAR_ANGLES] = StringToInt(newValue, 10);
@@ -1558,28 +1569,20 @@ public Action OnPlayerRunCmd(int client, int& buttons, int& impulse,
 	// Store actions.
 	playerinfo_buttons[client][playerinfo_index[client]] = buttons;
 	playerinfo_actions[client][playerinfo_index[client]] = 0;
+	playerinfo_tickcount_prev[client] = playerinfo_tickcount[client];
+	playerinfo_tickcount[client] = tickcount;
+
 	if ((buttons & IN_ATTACK) && bullettime_can_shoot(client))
 		playerinfo_actions[client][playerinfo_index[client]] |= ACTION_SHOT;
 
-	// We need to store information even if the plugin is disabled,
-	// 	incase it gets turned on again mid-game.
 	if (!icvar[CVAR_ENABLE]) {
 		lbuttons[client] = buttons;
-		playerinfo_tickcount_prev[client] = playerinfo_tickcount[client];
-		playerinfo_tickcount[client] = tickcount;
-
 		return Plugin_Continue;
 	}
 
 	// Detect Anti-Duck-Delay
 	if (ggame == GAME_CSGO && icvar[CVAR_ANTI_DUCK_DELAY] && (buttons & IN_BULLRUSH))
 		lilac_detected_anti_duck_delay(client);
-
-	// Backtrack setup, even if patch is disabled, these values
-	// 	need to be stored incase the backtrack patch gets
-	// 	enabled mid-game.
-	playerinfo_tickcount_prev[client] = playerinfo_tickcount[client];
-	playerinfo_tickcount[client] = tickcount;
 
 	// Patch backtracking.
 	if (icvar[CVAR_BACKTRACK_PATCH]) {
@@ -1685,12 +1688,6 @@ bool lilac_valid_tickcount(int client)
 {
 	int diff;
 
-	// Tickcount should increment for legit players 99% of the time.
-	// 	If it doesn't and tolerance is set to 0, then apply backtrack patch.
-	if (icvar[CVAR_BACKTRACK_TOLERANCE] == 0)
-		return (playerinfo_tickcount_prev[client] + 1 == playerinfo_tickcount[client]);
-
-	// Tolerance is set, check if the difference in tickcount is over the limit.
 	diff = (playerinfo_tickcount_prev[client] + 1) - playerinfo_tickcount[client];
 
 	if (diff < 0)
@@ -2215,31 +2212,35 @@ That is all, have a wonderful day~\n\n\n", VERSION);
 void lilac_ban_client(int client, int cheat)
 {
 	char reason[128];
+	int lang = LANG_SERVER;
 
 	// Banning has been disabled, don't forward the ban and don't ban.
 	if (!icvar[CVAR_BAN])
 		return;
 
+	if (icvar[CVAR_BAN_LANGUAGE])
+		lang = client;
+
 	switch (cheat) {
 	case CHEAT_ANGLES: { Format(reason, sizeof(reason),
-		"[Little Anti-Cheat %s] %T", VERSION, "ban_angle", client); }
+		"[Little Anti-Cheat %s] %T", VERSION, "ban_angle", lang); }
 	case CHEAT_CHATCLEAR: { Format(reason, sizeof(reason),
-		"[Little Anti-Cheat %s] %T", VERSION, "ban_chat_clear", client); }
+		"[Little Anti-Cheat %s] %T", VERSION, "ban_chat_clear", lang); }
 	case CHEAT_CONVAR: { Format(reason, sizeof(reason),
-		"[Little Anti-Cheat %s] %T", VERSION, "ban_convar", client); }
+		"[Little Anti-Cheat %s] %T", VERSION, "ban_convar", lang); }
 	// It saying "convar violation" for nolerp is intentional.
 	case CHEAT_NOLERP: { Format(reason, sizeof(reason),
-		"[Little Anti-Cheat %s] %T", VERSION, "ban_convar", client); }
+		"[Little Anti-Cheat %s] %T", VERSION, "ban_convar", lang); }
 	case CHEAT_BHOP: { Format(reason, sizeof(reason),
-		"[Little Anti-Cheat %s] %T", VERSION, "ban_bhop", client); }
+		"[Little Anti-Cheat %s] %T", VERSION, "ban_bhop", lang); }
 	case CHEAT_AIMBOT: { Format(reason, sizeof(reason),
-		"[Little Anti-Cheat %s] %T", VERSION, "ban_aimbot", client); }
+		"[Little Anti-Cheat %s] %T", VERSION, "ban_aimbot", lang); }
 	case CHEAT_AIMLOCK: { Format(reason, sizeof(reason),
-		"[Little Anti-Cheat %s] %T", VERSION, "ban_aimlock", client); }
+		"[Little Anti-Cheat %s] %T", VERSION, "ban_aimlock", lang); }
 	case CHEAT_ANTI_DUCK_DELAY: { Format(reason, sizeof(reason),
-		"[Little Anti-Cheat %s] %T", VERSION, "ban_anti_duck_delay", client); }
+		"[Little Anti-Cheat %s] %T", VERSION, "ban_anti_duck_delay", lang); }
 	case CHEAT_NOISEMAKER_SPAM: { Format(reason, sizeof(reason),
-		"[Little Anti-Cheat %s] %T", VERSION, "ban_noisemaker", client); }
+		"[Little Anti-Cheat %s] %T", VERSION, "ban_noisemaker", lang); }
 	default: return;
 	}
 
