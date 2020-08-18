@@ -73,3 +73,9 @@ Just understandable to those who don't speak English too well.
  - Sourcebans++
  - MaterialAdmin
  - Updater
+
+
+## Donations / Sponsors / Support:
+If you wish you support this project, I accept steam/game items: https://steamcommunity.com/tradeoffer/new/?partner=883337522&token=D4Ku6oDJ
+
+As of right now, that's the only platform I'll accept.
