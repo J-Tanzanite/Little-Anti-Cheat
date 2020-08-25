@@ -8,13 +8,13 @@
 
 	"kick_query_failure"
 	{
-		"es"	"Error: No hay respuesta en la consulta, reinicia el juego si el problema continúa."
+		"es"	"Error: No hay respuesta en el consulado, reinicia el juego si el problema continúa."
 	}
 
 	"kick_interp_exploit"
 	{
 		"#format"	"{1:.0f},{2:d},{3:.3f}"
-		"es"		"Detectado Exploit: Tu Interp es demasiado alto ({1}ms / {2}ms máx). Por favor, ajusta el comando cl_interp a {3} o por debajo"
+		"es"		"Aprovecho Detectado: Tu Interp es demasiado alto ({1}ms / {2}ms máx). Por favor, ajusta el comando cl_interp a {3} o por debajo"
 	}
 
 	"tban_ping_high"
@@ -30,12 +30,12 @@
 
 	"ban_angle"
 	{
-		"es"	"Detectado Angle-Cheats"
+		"es"	"Tramposo Angulo Detectado"
 	}
 
 	"ban_chat_clear"
 	{
-		"es"	"Detectado Chat-Cleaner"
+		"es"	"Chat-Cleaner Detectado"
 	}
 
 	"ban_convar"
@@ -45,16 +45,16 @@
 
 	"ban_bhop"
 	{
-		"es"	"Detectado Bhop"
+		"es"	"Bhop Detectado"
 	}
 
 	"ban_aimbot"
 	{
-		"es"	"Detectado Aimbot"
+		"es"	"Aimbot Detectado"
 	}
 
 	"ban_aimlock"
 	{
-		"es"	"Detectado Aimlock"
+		"es"	"Aimlock Detectado"
 	}
 }
