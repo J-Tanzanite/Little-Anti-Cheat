@@ -4,12 +4,12 @@
 	{
 		"Version"
 		{
-			"Latest"	"1.7.0-Dev 2"
+			"Latest"	"1.7.0-Dev 3"
 		}
 
-		"Notes" "Added new ConVar 'lilac_ban_language' (Default 1), which language should be used for ban reasons. 0 = Server. 1 = Client."
-		"Notes" "Fixed ban status message (command: lilac_ban_status) being spammed."
-		"Notes" "Fixed general code ordering to be more efficient."
+		"Notes" "Added compile warnings if Sourcebans++, Material-Admin or Updater includes fails. These are just warnings, not errors!"
+		"Notes" "Updated all cheat detections to have a 'log-only' option, check ConVar descriptions for more info."
+		"Notes" "Non-Cheat update: I am back from a break!"
 	}
 
 	"Files"
