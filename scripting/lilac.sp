@@ -26,12 +26,24 @@
 #include <tf2>
 #include <tf2_stocks>
 
+// Include warnings:
+#if !defined _updater_included
+#warning "updater.inc" include file not found, auto update functionality will not work!
+#endif
+#if !defined _sourcebanspp_included
+#warning "sourcebanspp.inc" include file not found, banning though SourceBans++ will not work!
+#endif
+#if !defined _materialadmin_included
+#warning "materialadmin.inc" include file not found, banning through Material-Admin will not work!
+#warning Включаемый файл "materialadmin.inc" не найден, бан через Material-Admin не будет работать!
+#endif
+
 #pragma semicolon 1
 #pragma newdecls required
 
 #define NATIVE_EXISTS(%0) 	(GetFeatureStatus(FeatureType_Native, %0) == FeatureStatus_Available)
 #define UPDATE_URL 		"https://raw.githubusercontent.com/J-Tanzanite/Little-Anti-Cheat/development/updatefile.txt"
-#define VERSION 		"1.7.0-Dev 2"
+#define VERSION 		"1.7.0-Dev 3"
 
 #define CMD_LENGTH 	330
 
@@ -129,7 +141,6 @@ float max_angles[3] = {89.01, 0.0, 50.01};
 Handle forwardhandle = INVALID_HANDLE;
 Handle forwardhandleban = INVALID_HANDLE;
 Handle forwardhandleallow = INVALID_HANDLE;
-bool run_status_ban = true;
 
 // External plugins.
 bool sourcebanspp_exist = false;
@@ -290,23 +301,23 @@ public void OnPluginStart()
 		"Ban reason language.\n0 = Use server's language.\n1 = Use the language of the cheater.",
 		FCVAR_PROTECTED, true, 0.0, true, 1.0);
 	cvar[CVAR_ANGLES] = CreateConVar("lilac_angles", "1",
-		"Detect Angle-Cheats (Basic Anti-Aim, Legit Anti-Backstab and Duckspeed).",
-		FCVAR_PROTECTED, true, 0.0, true, 1.0);
+		"Detect Angle-Cheats (Basic Anti-Aim, Legit Anti-Backstab and Duckspeed).\n-1 = Log only.\n0 = Disabled.\n1 = Enabled.",
+		FCVAR_PROTECTED, true, -1.0, true, 1.0);
 	cvar[CVAR_PATCH_ANGLES] = CreateConVar("lilac_angles_patch", "1",
 		"Patch Angle-Cheats (Basic Anti-Aim, Legit Anti-Backstab and Duckspeed).",
 		FCVAR_PROTECTED, true, 0.0, true, 1.0);
 	cvar[CVAR_CHAT] = CreateConVar("lilac_chatclear", "1",
-		"Detect Chat-Clear.",
-		FCVAR_PROTECTED, true, 0.0, true, 1.0);
+		"Detect Chat-Clear.\n-1 = Log only.\n0 = Disabled.\n1 = Enabled.",
+		FCVAR_PROTECTED, true, -1.0, true, 1.0);
 	cvar[CVAR_CONVAR] = CreateConVar("lilac_convar", "1",
-		"Detect basic invalid ConVars.",
-		FCVAR_PROTECTED, true, 0.0, true, 1.0);
+		"Detect basic invalid ConVars.\n-1 = Log only.\n0 = Disabled.\n1 = Enabled.",
+		FCVAR_PROTECTED, true, -1.0, true, 1.0);
 	cvar[CVAR_NOLERP] = CreateConVar("lilac_nolerp", "1",
-		"Detect NoLerp.",
-		FCVAR_PROTECTED, true, 0.0, true, 1.0);
+		"Detect NoLerp.\n-1 = Log only.\n0 = Disabled.\n1 = Enabled.",
+		FCVAR_PROTECTED, true, -1.0, true, 1.0);
 	cvar[CVAR_BHOP] = CreateConVar("lilac_bhop", "2",
-		"Detect Bhop.\n0 = Disabled.\n1 = Simplistic (Less effective, but safer).\n2 = Advanced (More aggressive, bans faster, less safe).",
-		FCVAR_PROTECTED, true, 0.0, true, 2.0);
+		"Detect Bhop.\n-2 = Log only advanced.\n-1 = Log only simplistic.\n0 = Disabled.\n1 = Simplistic.\n2 = Advanced.",
+		FCVAR_PROTECTED, true, -2.0, true, 2.0);
 	cvar[CVAR_AIMBOT] = CreateConVar("lilac_aimbot", "5",
 		"Detect basic Aimbots.\n0 = Disabled.\n1 = Log only.\n5 or more = ban on n'th detection (Minimum possible is 5)",
 		FCVAR_PROTECTED, true, 0.0, false, 0.0);
@@ -320,13 +331,13 @@ public void OnPluginStart()
 		"Only process at most 5 suspicious players for aimlock.\nDO NOT DISABLE THIS UNLESS YOUR SERVER CAN HANDLE IT!",
 		FCVAR_PROTECTED, true, 0.0, true, 1.0);
 	cvar[CVAR_ANTI_DUCK_DELAY] = CreateConVar("lilac_anti_duck_delay", "1",
-		"CS:GO Only, detect Anti-Duck-Delay/FastDuck.",
-		FCVAR_PROTECTED, true, 0.0, true, 1.0);
+		"CS:GO Only, detect Anti-Duck-Delay/FastDuck.\n-1 = Log only.\n0 = Disabled.\n1 = Enabled.",
+		FCVAR_PROTECTED, true, -1.0, true, 1.0);
 	cvar[CVAR_NOISEMAKER_SPAM] = CreateConVar("lilac_noisemaker", "0",
-		"TF2 Only, detect infinite noisemaker spam. STILL IN BETA, DOES NOT BAN, ONLY LOGS! MAY HAVE SOME ISSUES!",
-		FCVAR_PROTECTED, true, 0.0, true, 1.0);
+		"TF2 Only, detect infinite noisemaker spam. STILL IN BETA, DOES NOT BAN, ONLY LOGS! MAY HAVE SOME ISSUES!\n-1 = Log only.\n0 = Disabled.\n1 = Enabled.",
+		FCVAR_PROTECTED, true, -1.0, true, 1.0);
 	cvar[CVAR_BACKTRACK_PATCH] = CreateConVar("lilac_backtrack_patch", "0",
-		"Patch Backtrack.\n0 = Disabled (Recommended setting).\n1 = Randomized (Not recommended patch method).\n2 = Locked (Recommended patch method).",
+		"Patch Backtrack.\n0 = Disabled (Recommended setting for SMAC compatibility).\n1 = Randomized (Not recommended).\n2 = Locked (Recommended patch method).",
 		FCVAR_PROTECTED, true, 0.0, true, 2.0);
 	cvar[CVAR_BACKTRACK_TOLERANCE] = CreateConVar("lilac_backtrack_tolerance", "0",
 		"How tolerant the backtrack patch will be of tickcount changes.\n0 = No tolerance (recommended).\n1+ = n ticks tolerant.",
@@ -429,7 +440,6 @@ public void OnPluginStart()
 
 public void OnAllPluginsLoaded()
 {
-	// Sourcebans compat...
 	sourcebanspp_exist = LibraryExists("sourcebans++");
 	materialadmin_exist = LibraryExists("materialadmin");
 
@@ -442,6 +452,8 @@ public void OnAllPluginsLoaded()
 
 public void OnConfigsExecuted()
 {
+	static bool run_status_ban = true;
+
 	if (run_status_ban)
 		lilac_ban_status(0);
 
@@ -1686,14 +1698,7 @@ int lilac_random_tickcount(int client)
 
 bool lilac_valid_tickcount(int client)
 {
-	int diff;
-
-	diff = (playerinfo_tickcount_prev[client] + 1) - playerinfo_tickcount[client];
-
-	if (diff < 0)
-		diff *= -1;
-
-	return (diff <= icvar[CVAR_BACKTRACK_TOLERANCE]);
+	return (intabs((playerinfo_tickcount_prev[client] + 1) - playerinfo_tickcount[client]) <= icvar[CVAR_BACKTRACK_TOLERANCE]);
 }
 
 void lilac_set_client_in_backtrack_timeout(int client)
@@ -1865,7 +1870,7 @@ void lilac_detected_bhop(int client)
 	if (playerinfo_banned_flags[client][CHEAT_BHOP])
 		return;
 
-	switch (icvar[CVAR_BHOP]) {
+	switch (intabs(icvar[CVAR_BHOP])) {
 	// Simplistic mode.
 	case 1: {
 		if (playerinfo_bhop[client] < bhop_max[BHOP_SIMPLISTIC])
@@ -2213,9 +2218,25 @@ void lilac_ban_client(int client, int cheat)
 {
 	char reason[128];
 	int lang = LANG_SERVER;
+	bool log_only = false;
 
 	// Banning has been disabled, don't forward the ban and don't ban.
 	if (!icvar[CVAR_BAN])
+		return;
+
+	// Check if log only mode has been enabled, in which case, don't ban.
+	switch (cheat) {
+	case CHEAT_ANGLES: { log_only = icvar[CVAR_ANGLES] < 0; }
+	case CHEAT_CHATCLEAR: { log_only = icvar[CVAR_CHAT] < 0; }
+	case CHEAT_CONVAR: { log_only = icvar[CVAR_CONVAR] < 0; }
+	case CHEAT_NOLERP: { log_only = icvar[CVAR_NOLERP] < 0; }
+	case CHEAT_BHOP: { log_only = icvar[CVAR_BHOP] < 0; }
+	// Aimbot and Aimlock have their own dedicated log-only mode.
+	case CHEAT_ANTI_DUCK_DELAY: { log_only = icvar[CVAR_ANTI_DUCK_DELAY] < 0; }
+	case CHEAT_NOISEMAKER_SPAM: { log_only = icvar[CVAR_NOISEMAKER_SPAM] < 0; }
+	}
+
+	if (log_only)
 		return;
 
 	if (icvar[CVAR_BAN_LANGUAGE])
@@ -2397,6 +2418,11 @@ int time_to_ticks(float time)
 		return RoundToNearest(time / GetTickInterval());
 
 	return 0;
+}
+
+int intabs(int num)
+{
+	return ((num < 0) ? num * -1 : num);
 }
 
 bool is_player_valid(int client)
