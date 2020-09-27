@@ -50,19 +50,17 @@ lilac_set_ban_length bhop -1
 
 ### Current languages supported:
  - Simplified Chinese (by RoyZ https://github.com/RoyZ-CSGO ^-^).
- - Dutch (By snowy UwU OwO EwE).
- - Norwegian (By me, the translations could be better).
- - French (By Rasi / GreenGuyRasi).
- - English (By me lol duh hue hue hue).
- - Russian (By an awesome person c:).
- - Czech (By an awesome person <3).
- - Brazilian Portuguese By:
-   - SheepyChris github.com/SheepyChris
-   - Perkzitos github.com/Perkzitos
- - German (By a humble nice German c:).
- - Spanish (By ALEJANDRO ^-^).
- - Ukrainian (By panikajo ;D).
- - Turkish (By ShiroNje).\
+ - Dutch (by snowy UwU OwO EwE).
+ - Norwegian (by me, the translations could be better).
+ - French (by Rasi / GreenGuyRasi).
+ - English (by me lol duh hue hue hue).
+ - Russian (by an awesome person c:).
+ - Czech (by an awesome person <3).
+ - Brazilian Portuguese by SheepyChris (https://github.com/SheepyChris) and Tiagoquix (https://github.com/Tiagoquix).
+ - German (by a humble nice German c:).
+ - Spanish (by ALEJANDRO ^-^).
+ - Ukrainian (by panikajo ;D).
+ - Turkish (by ShiroNje).\
 \
 I do hope to add more languages in the future.\
 But at least you can add or improve on the translations already provided.\
