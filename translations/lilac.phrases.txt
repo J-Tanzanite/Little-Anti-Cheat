@@ -8,7 +8,7 @@
 
 	"kick_query_failure"
 	{
-		"en"		"Error: Query response failure, please restart your game if this issue persists"
+		"en"	"Error: Query response failure, please restart your game if this issue persists"
 	}
 
 	"kick_interp_exploit"
@@ -25,37 +25,42 @@
 
 	"kick_ban_generic"
 	{
-		"en"		"You have been banned from this server"
+		"en"	"You have been banned from this server"
 	}
 
 	"ban_angle"
 	{
-		"en"		"Angle-Cheats Detected"
+		"en"	"Angle-Cheats Detected"
 	}
 
 	"ban_chat_clear"
 	{
-		"en"		"Chat-Clear Detected"
+		"en"	"Chat-Clear Detected"
 	}
 
 	"ban_convar"
 	{
-		"en"		"Invalid ConVar Detected"
+		"en"	"Invalid ConVar Detected"
+	}
+
+	"ban_nolerp"
+	{
+		"en"	"NoLerp Detected"
 	}
 
 	"ban_bhop"
 	{
-		"en"		"Bhop Detected"
+		"en"	"Bhop Detected"
 	}
 
 	"ban_aimbot"
 	{
-		"en"		"Aimbot Detected"
+		"en"	"Aimbot Detected"
 	}
 
 	"ban_aimlock"
 	{
-		"en"		"Aimlock Detected"
+		"en"	"Aimlock Detected"
 	}
 
 	"ban_anti_duck_delay"
@@ -66,5 +71,36 @@
 	"ban_noisemaker"
 	{
 		"en" 	"Infinite Noisemaker Detected"
+	}
+
+	"ban_macro"
+	{
+		"en"	"Macro Detected"
+	}
+
+	"kick_macro"
+	{
+		"#format"	"{1:s}"
+		"en"		"{1} Macro is not allowed on this server"
+	}
+
+	"chat_invalid_characters"
+	{
+		"en" 	"Chat message blocked, invalid characters detected"
+	}
+
+	"chat_bismillah_spam"
+	{
+		"en"	"Chat message blocked, Bismillah spam detected"
+	}
+
+	"kick_bad_name"
+	{
+		"en"	"Your name contains invalid characters, please change your name"
+	}
+
+	"ban_name_newline"
+	{
+		"en"	"Name Newlines Detected"
 	}
 }
