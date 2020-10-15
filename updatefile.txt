@@ -4,12 +4,11 @@
 	{
 		"Version"
 		{
-			"Latest"	"1.7.0-Dev 3"
+			"Latest"	"1.7.0-Dev 4"
 		}
 
-		"Notes" "Added compile warnings if Sourcebans++, Material-Admin or Updater includes fails. These are just warnings, not errors!"
-		"Notes" "Updated all cheat detections to have a 'log-only' option, check ConVar descriptions for more info."
-		"Notes" "Non-Cheat update: I am back from a break!"
+		"Notes" "BIG code restructuring, and its still not over!"
+		"Notes" "This build will have problems, EXPECT BUGS!"
 	}
 
 	"Files"
@@ -28,5 +27,20 @@
 		"Plugin"	"Path_SM/translations/tr/lilac.phrases.txt"
 		"Plugin"	"Path_SM/translations/ua/lilac.phrases.txt"
 		"Source"	"Path_SM/scripting/lilac.sp"
+		"Source"	"Path_SM/scripting/lilac/lilac_globals.sp"
+		"Source"	"Path_SM/scripting/lilac/lilac_aimbot.sp"
+		"Source"	"Path_SM/scripting/lilac/lilac_aimlock.sp"
+		"Source"	"Path_SM/scripting/lilac/lilac_angles.sp"
+		"Source"	"Path_SM/scripting/lilac/lilac_anti_duck_delay.sp"
+		"Source"	"Path_SM/scripting/lilac/lilac_backtrack.sp"
+		"Source"	"Path_SM/scripting/lilac/lilac_bhop.sp"
+		"Source"	"Path_SM/scripting/lilac/lilac_config.sp"
+		"Source"	"Path_SM/scripting/lilac/lilac_convar.sp"
+		"Source"	"Path_SM/scripting/lilac/lilac_lerp.sp"
+		"Source"	"Path_SM/scripting/lilac/lilac_macro.sp"
+		"Source"	"Path_SM/scripting/lilac/lilac_noisemaker.sp"
+		"Source"	"Path_SM/scripting/lilac/lilac_ping.sp"
+		"Source"	"Path_SM/scripting/lilac/lilac_stock.sp"
+		"Source"	"Path_SM/scripting/lilac/lilac_string.sp"
 	}
 }
