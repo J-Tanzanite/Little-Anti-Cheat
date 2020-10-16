@@ -446,7 +446,7 @@ public void cvar_change(ConVar convar, const char[] oldValue, const char[] newVa
 		icvar[CVAR_MACRO] = StringToInt(newValue, 10);
 
 		if (icvar[CVAR_MACRO] > 0)
-			PrintToServer("[Little Anti-Cheat %s] WARNING: It's recommended to use log-only method for now.");
+			PrintToServer("[Little Anti-Cheat %s] WARNING: It's recommended to use log-only method for now.", PLUGIN_VERSION);
 
 		// Settings changed, reset counters.
 		for (int i = 1; i <= MaxClients; i++) {
