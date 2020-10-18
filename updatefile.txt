@@ -4,7 +4,7 @@
 	{
 		"Version"
 		{
-			"Latest"	"1.7.0-Dev 4"
+			"Latest"	"1.7.0-Dev 6"
 		}
 
 		"Notes" "BIG code restructuring, and its still not over!"
