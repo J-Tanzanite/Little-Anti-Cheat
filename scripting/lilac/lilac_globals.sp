@@ -121,7 +121,7 @@
 #define PLUGIN_NAME 	"[Lilac] Little Anti-Cheat"
 #define PLUGIN_AUTHOR 	"J_Tanzanite"
 #define PLUGIN_DESC 	"An opensource Anti-Cheat"
-#define PLUGIN_VERSION 	"1.7.0-Dev 5"
+#define PLUGIN_VERSION 	"1.7.0-Dev 6"
 #define PLUGIN_URL 	"https://github.com/J-Tanzanite/Little-Anti-Cheat"
 
 // Convars.
@@ -131,7 +131,6 @@ int icvar[CVAR_MAX];
 int sv_cheats = 0;
 int time_sv_cheats = 0;
 int cvar_bhop_value = 0;
-int sv_maxupdaterate = 0;
 
 // Banlength overwrite.
 int ban_length_overwrite[CHEAT_MAX];
@@ -157,33 +156,14 @@ bool materialadmin_exist = false;
 // 	their own files if they are only used there.
 // Just so the code gets a lot cleaner.
 int playerinfo_index[MAXPLAYERS + 1];
-int playerinfo_tickcount[MAXPLAYERS + 1];
-int playerinfo_tickcount_prev[MAXPLAYERS + 1];
-int playerinfo_tickcount_diff[MAXPLAYERS + 1];
-int playerinfo_macro[MAXPLAYERS + 1][MACRO_ARRAY];
-int playerinfo_macro_log[MAXPLAYERS + 1][MACRO_ARRAY][MACRO_LOG_LENGTH];
 int playerinfo_buttons[MAXPLAYERS + 1][CMD_LENGTH];
 int playerinfo_actions[MAXPLAYERS + 1][CMD_LENGTH];
-int playerinfo_autoshoot[MAXPLAYERS + 1];
-int playerinfo_jumps[MAXPLAYERS + 1];
-int playerinfo_high_ping[MAXPLAYERS + 1];
-int playerinfo_high_ping_warned[MAXPLAYERS + 1];
-int playerinfo_query_index[MAXPLAYERS + 1];
-int playerinfo_query_failed[MAXPLAYERS + 1];
 int playerinfo_aimlock_sus[MAXPLAYERS + 1];
 int playerinfo_aimlock[MAXPLAYERS + 1];
-int playerinfo_aimbot[MAXPLAYERS + 1];
-int playerinfo_bhop[MAXPLAYERS + 1];
-int playerinfo_noisemaker_type[MAXPLAYERS + 1];
-int playerinfo_noisemaker_ent[MAXPLAYERS + 1];
-int playerinfo_noisemaker_ent_prev[MAXPLAYERS + 1];
-int playerinfo_noisemaker_detection[MAXPLAYERS + 1];
 float playerinfo_time_teleported[MAXPLAYERS + 1];
 float playerinfo_time_aimlock[MAXPLAYERS + 1];
-float playerinfo_time_backtrack[MAXPLAYERS + 1];
 float playerinfo_time_process_aimlock[MAXPLAYERS + 1];
 float playerinfo_angles[MAXPLAYERS + 1][CMD_LENGTH][3];
 float playerinfo_time_usercmd[MAXPLAYERS + 1][CMD_LENGTH];
 float playerinfo_time_forward[MAXPLAYERS + 1][CHEAT_MAX];
 bool playerinfo_banned_flags[MAXPLAYERS + 1][CHEAT_MAX];
-bool playerinfo_ignore_lerp[MAXPLAYERS + 1];
