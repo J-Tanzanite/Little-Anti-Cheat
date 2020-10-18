@@ -19,6 +19,15 @@
 #warning Messy code!
 // I might wanna organize this...
 
+static int ping_high[MAXPLAYERS + 1];
+static int ping_warn[MAXPLAYERS + 1];
+
+void lilac_ping_reset_client(int client)
+{
+	ping_high[client] = 0;
+	ping_warn[client] = 0;
+}
+
 public Action timer_check_ping(Handle timer)
 {
 	static bool toggle = true;
@@ -39,32 +48,31 @@ public Action timer_check_ping(Handle timer)
 		ping = GetClientAvgLatency(i, NetFlow_Outgoing) * 1000.0;
 
 		if (ping < float(icvar[CVAR_MAX_PING])) {
-			if (toggle && playerinfo_high_ping[i] > 0)
-				playerinfo_high_ping[i]--;
+			if (toggle && ping_high[i] > 0)
+				ping_high[i]--;
 
-			if (playerinfo_high_ping[i] < playerinfo_high_ping_warned[i] - 2
-				&& playerinfo_high_ping_warned[i] > 0) {
+			if (ping_high[i] < ping_warn[i] - 2 && ping_warn[i] > 0) {
 				
-				playerinfo_high_ping_warned[i] = 0;
+				ping_warn[i] = 0;
 				PrintToChat(i, "[Lilac] Your ping appears to be fine again, it is safe to rejoin a team and play.");
 			}
 
 			continue;
 		}
 
-		if (++playerinfo_high_ping[i] >= icvar[CVAR_MAX_PING_SPEC] / 5
+		if (++ping_high[i] >= icvar[CVAR_MAX_PING_SPEC] / 5
 			&& icvar[CVAR_MAX_PING_SPEC] >= 30) {
 			ChangeClientTeam(i, 1); // Move this player to spectators.
 
-			playerinfo_high_ping_warned[i] = playerinfo_high_ping[i];
+			ping_warn[i] = ping_high[i];
 
 			PrintToChat(i, "[Lilac] WARNING: You will be kicked in %d seconds if your ping stays too high! (%.0f / %d max)",
-				100 - (playerinfo_high_ping[i] * 5),
+				100 - (ping_high[i] * 5),
 				ping, icvar[CVAR_MAX_PING]);
 		}
 
 		// Player has a higher ping than maximum for 100 seconds.
-		if (playerinfo_high_ping[i] < 20)
+		if (ping_high[i] < 20)
 			continue;
 
 		if (icvar[CVAR_LOG_MISC]) {
