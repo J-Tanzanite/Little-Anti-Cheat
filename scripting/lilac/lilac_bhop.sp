@@ -16,26 +16,34 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+static int jump_ticks[MAXPLAYERS + 1];
+static int perfect_bhops[MAXPLAYERS + 1];
+
+void lilac_bhop_reset_client(int client)
+{
+	jump_ticks[client] = 0;
+	perfect_bhops[client] = 0;
+}
+
 void lilac_bhop_check(int client, int buttons, int last_buttons)
 {
 	if ((buttons & IN_JUMP))
-		playerinfo_jumps[client]++;
+		jump_ticks[client]++;
 
 	int flags = GetEntityFlags(client);
 	if ((buttons & IN_JUMP) && !(last_buttons & IN_JUMP)) {
 		if ((flags & FL_ONGROUND)) {
-			lilac_detected_bhop(client);
+			lilac_check_bhop(client);
 
-			playerinfo_bhop[client]++;
+			perfect_bhops[client]++;
 		}
 	}
 	else if ((flags & FL_ONGROUND)) {
-		playerinfo_bhop[client] = 0;
-		playerinfo_jumps[client] = 0;
+		lilac_bhop_reset_client(client);
 	}
 }
 
-static void lilac_detected_bhop(int client)
+static void lilac_check_bhop(int client)
 {
 	if (playerinfo_banned_flags[client][CHEAT_BHOP])
 		return;
@@ -43,19 +51,24 @@ static void lilac_detected_bhop(int client)
 	switch (intabs(icvar[CVAR_BHOP])) {
 	// Simplistic mode.
 	case 1: {
-		if (playerinfo_bhop[client] < bhop_max[BHOP_SIMPLISTIC])
+		if (perfect_bhops[client] < bhop_max[BHOP_SIMPLISTIC])
 			return;
 	}
 	// Advanced mode.
 	case 2: {
-		if (playerinfo_bhop[client] < bhop_max[BHOP_ADVANCED])
+		if (perfect_bhops[client] < bhop_max[BHOP_ADVANCED])
 			return;
-		else if (playerinfo_bhop[client] < bhop_max[BHOP_SIMPLISTIC]
-			&& playerinfo_jumps[client] > 15)
+		else if (perfect_bhops[client] < bhop_max[BHOP_SIMPLISTIC]
+			&& jump_ticks[client] > 15)
 			return;
 	}
 	}
 
+	lilac_detected_bhop(client);
+}
+
+static void lilac_detected_bhop(int client)
+{
 	if (lilac_forward_allow_cheat_detection(client, CHEAT_BHOP) == false)
 		return;
 
@@ -68,8 +81,8 @@ static void lilac_detected_bhop(int client)
 		Format(line, sizeof(line),
 			"%s was detected and banned for Bhop (Jumps Presses: %d | Bhops: %d).",
 			line,
-			playerinfo_jumps[client] - 1, // Initial jump doesn't count.
-			playerinfo_bhop[client]);
+			jump_ticks[client] - 1, // Initial jump doesn't count.
+			perfect_bhops[client]);
 		// We don't need to subtract 1 from the bhop counter, as it
 		// 	increments after this function is called.
 
