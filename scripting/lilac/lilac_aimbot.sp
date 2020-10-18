@@ -16,6 +16,20 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+static int aimbot_detection[MAXPLAYERS + 1];
+static int aimbot_autoshoot[MAXPLAYERS + 1];
+
+void lilac_aimbot_reset_client(int client)
+{
+	aimbot_detection[client] = 0;
+	aimbot_autoshoot[client] = 0;
+}
+
+int lilac_aimbot_get_client_detections(int client)
+{
+	return aimbot_detection[client];
+}
+
 public Action event_player_death(Event event, const char[] name, bool dontBroadcast)
 {
 	int userid;
@@ -256,11 +270,11 @@ public Action timer_check_aimbot(Handle timer, DataPack pack)
 		// Players must get two of them in a row leading to a kill
 		// 	or something else must have been detected to get this flag.
 		if (tmp == 1) {
-			if (detected || ++playerinfo_autoshoot[client] > 1)
+			if (detected || ++aimbot_autoshoot[client] > 1)
 				detected |= AIMBOT_FLAG_AUTOSHOOT;
 		}
 		else {
-			playerinfo_autoshoot[client] = 0;
+			aimbot_autoshoot[client] = 0;
 		}
 	}
 
@@ -282,14 +296,14 @@ static void lilac_detected_aimbot(int client, float delta, float td, int flags)
 	lilac_forward_client_cheat(client, CHEAT_AIMBOT);
 
 	// Don't log the first detection.
-	if (++playerinfo_aimbot[client] < 2)
+	if (++aimbot_detection[client] < 2)
 		return;
 
 	if (icvar[CVAR_LOG]) {
 		lilac_log_setup_client(client);
 		Format(line, sizeof(line),
 			"%s is suspected of using an aimbot (Detection: %d | Delta: %.0f | TotalDelta: %.0f | Detected:%s%s%s%s%s).",
-			line, playerinfo_aimbot[client], delta, td,
+			line, aimbot_detection[client], delta, td,
 			((flags & AIMBOT_FLAG_SNAP)      ? " Aim-Snap"     : ""),
 			((flags & AIMBOT_FLAG_SNAP2)     ? " Aim-Snap2"    : ""),
 			((flags & AIMBOT_FLAG_AUTOSHOOT) ? " Autoshoot"    : ""),
@@ -302,7 +316,7 @@ static void lilac_detected_aimbot(int client, float delta, float td, int flags)
 			lilac_log_extra(client);
 	}
 
-	if (playerinfo_aimbot[client] >= icvar[CVAR_AIMBOT]
+	if (aimbot_detection[client] >= icvar[CVAR_AIMBOT]
 		&& icvar[CVAR_AIMBOT] >= AIMBOT_BAN_MIN) {
 
 		if (icvar[CVAR_LOG]) {
@@ -328,6 +342,6 @@ public Action timer_decrement_aimbot(Handle timer, int userid)
 	if (!is_player_valid(client))
 		return;
 
-	if (playerinfo_aimbot[client] > 0)
-		playerinfo_aimbot[client]--;
+	if (aimbot_detection[client] > 0)
+		aimbot_detection[client]--;
 }
