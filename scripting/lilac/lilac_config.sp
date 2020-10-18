@@ -138,7 +138,11 @@ void lilac_config_setup()
 
 	if ((tcvar = FindConVar("sv_maxupdaterate")) != null) {
 		HookConVarChange(tcvar, cvar_change);
-		sv_maxupdaterate = GetConVarInt(tcvar);
+		lilac_lerp_maxupdaterate_changed(GetConVarInt(tcvar));
+	}
+	else {
+		// Assume the value is 0 if we can't fetch it.
+		lilac_lerp_maxupdaterate_changed(0);
 	}
 
 	if ((tcvar = FindConVar("sv_cheats")) != null) {
@@ -149,12 +153,9 @@ void lilac_config_setup()
 		sv_cheats = 1;
 	}
 
-	RegServerCmd("lilac_date_list", lilac_date_list,
-		"Lists date formatting options", 0);
-	RegServerCmd("lilac_set_ban_length", lilac_set_ban_length,
-		"Sets custom ban lengths for specific cheats.", 0);
-	RegServerCmd("lilac_ban_status", lilac_ban_status,
-		"Prints banning status to server console.", 0);
+	RegServerCmd("lilac_date_list", lilac_date_list, "Lists date formatting options", 0);
+	RegServerCmd("lilac_set_ban_length", lilac_set_ban_length, "Sets custom ban lengths for specific cheats.", 0);
+	RegServerCmd("lilac_ban_status", lilac_ban_status, "Prints banning status to server console.", 0);
 
 	// Legacy check, execute old config location.
 	if (FileExists("cfg/lilac_config.cfg", false, NULL_STRING))
@@ -449,10 +450,8 @@ public void cvar_change(ConVar convar, const char[] oldValue, const char[] newVa
 			PrintToServer("[Little Anti-Cheat %s] WARNING: It's recommended to use log-only method for now.", PLUGIN_VERSION);
 
 		// Settings changed, reset counters.
-		for (int i = 1; i <= MaxClients; i++) {
-			for (int k = 0; k < MACRO_ARRAY; k++)
-				playerinfo_macro[i][k] = 0;
-		}
+		for (int i = 1; i <= MaxClients; i++)
+			lilac_macro_reset_client(i);
 	}
 	else if (view_as<Handle>(convar) == cvar[CVAR_MACRO_WARNING]) {
 		icvar[CVAR_MACRO_WARNING] = StringToInt(newValue, 10);
@@ -485,12 +484,13 @@ public void cvar_change(ConVar convar, const char[] oldValue, const char[] newVa
 			cvar_bhop_value = StringToInt(newValue, 10);
 		}
 		else if (StrEqual(cvarname, "sv_maxupdaterate", false)) {
-			sv_maxupdaterate = StringToInt(newValue);
+			// NoLerp checks need to know this value.
+			lilac_lerp_maxupdaterate_changed(StringToInt(newValue));
 
 			// Changing this convar mid-game can cause false positives.
 			// 	Ignore players already in-game.
 			for (int i = 1; i <= MaxClients; i++)
-				playerinfo_ignore_lerp[i] = true;
+				lilac_lerp_ignore_nolerp_client(i);
 		}
 		else if (StrEqual(cvarname, "sv_cheats", false)) {
 			sv_cheats = StringToInt(newValue);
