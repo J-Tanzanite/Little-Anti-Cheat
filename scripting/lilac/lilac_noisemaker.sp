@@ -16,6 +16,19 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+static int noisemaker_type[MAXPLAYERS + 1];
+static int noisemaker_entity[MAXPLAYERS + 1];
+static int noisemaker_entity_prev[MAXPLAYERS + 1];
+static int noisemaker_detection[MAXPLAYERS + 1];
+
+void lilac_noisemaker_reset_client(int client)
+{
+	noisemaker_type[client] = 0;
+	noisemaker_entity[client] = 0;
+	noisemaker_entity_prev[client] = 0;
+	noisemaker_detection[client] = 0;
+}
+
 public Action event_inventoryupdate(Event event, const char[] name, bool dontBroadcast)
 {
 	int client;
@@ -32,9 +45,9 @@ void check_inventory_for_noisemaker(int client)
 	if (!is_player_valid(client))
 		return;
 
-	playerinfo_noisemaker_type[client] = NOISEMAKER_TYPE_NONE;
-	playerinfo_noisemaker_ent_prev[client] = playerinfo_noisemaker_ent[client];
-	playerinfo_noisemaker_ent[client] = 0;
+	noisemaker_type[client] = NOISEMAKER_TYPE_NONE;
+	noisemaker_entity_prev[client] = noisemaker_entity[client];
+	noisemaker_entity[client] = 0;
 
 	for (int i = MaxClients + 1; i < GetEntityCount(); i++) {
 		if (!IsValidEdict(i))
@@ -51,8 +64,8 @@ void check_inventory_for_noisemaker(int client)
 		type = get_entity_noisemaker_type(GetEntProp(i, Prop_Send, "m_iItemDefinitionIndex"));
 
 		if (type) {
-			playerinfo_noisemaker_type[client] = type;
-			playerinfo_noisemaker_ent[client] = i;
+			noisemaker_type[client] = type;
+			noisemaker_entity[client] = i;
 			return;
 		}
 	}
@@ -92,12 +105,12 @@ public Action OnClientCommandKeyValues(int client, KeyValues kv)
 	if (!icvar[CVAR_ENABLE] || !icvar[CVAR_NOISEMAKER_SPAM])
 		return Plugin_Continue;
 
-	if (playerinfo_noisemaker_type[client] != NOISEMAKER_TYPE_LIMITED)
+	if (noisemaker_type[client] != NOISEMAKER_TYPE_LIMITED)
 		return Plugin_Continue;
 
-	if (playerinfo_noisemaker_ent_prev[client] != playerinfo_noisemaker_ent[client]) {
-		playerinfo_noisemaker_ent_prev[client] = playerinfo_noisemaker_ent[client];
-		playerinfo_noisemaker_detection[client] = 0;
+	if (noisemaker_entity_prev[client] != noisemaker_entity[client]) {
+		noisemaker_entity_prev[client] = noisemaker_entity[client];
+		noisemaker_detection[client] = 0;
 	}
 
 	if (StrEqual(command, "+use_action_slot_item_server", false)
@@ -105,7 +118,7 @@ public Action OnClientCommandKeyValues(int client, KeyValues kv)
 
 		// Since this reacts to both + and -, and the maximum is 25 uses per noisemaker,
 		// 	detect the double of that + a buffer of 10.
-		if (++playerinfo_noisemaker_detection[client] > 60)
+		if (++noisemaker_detection[client] > 60)
 			lilac_detected_noisemaker(client);
 	}
 
