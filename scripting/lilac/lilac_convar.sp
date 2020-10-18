@@ -37,6 +37,15 @@ static char query_list[][] = {
 	"r_modelwireframedecal"
 };
 
+static int query_index[MAXPLAYERS + 1];
+static int query_failed[MAXPLAYERS + 1];
+
+void lilac_convar_reset_client(int client)
+{
+	query_index[client] = 0;
+	query_failed[client] = 0;
+}
+
 public Action timer_query(Handle timer)
 {
 	if (!icvar[CVAR_ENABLE] || !icvar[CVAR_CONVAR])
@@ -60,14 +69,14 @@ public Action timer_query(Handle timer)
 
 		// Only increments query index if the player
 		// 	has responded to the last one.
-		if (!playerinfo_query_failed[i]) {
-			if (++playerinfo_query_index[i] >= 11)
-				playerinfo_query_index[i] = 0;
+		if (!query_failed[i]) {
+			if (++query_index[i] >= 11)
+				query_index[i] = 0;
 		}
 
-		QueryClientConVar(i, query_list[playerinfo_query_index[i]], query_reply, 0);
+		QueryClientConVar(i, query_list[query_index[i]], query_reply, 0);
 
-		if (++playerinfo_query_failed[i] > QUERY_MAX_FAILURES) {
+		if (++query_failed[i] > QUERY_MAX_FAILURES) {
 			if (icvar[CVAR_LOG_MISC]) {
 				lilac_log_setup_client(i);
 				Format(line, sizeof(line),
@@ -96,7 +105,7 @@ public void query_reply(QueryCookie cookie, int client, ConVarQueryResult result
 		return;
 
 	// Client did respond to the query request, move on to the next convar.
-	playerinfo_query_failed[client] = 0;
+	query_failed[client] = 0;
 
 	// Any response the server may recieve may also be faulty, ignore.
 	if (GetTime() < time_sv_cheats || sv_cheats)
