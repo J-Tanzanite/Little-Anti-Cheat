@@ -16,9 +16,33 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+static int prev_tickcount[MAXPLAYERS + 1];
+static int diff_tickcount[MAXPLAYERS + 1];
+static float time_timeout[MAXPLAYERS + 1];
+
+void lilac_backtrack_reset_client(int client)
+{
+	prev_tickcount[client] = 0;
+	diff_tickcount[client] = 0;
+	time_timeout[client] = 0.0;
+}
+
+void lilac_backtrack_store_tickcount(int client, int tickcount)
+{
+	static int tmp[MAXPLAYERS + 1];
+
+	prev_tickcount[client] = tmp[client];
+	tmp[client] = tickcount;
+}
+
 int lilac_backtrack_patch(int client, int tickcount)
 {
-	if (lilac_valid_tickcount(client) == false && lilac_is_player_in_backtrack_timeout(client) == false)
+	// Skip players who recently teleported.
+	if (playerinfo_time_teleported[client] + 2.0 > GetGameTime())
+		return tickcount;
+
+	if (lilac_valid_tickcount(client, tickcount) == false
+		&& lilac_is_player_in_backtrack_timeout(client) == false)
 		lilac_set_client_in_backtrack_timeout(client);
 
 	if (lilac_is_player_in_backtrack_timeout(client)) {
@@ -59,7 +83,7 @@ static int lilac_lock_tickcount(int client)
 	int ping, tick;
 
 	ping = RoundToNearest(GetClientAvgLatency(client, NetFlow_Outgoing) / GetTickInterval());
-	tick = playerinfo_tickcount_diff[client] + (GetGameTickCount() - ping);
+	tick = diff_tickcount[client] + (GetGameTickCount() - ping);
 
 	// Never return higher than server tick count.
 	// Other than that, lock the tickcount to the player's
@@ -68,27 +92,27 @@ static int lilac_lock_tickcount(int client)
 	return ((tick > GetGameTickCount()) ? GetGameTickCount() : tick);
 }
 
-static bool lilac_valid_tickcount(int client)
+static bool lilac_valid_tickcount(int client, int tickcount)
 {
-	return (intabs((playerinfo_tickcount_prev[client] + 1) - playerinfo_tickcount[client]) <= icvar[CVAR_BACKTRACK_TOLERANCE]);
+	return (intabs((prev_tickcount[client] + 1) - tickcount) <= icvar[CVAR_BACKTRACK_TOLERANCE]);
 }
 
 static void lilac_set_client_in_backtrack_timeout(int client)
 {
 	// Set the player in backtrack timeout for 1.1 seconds.
-	playerinfo_time_backtrack[client] = GetGameTime() + 1.1;
+	time_timeout[client] = GetGameTime() + 1.1;
 
 	// Lock value.
-	playerinfo_tickcount_diff[client] = (playerinfo_tickcount_prev[client] - (GetGameTickCount() - RoundToNearest(GetClientAvgLatency(client, NetFlow_Outgoing) / GetTickInterval()))) + 1;
+	diff_tickcount[client] = (prev_tickcount[client] - (GetGameTickCount() - RoundToNearest(GetClientAvgLatency(client, NetFlow_Outgoing) / GetTickInterval()))) + 1;
 
 	// Clamp the value due to floating point errors and network variability.
-	if (playerinfo_tickcount_diff[client] > time_to_ticks(0.2) - 3)
-		playerinfo_tickcount_diff[client] = time_to_ticks(0.2) - 3;
-	else if (playerinfo_tickcount_diff[client] < ((time_to_ticks(0.2) * -1) + 3))
-		playerinfo_tickcount_diff[client] = (time_to_ticks(0.2) * -1) + 3;
+	if (diff_tickcount[client] > time_to_ticks(0.2) - 3)
+		diff_tickcount[client] = time_to_ticks(0.2) - 3;
+	else if (diff_tickcount[client] < ((time_to_ticks(0.2) * -1) + 3))
+		diff_tickcount[client] = (time_to_ticks(0.2) * -1) + 3;
 }
 
 static bool lilac_is_player_in_backtrack_timeout(int client)
 {
-	return (GetGameTime() < playerinfo_time_backtrack[client]);
+	return (GetGameTime() < time_timeout[client]);
 }
