@@ -30,6 +30,14 @@ public Action OnClientSayCommand(int client, const char[] command, const char[] 
 	if (playerinfo_banned_flags[client][CHEAT_CHATCLEAR])
 		return Plugin_Stop;
 
+	// Just for future reference, because it may be unclear
+	// 	how "is_string_valid()" works.
+	// Normally, it will set the "flags" variable with bits
+	// 	telling you what's wrong with a string.
+	// But the Bismillah-spam bit is an exception.
+	// A string with Bismillah spam will be reported as being
+	// 	a valid string (Function returns true),
+	// 	but the bit flag is still set.
 	// Invalid string and no newlines/carriage returns.
 	if (!(is_string_valid(sArgs, flags)) && !(flags & (STR_FLAG_ASCII_NEWLINE | STR_FLAG_ASCII_CRETURN))) {
 		PrintToChat(client, "[Lilac] %T", "chat_invalid_characters", client);
