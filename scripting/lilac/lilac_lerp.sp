@@ -16,16 +16,28 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+static float min_lerp_possible = 0.0;
+static bool ignore_nolerp[MAXPLAYERS + 1];
+
+void lilac_lerp_reset_client(int client)
+{
+	ignore_nolerp[client] = false;
+}
+
+void lilac_lerp_ignore_nolerp_client(int client)
+{
+	ignore_nolerp[client] = true;
+}
+
+void lilac_lerp_maxupdaterate_changed(int value)
+{
+	min_lerp_possible = ((value > 0) ? 1.0 / float(value) : 0.0);
+}
+
 public Action timer_check_lerp(Handle timer)
 {
-	float min;
-
 	if (!icvar[CVAR_ENABLE])
 		return Plugin_Continue;
-
-	// Note: We are updating this every time this timer runs.
-	// Seems a little overkill, tho it doesn't have any major overhead.
-	min = (sv_maxupdaterate > 0) ? 1.0 / float(sv_maxupdaterate) : 0.0;
 
 	for (int i = 1; i <= MaxClients; i++) {
 		if (!is_player_valid(i) || IsFakeClient(i))
@@ -39,12 +51,12 @@ public Action timer_check_lerp(Handle timer)
 		}
 
 		if (!icvar[CVAR_NOLERP]
-			|| playerinfo_ignore_lerp[i]
+			|| ignore_nolerp[i]
 			|| playerinfo_banned_flags[i][CHEAT_NOLERP]
-			|| min < 0.005) // Minvalue invalid or too low.
+			|| min_lerp_possible < 0.005) // Minvalue invalid or too low.
 			continue;
 
-		if (lerp > min * 0.95 /* buffer */)
+		if (lerp > min_lerp_possible * 0.95 /* buffer */)
 			continue;
 
 		detected_nolerp(i, lerp);
@@ -69,7 +81,6 @@ static void detected_lerp_exploit(int client, float lerp)
 	KickClient(client, "[Lilac] %T", "kick_interp_exploit", client,
 		lerp * 1000.0, icvar[CVAR_MAX_LERP],
 		float(icvar[CVAR_MAX_LERP]) / 999.9);
-	// Todo: Update this and translations and use int instead.
 }
 
 static void detected_nolerp(int client, float lerp)
