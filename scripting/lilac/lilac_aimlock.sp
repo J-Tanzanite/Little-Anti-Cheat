@@ -252,7 +252,7 @@ static bool lilac_is_player_in_aimlock_que(int client)
 	// Test for aimlock on players who:
 	return (GetGameTime() < playerinfo_time_process_aimlock[client] // Are in the que.
 		|| playerinfo_aimlock[client] // Already has a detection.
-		|| playerinfo_aimbot[client] > 1 // Already have been detected for aimbot twice.
+		|| lilac_aimbot_get_client_detections(client) > 1 // Already have been detected for aimbot twice.
 		|| GetClientTime(client) < 240.0 // Client just joined the game.
 		|| (GetGameTime() - playerinfo_time_aimlock[client] < 180.0
 			&& playerinfo_time_aimlock[client] > 1.0)); // Had one aimlock the past three minutes.
