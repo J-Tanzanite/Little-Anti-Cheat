@@ -38,36 +38,21 @@ bool bullettime_can_shoot(int client)
 
 void lilac_reset_client(int client)
 {
-	playerinfo_ignore_lerp[client] = false;
+	lilac_backtrack_reset_client(client);
+	lilac_bhop_reset_client(client);
+	lilac_macro_reset_client(client);
+	lilac_noisemaker_reset_client(client);
+	lilac_aimbot_reset_client(client);
+	lilac_ping_reset_client(client);
+	lilac_convar_reset_client(client);
+	lilac_lerp_reset_client(client);
+
 	playerinfo_index[client] = 0;
-	playerinfo_tickcount[client] = 0;
-	playerinfo_tickcount_prev[client] = 0;
-	playerinfo_tickcount_diff[client] = 0;
-	playerinfo_autoshoot[client] = 0;
-	playerinfo_jumps[client] = 0;
-	playerinfo_high_ping[client] = 0;
-	playerinfo_high_ping_warned[client] = 0;
-	playerinfo_query_index[client] = 0;
-	playerinfo_query_failed[client] = 0;
 	playerinfo_aimlock_sus[client] = 0;
 	playerinfo_aimlock[client] = 0;
-	playerinfo_aimbot[client] = 0;
-	playerinfo_bhop[client] = 0;
-	playerinfo_noisemaker_type[client] = NOISEMAKER_TYPE_NONE;
-	playerinfo_noisemaker_ent[client] = 0;
-	playerinfo_noisemaker_ent_prev[client] = 0;
-	playerinfo_noisemaker_detection[client] = 0;
 	playerinfo_time_teleported[client] = 0.0;
 	playerinfo_time_aimlock[client] = 0.0;
-	playerinfo_time_backtrack[client] = 0.0;
 	playerinfo_time_process_aimlock[client] = 0.0;
-
-	for (int i = 0; i < MACRO_ARRAY; i++) {
-		playerinfo_macro[client][i] = 0;
-
-		for (int k = 0; k < MACRO_LOG_LENGTH; k++)
-			playerinfo_macro_log[client][i][k] = false;
-	}
 
 	for (int i = 0; i < CHEAT_MAX; i++) {
 		playerinfo_time_forward[client][i] = 0.0;
