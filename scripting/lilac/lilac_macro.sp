@@ -16,6 +16,26 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+static int macro_history[MAXPLAYERS + 1][MACRO_ARRAY][MACRO_LOG_LENGTH];
+static int macro_detected[MAXPLAYERS + 1][MACRO_ARRAY];
+
+void lilac_macro_reset_client(int client)
+{
+	for (int i = 0; i < MACRO_ARRAY; i++) {
+		macro_detected[client][i] = 0;
+		lilac_macro_reset_client_history(client, i);
+	}
+}
+
+static void lilac_macro_reset_client_history(int client, int type)
+{
+	if (type < 0 || type >= MACRO_ARRAY)
+		return;
+
+	for (int i = 0; i < MACRO_LOG_LENGTH; i++)
+		macro_history[client][type][i] = false;
+}
+
 void lilac_macro_check(int client, int buttons, int last_buttons)
 {
 	static int index[MAXPLAYERS + 1];
@@ -32,7 +52,7 @@ void lilac_macro_check(int client, int buttons, int last_buttons)
 
 		// Player pressed the key.
 		bool key = (!(last_buttons & input) && (buttons & input)) ? true : false;
-		playerinfo_macro_log[client][i][index[client]] = key;
+		macro_history[client][i][index[client]] = key;
 
 		// Only check for spam when the key is pressed.
 		if (!key)
@@ -41,7 +61,7 @@ void lilac_macro_check(int client, int buttons, int last_buttons)
 		int acc = 0;
 
 		for (int k = 0; k < tick_rate; k++) {
-			if (playerinfo_macro_log[client][i][k])
+			if (macro_history[client][i][k])
 				acc++;
 		}
 
@@ -78,8 +98,7 @@ static void lilac_detected_macro(int client, int type)
 	char string[16];
 
 	// Clear history, prevents overlap.
-	for (int i = 0; i < MACRO_LOG_LENGTH; i++)
-		playerinfo_macro_log[client][type][i] = false;
+	lilac_macro_reset_client_history(client, type);
 
 	// Already been logged once, ignore.
 	if (playerinfo_banned_flags[client][CHEAT_MACRO])
@@ -103,7 +122,7 @@ static void lilac_detected_macro(int client, int type)
 	}
 
 	// Ignore the first detection.
-	if (++playerinfo_macro[client][type] < 2)
+	if (++macro_detected[client][type] < 2)
 		return;
 
 	// Log.
@@ -111,7 +130,7 @@ static void lilac_detected_macro(int client, int type)
 		lilac_log_setup_client(client);
 		Format(line, sizeof(line),
 			"%s was detected of using Macro %s (Detection: %d | Max presses: %d).",
-			line, string, playerinfo_macro[client][type], macro_max);
+			line, string, macro_detected[client][type], macro_max);
 
 		lilac_log(true);
 
@@ -128,7 +147,7 @@ static void lilac_detected_macro(int client, int type)
 			PrintToChat(client, "[Little Anti-Cheat] Warning: Macro usage isn't allowed!");
 		}
 		case 2: {
-			for (int i = 1; playerinfo_macro[client][type] == 2 && i <= MaxClients; i++) {
+			for (int i = 1; macro_detected[client][type] == 2 && i <= MaxClients; i++) {
 				if (!is_player_valid(i) || IsFakeClient(i))
 					continue;
 	
@@ -141,14 +160,14 @@ static void lilac_detected_macro(int client, int type)
 		}
 		case 3: {
 			// Warn everyone once...
-			if (playerinfo_macro[client][type] == 2)
+			if (macro_detected[client][type] == 2)
 				PrintToChatAll("[Little Anti-Cheat] %N was detected of using Macro %s.",
 					client, string);
 		}
 		}
 	}
 
-	if (playerinfo_macro[client][type] < 5)
+	if (macro_detected[client][type] < 5)
 		return;
 
 	playerinfo_banned_flags[client][CHEAT_MACRO] = true;
@@ -168,8 +187,8 @@ public Action timer_decrement_macro(Handle timer)
 {
 	for (int i = 1; i <= MaxClients; i++) {
 		for (int k = 0; k < MACRO_ARRAY; k++) {
-			if (playerinfo_macro[i][k] > 0)
-				playerinfo_macro[i][k]--;
+			if (macro_detected[i][k] > 0)
+				macro_detected[i][k]--;
 		}
 	}
 }
