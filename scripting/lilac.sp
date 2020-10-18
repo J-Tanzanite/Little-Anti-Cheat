@@ -149,7 +149,7 @@ public void OnPluginStart()
 	// Also check players already in-game for noisemaker.
 	for (int i = 1; i <= MaxClients; i++) {
 		lilac_reset_client(i);
-		playerinfo_ignore_lerp[i] = true;
+		lilac_lerp_ignore_nolerp_client(i);
 		check_inventory_for_noisemaker(i);
 	}
 
@@ -169,7 +169,7 @@ public void OnPluginStart()
 	tick_rate = RoundToNearest(1.0 / GetTickInterval());
 
 	// Ignore low tickrates.
-	macro_max = (tick_rate >= 60 && tick_rate <= MACRO_LOG_LENGTH) ? tick_rate / 3 : 0;
+	macro_max = (tick_rate >= 60 && tick_rate <= MACRO_LOG_LENGTH) ? 20 : 0;
 
 	if (tick_rate > 50) {
 		bhop_max[BHOP_SIMPLISTIC] = 10;
@@ -296,15 +296,11 @@ public Action OnPlayerRunCmd(int client, int& buttons, int& impulse, float vel[3
 	// Store when the tick was processed.
 	playerinfo_time_usercmd[client][playerinfo_index[client]] = GetGameTime();
 
-	// Store angles.
+	// Store information.
+	lilac_backtrack_store_tickcount(client, tickcount);
 	set_player_log_angles(client, angles, playerinfo_index[client]);
-
-	// Store actions.
-	// Todo: Might wanna change how it handles tickcounts.
 	playerinfo_buttons[client][playerinfo_index[client]] = buttons;
 	playerinfo_actions[client][playerinfo_index[client]] = 0;
-	playerinfo_tickcount_prev[client] = playerinfo_tickcount[client];
-	playerinfo_tickcount[client] = tickcount;
 
 	if ((buttons & IN_ATTACK) && bullettime_can_shoot(client))
 		playerinfo_actions[client][playerinfo_index[client]] |= ACTION_SHOT;
