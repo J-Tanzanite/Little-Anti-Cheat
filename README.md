@@ -60,6 +60,7 @@ lilac_set_ban_length bhop -1
  - German (by a humble nice German c:).
  - Spanish (by ALEJANDRO ^-^).
  - Ukrainian (by panikajo ;D).
+ - Polish (by https://github.com/qawery-just-sad).
  - Turkish (by ShiroNje).\
 \
 I do hope to add more languages in the future.\
