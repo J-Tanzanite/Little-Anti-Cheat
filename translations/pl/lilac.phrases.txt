@@ -20,7 +20,7 @@
 		"pl"		"Twój ping jest za wysoki ({1} / {2} maks)"
 	}
 
-	"kick_ban_gpleric"
+	"kick_ban_generic"
 	{
 		"pl"		"Zostałeś zbanowany na tym serwerze"
 	}
