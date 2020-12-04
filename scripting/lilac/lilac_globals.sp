@@ -107,21 +107,22 @@
 #define AIMBOT_FLAG_SNAP 		(1 << 2)
 #define AIMBOT_FLAG_SNAP2 		(1 << 3)
 
-#define STR_FLAG_ASCII_NEWLINE 			(1 << 0) // ASCII - Newline ('\n').
-#define STR_FLAG_ASCII_CRETURN 			(1 << 1) // ASCII - Carriage return ('\r' / 0x0d).
-#define STR_FLAG_ASCII_CONTROL 			(1 << 2) // ASCII - Control character.
-#define STR_FLAG_ASCII_DEL 			(1 << 3) // ASCII - Delete character.
-#define STR_FLAG_UTF8_OVER_LIMIT 		(1 << 4) // UTF-8 - Over the U+10ffff limit.
-#define STR_FLAG_UTF8_OVERLONG_ENCODING 	(1 << 5) // UTF-8 - Overlong encoding.
-#define STR_FLAG_UTF8_BAD_HEADER 		(1 << 6) // UTF-8 - Bad header.
-#define STR_FLAG_UTF8_BAD_CONT 			(1 << 7) // UTF-8 - Bad continuation.
-#define STR_FLAG_UTF8_UTF16 			(1 << 8) // UTF-8 - UTF-16 reserved character.
-#define STR_FLAG_UTF8_BISMILLAH_SPAM 		(1 << 9) // UTF-8 - Bismillah spam.
+#define STR_FLAG_ASCII_NEWLINE 			(1 << 0)  // ASCII - Newline ('\n').
+#define STR_FLAG_ASCII_CRETURN 			(1 << 1)  // ASCII - Carriage return ('\r' / 0x0d).
+#define STR_FLAG_ASCII_CONTROL 			(1 << 2)  // ASCII - Control character.
+#define STR_FLAG_ASCII_DEL 			(1 << 3)  // ASCII - Delete character.
+#define STR_FLAG_UTF8_OVER_LIMIT 		(1 << 4)  // UTF-8 - Over the U+10ffff limit.
+#define STR_FLAG_UTF8_OVERLONG_ENCODING 	(1 << 5)  // UTF-8 - Overlong encoding.
+#define STR_FLAG_UTF8_BAD_HEADER 		(1 << 6)  // UTF-8 - Bad header.
+#define STR_FLAG_UTF8_BAD_CONT 			(1 << 7)  // UTF-8 - Bad continuation.
+#define STR_FLAG_UTF8_UTF16 			(1 << 8)  // UTF-8 - UTF-16 reserved character.
+#define STR_FLAG_UTF8_BISMILLAH_SPAM 		(1 << 9)  // UTF-8 - Bismillah spam.
+#define STR_FLAG_UTF8_CONTROL 			(1 << 10) // UTF-8 - Control character.
 
 #define PLUGIN_NAME 	"[Lilac] Little Anti-Cheat"
 #define PLUGIN_AUTHOR 	"J_Tanzanite"
 #define PLUGIN_DESC 	"An opensource Anti-Cheat"
-#define PLUGIN_VERSION 	"1.7.0-Dev 6"
+#define PLUGIN_VERSION 	"1.7.0-Dev 7"
 #define PLUGIN_URL 	"https://github.com/J-Tanzanite/Little-Anti-Cheat"
 
 // Convars.
