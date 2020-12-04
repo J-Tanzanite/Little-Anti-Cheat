@@ -4,11 +4,13 @@
 	{
 		"Version"
 		{
-			"Latest"	"1.7.0-Dev 6"
+			"Latest"	"1.7.0-Dev 7"
 		}
 
 		"Notes" "BIG code restructuring, and its still not over!"
 		"Notes" "This build will have problems, EXPECT BUGS!"
+		"Notes" "Added temp fix for name_change event not loggin the correct name."
+		"Notes" "Added C1 control character check."
 	}
 
 	"Files"
