@@ -22,13 +22,16 @@ public Action OnClientSayCommand(int client, const char[] command, const char[] 
 {
 	int flags;
 
-	if (!icvar[CVAR_ENABLE] || !icvar[CVAR_FILTER_CHAT])
+	if (!icvar[CVAR_ENABLE])
 		return Plugin_Continue;
 
 	// Prevent players banned for Chat-Clear from spamming chat.
 	// 	Helps legit players see the cheater was banned.
 	if (playerinfo_banned_flags[client][CHEAT_CHATCLEAR])
 		return Plugin_Stop;
+
+	if (!icvar[CVAR_FILTER_CHAT])
+		return Plugin_Continue;
 
 	// Just for future reference, because it may be unclear
 	// 	how "is_string_valid()" works.
@@ -147,6 +150,11 @@ static void check_name(int client, const char []name)
 	if (is_string_valid(name, flags))
 		return;
 
+	// Todo: Currently logging "const char []name" because on the
+	// 	event name_change, we don't actually log the player's
+	// 	most recent name, rather their previous name.
+	// I should fix that, but for now, lets do this instead (tmp fix).
+
 	// Player was detected of having a newline or carriage return in their name, which is a cheat feature...
 	if (icvar[CVAR_FILTER_NAME] == 2 && (flags & (STR_FLAG_ASCII_NEWLINE | STR_FLAG_ASCII_CRETURN))) {
 		if (playerinfo_banned_flags[client][CHEAT_NEWLINE_NAME])
@@ -161,7 +169,7 @@ static void check_name(int client, const char []name)
 		if (icvar[CVAR_LOG]) {
 			lilac_log_setup_client(client);
 			Format(line, sizeof(line),
-				"%s was banned of having newline characters in their name.", line);
+				"%s was banned of having newline characters in their name (%s).", line, name);
 
 			lilac_log(true);
 
@@ -177,7 +185,7 @@ static void check_name(int client, const char []name)
 		if (icvar[CVAR_LOG_MISC]) {
 			lilac_log_setup_client(client);
 			Format(line, sizeof(line),
-				"%s was kicked for having invalid characters in their name.", line);
+				"%s was kicked for having invalid characters in their name (%s).", line, name);
 
 			lilac_log(true);
 
@@ -194,7 +202,7 @@ static void check_name(int client, const char []name)
 
 
 
-/* ----- UTF-8 code from an old C project of mine... I fixed it up a bit, but this code is probably incorrect. ----- */
+/* ---- UTF-8 code from an old C project of mine... Fixed it up a bit. ---- */
 
 
 
@@ -218,6 +226,11 @@ static bool is_string_valid(const char []string, int &flags)
 			if (wchar == 0xfdfd) {
 				if (++bismillah > 2)
 					flags |= STR_FLAG_UTF8_BISMILLAH_SPAM;
+			}
+			else if (wchar >= 0x80 && wchar <= 0x9f) {
+				// C1 Control characters are illegal.
+				flags |= STR_FLAG_UTF8_CONTROL;
+				return false;
 			}
 
 			i += length - 1;
