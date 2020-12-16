@@ -14,7 +14,7 @@
 	"kick_interp_exploit"
 	{
 		"#format"	"{1:.0f},{2:d},{3:.3f}"
-		"de"		"Exploit entdeckt: Ihr Interp ist zu hoch ({1}ms / {2}ms max). Bitte stellen Sie Ihre cl_interp back to {3} oder niedriger"
+		"de"		"Exploit erkannt: Ihr Interp ist zu hoch ({1}ms / {2}ms max). Bitte stellen Sie Ihre cl_interp zurück auf {3} oder niedriger"
 	}
 
 	"tban_ping_high"
@@ -30,31 +30,77 @@
 
 	"ban_angle"
 	{
-		"de"	"Angle-Cheats entdeckt"
+		"de"	"Angle-Cheats erkannt"
 	}
 
 	"ban_chat_clear"
 	{
-		"de"	"Chat-Cleaner entdeckt"
+		"de"	"Chat-Cleaner erkannt"
 	}
 
 	"ban_convar"
 	{
-		"de"	"Invalid ConVar entdeckt"
+		"de"	"Invalid ConVar erkannt"
+	}
+
+	"ban_nolerp"
+	{
+		"de"	"NoLerp erkannt"
 	}
 
 	"ban_bhop"
 	{
-		"de"	"Bhop entdeckt"
+		"de"	"Bhop erkannt"
 	}
 
 	"ban_aimbot"
 	{
-		"de"	"Aimbot entdeckt"
+		"de"	"Aimbot erkannt"
 	}
 
 	"ban_aimlock"
 	{
-		"de"	"Aimlock entdeckt"
+		"de"	"Aimlock erkannt"
+	}
+
+	"ban_anti_duck_delay"
+	{
+		"de" 	"Anti-Duck-Delay erkannt"
+	}
+
+	"ban_noisemaker"
+	{
+		"de" 	"Infinite Noisemaker erkannt"
+	}
+
+	"ban_macro"
+	{
+		"de"	"Macro erkannt"
+	}
+
+	"kick_macro"
+	{
+		"#format"	"{1:s}"
+		"de"		"{1} Macros sind auf diesem Server nicht erlaubt"
+	}
+
+	"chat_invalid_characters"
+	{
+		"de" 	"Chat-Nachricht blockiert, ungültige Zeichen erkannt"
+	}
+
+	"chat_bismillah_spam"
+	{
+		"de"	"Chat-Nachricht blockiert, Bismillah-Spam erkannt"
+	}
+
+	"kick_bad_name"
+	{
+		"de"	"Ihr Name enthält ungültige Zeichen, bitte ändern Sie Ihren Namen"
+	}
+
+	"ban_name_newline"
+	{
+		"de"	"Unzuverlässige Zeichen im Namen erkannt"
 	}
 }
