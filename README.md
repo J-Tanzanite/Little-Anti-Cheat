@@ -31,15 +31,16 @@ This Anti-Cheat is by no means perfect, and it is bypassable to some extent, but
  - [CS:S] Counter-Strike:Source
  - [HL2:DM] Half-Life 2:DeathMatch
 
-## HEADS-UP:
-Bhop bans has been changed to a 1 month ban instead of permanent.\
-Although the chance of a false positive for a Bhop is low (0.01 to 0.5%), some server owners may not wanna treat Bhop bans as equal to Aimbot bans.\
-Thus, the new default ban length for Bhop is 1 month.\
-\
-If you think that a 95%+ accuracy of bhop bans justify a perma ban, then add this line to the bottom of your Lilac config:
-``` text
-lilac_set_ban_length bhop -1
-```
+## Non-Steam versions / CS:S v34 / CS:S v91 / ETC...
+Non-Steam versions (IE: Cracks) **ARE NOT SUPPORTED!**\
+It seems like a few people have tried to use Lilac on cracked/non-steam versions of Counter-Strike:Source, and have reported bugs.\
+I am sorry to say, but non-steam versions aren't supported.\
+This is because of technical problems with cracks (as they tend to be of older versions of the game) and the fact that I don't want to support piracy.
+
+I'm sorry, but Little Anti-Cheat will not work for cracks/non-steam versions.\
+And support will never come from me officially.
+
+The same goes for other games, non-steam / cracks aren't supported.
 
 ### Credits / Special Thanks to:
  - J_Tanzanite... Yeah I'm crediting myself for writing this AC...
