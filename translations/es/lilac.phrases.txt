@@ -43,6 +43,11 @@
 		"es"	"Detectado ConVar no permitido"
 	}
 
+	"ban_nolerp"
+	{
+		"en"	"Detectado NoLerp"
+	}
+
 	"ban_bhop"
 	{
 		"es"	"Detectado Bhop"
@@ -66,5 +71,36 @@
 	"ban_noisemaker"
 	{
 		"es" 	"Detectado Noisemaker infinito"
+	}
+
+	"ban_macro"
+	{
+		"es"	"Detectada Macro"
+	}
+
+	"kick_macro"
+	{
+		"#format"	"{1:s}"
+		"es"		"{1} las macros no están permitidas en este servidor"
+	}
+
+	"chat_invalid_characters"
+	{
+		"es" 	"Mensaje bloqueado en el chat, detectados caracteres inválidos"
+	}
+
+	"chat_bismillah_spam"
+	{
+		"es"	"Mensaje bloqueado en el chat, detectado spam Bismillah"
+	}
+
+	"kick_bad_name"
+	{
+		"es"	"Tu nombre contiene caracteres inválidos, por favor cámbiate nombre"
+	}
+
+	"ban_name_newline"
+	{
+		"es"	"Detectado Newlines en el nombre"
 	}
 }
