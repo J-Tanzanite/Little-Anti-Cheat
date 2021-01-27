@@ -28,7 +28,7 @@
 
 #define NATIVE_EXISTS(%0) 	(GetFeatureStatus(FeatureType_Native, %0) == FeatureStatus_Available)
 #define UPDATE_URL 		"https://raw.githubusercontent.com/J-Tanzanite/Little-Anti-Cheat/master/updatefile.txt"
-#define VERSION 		"1.6.1"
+#define VERSION 		"1.6.2"
 
 #define CMD_LENGTH 	330
 
@@ -151,6 +151,7 @@ int playerinfo_noisemaker_type[MAXPLAYERS + 1];
 int playerinfo_noisemaker_ent[MAXPLAYERS + 1];
 int playerinfo_noisemaker_ent_prev[MAXPLAYERS + 1];
 int playerinfo_noisemaker_detection[MAXPLAYERS + 1];
+float playerinfo_time_bumpercart[MAXPLAYERS + 1];
 float playerinfo_time_teleported[MAXPLAYERS + 1];
 float playerinfo_time_aimlock[MAXPLAYERS + 1];
 float playerinfo_time_backtrack[MAXPLAYERS + 1];
@@ -801,6 +802,7 @@ void lilac_reset_client(int client)
 	playerinfo_noisemaker_ent[client] = 0;
 	playerinfo_noisemaker_ent_prev[client] = 0;
 	playerinfo_noisemaker_detection[client] = 0;
+	playerinfo_time_bumpercart[client] = 0.0;
 	playerinfo_time_teleported[client] = 0.0;
 	playerinfo_time_aimlock[client] = 0.0;
 	playerinfo_time_backtrack[client] = 0.0;
@@ -818,6 +820,12 @@ void lilac_reset_client(int client)
 
 		set_player_log_angles(client, Float:{0.0, 0.0, 0.0}, i);
 	}
+}
+
+public void TF2_OnConditionAdded(int client, TFCond condition)
+{
+	if (condition == TFCond_HalloweenKart)
+		playerinfo_time_bumpercart[client] = GetGameTime();
 }
 
 public void TF2_OnConditionRemoved(int client, TFCond condition)
@@ -1593,10 +1601,17 @@ public Action OnPlayerRunCmd(int client, int& buttons, int& impulse,
 		}
 	}
 
+	// Hotfix for extremely niece and rare TF2 bug...
+	if (ggame == GAME_TF2) {
+		if (TF2_IsPlayerInCondition(client, TFCond_HalloweenKart))
+			playerinfo_time_bumpercart[client] = GetGameTime();
+	}
+
 	// Detect angles that are out of bounds.
 	// 	Ignore players who recently teleported.
 	if (icvar[CVAR_ANGLES] && IsPlayerAlive(client)
-		&& GetGameTime() > playerinfo_time_teleported[client] + 5.0) {
+		&& GetGameTime() > playerinfo_time_teleported[client] + 5.0
+		&& GetGameTime() > playerinfo_time_bumpercart[client] + 1.0) {
 
 		if ((FloatAbs(angles[0]) > max_angles[0] && max_angles[0])
 			|| (FloatAbs(angles[2]) > max_angles[2] && max_angles[2]))
