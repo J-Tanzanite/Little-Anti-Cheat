@@ -4,10 +4,10 @@
 	{
 		"Version"
 		{
-			"Latest"	"1.6.1"
+			"Latest"	"1.6.2"
 		}
 
-		"Notes" "Fixed bug where angle-cheats would ban all players in L4D and L4D2."
+		"Notes" "Fixed rare case where bumper carts used outside of cart areas in official halloween maps could cause false positives when stood on weird inclines (Such a weird, rare and specific case)."
 	}
 
 	"Files"
