@@ -67,4 +67,35 @@
 	{
 		"no" 	"Uendelig Noisemaker-bruk oppdaget"
 	}
+
+	"ban_macro"
+	{
+		"no"	"Macro oppdaget"
+	}
+
+	"kick_macro"
+	{
+		"#format"	"{1:s}"
+		"no"		"{1} Macro er ikke tillatt på denne serveren"
+	}
+
+	"chat_invalid_characters"
+	{
+		"no" 	"Chat melding blokkert, fjern ugyldige karakterer og prøv igjen"
+	}
+
+	"chat_bismillah_spam"
+	{
+		"no"	"Chat melding blokkert, Bismillah spam oppdaget"
+	}
+
+	"kick_bad_name"
+	{
+		"no"	"Navnet ditt har ugyldige karakterer, vennligst endre navnet ditt"
+	}
+
+	"ban_name_newline"
+	{
+		"no"	"Ny-linje karakterer i navnet oppdaget"
+	}
 }
