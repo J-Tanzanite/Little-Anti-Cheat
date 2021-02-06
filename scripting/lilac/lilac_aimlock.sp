@@ -1,6 +1,6 @@
 /*
 	Little Anti-Cheat
-	Copyright (C) 2018-2020 J_Tanzanite
+	Copyright (C) 2018-2021 J_Tanzanite
 
 	This program is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -15,8 +15,6 @@
 	You should have received a copy of the GNU General Public License
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
-
-#warning Aimlock bans have been disabled for now, because of re-written code.
 
 static bool aimlock_skip_player(int client)
 {
@@ -91,7 +89,7 @@ public Action timer_check_aimlock(Handle timer)
 
 			// Player has already been detected of using aimlock,
 			// 	don't check for aimlock again, only check
-			// 	if the player is too close to an enemy.
+			// 	if the player is too close to other enemies.
 			if (detected_aimlock[client])
 				continue;
 
@@ -209,8 +207,7 @@ static void lilac_detected_aimlock(int client)
 				lilac_log_extra(client);
 		}
 
-		// Debug: Todo: Uncomment this later.
-		// lilac_ban_client(client, CHEAT_AIMLOCK);
+		lilac_ban_client(client, CHEAT_AIMLOCK);
 	}
 }
 
