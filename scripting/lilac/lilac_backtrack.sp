@@ -1,6 +1,6 @@
 /*
 	Little Anti-Cheat
-	Copyright (C) 2018-2020 J_Tanzanite
+	Copyright (C) 2018-2021 J_Tanzanite
 
 	This program is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -45,37 +45,11 @@ int lilac_backtrack_patch(int client, int tickcount)
 		&& lilac_is_player_in_backtrack_timeout(client) == false)
 		lilac_set_client_in_backtrack_timeout(client);
 
-	if (lilac_is_player_in_backtrack_timeout(client)) {
-		switch (icvar[CVAR_BACKTRACK_PATCH]) {
-		case 1: return lilac_random_tickcount(client); // If you use mode 1... I won't like you >:I
-		case 2: return lilac_lock_tickcount(client);
-		}
-	}
+	if (lilac_is_player_in_backtrack_timeout(client)
+		&& icvar[CVAR_BACKTRACK_PATCH])
+		return lilac_lock_tickcount(client);
 
 	return tickcount;
-}
-
-static int lilac_random_tickcount(int client)
-{
-	int tick, ping, forwardtrack;
-
-	// Latency/Ping in ticks.
-	ping = RoundToNearest(GetClientAvgLatency(client, NetFlow_Outgoing) / GetTickInterval());
-
-	// Forwardtracking is maximum 200ms.
-	forwardtrack = ping;
-	if (forwardtrack > time_to_ticks(0.2))
-		forwardtrack = time_to_ticks(0.2);
-
-	// Randomize tickcount to be what it should be (server tickcount - ping)
-	// 	- a random value between -200ms and forwardtracking (max 200ms).
-	tick = GetGameTickCount() - ping + GetRandomInt(0, time_to_ticks(0.2) + forwardtrack) - time_to_ticks(0.2);
-
-	// Tickcount cannot be larger than server tickcount.
-	if (tick > GetGameTickCount())
-		return GetGameTickCount();
-
-	return tick;
 }
 
 static int lilac_lock_tickcount(int client)
@@ -85,7 +59,7 @@ static int lilac_lock_tickcount(int client)
 	ping = RoundToNearest(GetClientAvgLatency(client, NetFlow_Outgoing) / GetTickInterval());
 	tick = diff_tickcount[client] + (GetGameTickCount() - ping);
 
-	// Never return higher than server tick count.
+	// Never return higher than server tickcount.
 	// Other than that, lock the tickcount to the player's
 	// 	previous value for the durration of the patch.
 	// 	This patch method shouldn't affect legit laggy players as much.
