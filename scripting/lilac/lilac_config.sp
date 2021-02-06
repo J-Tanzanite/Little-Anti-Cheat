@@ -1,6 +1,6 @@
 /*
 	Little Anti-Cheat
-	Copyright (C) 2018-2020 J_Tanzanite
+	Copyright (C) 2018-2021 J_Tanzanite
 
 	This program is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -68,9 +68,9 @@ void lilac_config_setup()
 	cvar[CVAR_NOLERP] = CreateConVar("lilac_nolerp", "1",
 		"Detect NoLerp.\n-1 = Log only.\n0 = Disabled.\n1 = Enabled.",
 		FCVAR_PROTECTED, true, -1.0, true, 1.0);
-	cvar[CVAR_BHOP] = CreateConVar("lilac_bhop", "2",
-		"Detect Bhop.\n-2 = Log only advanced.\n-1 = Log only simplistic.\n0 = Disabled.\n1 = Simplistic.\n2 = Advanced.",
-		FCVAR_PROTECTED, true, -2.0, true, 2.0);
+	cvar[CVAR_BHOP] = CreateConVar("lilac_bhop", "5",
+		"Bhop detection mode (Negative values = log-only).\n0 = Disabled.\n1&2 = Reserved (Invalid).\n3 = Custom (unlocks lilac_bhop_set command).\n4 = Low.\n5 = Medium.\n6 = High.",
+		FCVAR_PROTECTED, true, -6.0, true, 6.0);
 	cvar[CVAR_AIMBOT] = CreateConVar("lilac_aimbot", "5",
 		"Detect basic Aimbots.\n0 = Disabled.\n1 = Log only.\n5 or more = ban on n'th detection (Minimum possible is 5)",
 		FCVAR_PROTECTED, true, 0.0, false, 0.0);
@@ -90,8 +90,8 @@ void lilac_config_setup()
 		"TF2 Only, detect infinite noisemaker spam. STILL IN BETA, DOES NOT BAN, ONLY LOGS! MAY HAVE SOME ISSUES!\n-1 = Log only.\n0 = Disabled.\n1 = Enabled.",
 		FCVAR_PROTECTED, true, -1.0, true, 1.0);
 	cvar[CVAR_BACKTRACK_PATCH] = CreateConVar("lilac_backtrack_patch", "0",
-		"Patch Backtrack.\n0 = Disabled (Recommended setting for SMAC compatibility).\n1 = Randomized (Not recommended).\n2 = Locked (Recommended patch method).",
-		FCVAR_PROTECTED, true, 0.0, true, 2.0);
+		"Patch Backtrack.\n0 = Disabled (Recommended setting for SMAC compatibility).\n1 = Enabled.",
+		FCVAR_PROTECTED, true, 0.0, true, 1.0);
 	cvar[CVAR_BACKTRACK_TOLERANCE] = CreateConVar("lilac_backtrack_tolerance", "0",
 		"How tolerant the backtrack patch will be of tickcount changes.\n0 = No tolerance (recommended).\n1+ = n ticks tolerant.",
 		FCVAR_PROTECTED, true, 0.0, true, 3.0);
@@ -156,6 +156,7 @@ void lilac_config_setup()
 	RegServerCmd("lilac_date_list", lilac_date_list, "Lists date formatting options", 0);
 	RegServerCmd("lilac_set_ban_length", lilac_set_ban_length, "Sets custom ban lengths for specific cheats.", 0);
 	RegServerCmd("lilac_ban_status", lilac_ban_status, "Prints banning status to server console.", 0);
+	RegServerCmd("lilac_bhop_set", lilac_bhop_set, "Sets Custom Bhop settings", 0);
 
 	// Legacy check, execute old config location.
 	if (FileExists("cfg/lilac_config.cfg", false, NULL_STRING))
@@ -171,7 +172,119 @@ public void OnConfigsExecuted()
 	if (run_status_ban)
 		lilac_ban_status(0);
 
+	lilac_bhop_set_preset(); // We need to call this here, in case of a plugin reload.
+
 	run_status_ban = false;
+}
+
+public Action lilac_bhop_set(int args)
+{
+	char buffer[16];
+	int value = 0;
+	int index = 0;
+
+	if (intabs(icvar[CVAR_BHOP]) != BHOP_MODE_CUSTOM) {
+		PrintToServer("Error: Must be in custom mode, set 'lilac_bhop' to %d.",
+			BHOP_MODE_CUSTOM);
+		return Plugin_Handled;
+	}
+	else if (args < 2) {
+		PrintToServer("Error: too few arguments.\nUsage: lilac_bhop_set <type> <value>");
+		PrintToServer("Examples:");
+		PrintToServer("\tlilac_bhop_set min 7");
+		PrintToServer("\tlilac_bhop_set ticks -1");
+		PrintToServer("\tlilac_bhop_set max 15");
+		PrintToServer("\tlilac_bhop_set total 4.");
+		PrintToServer("\nType list:");
+		PrintToServer("\tmin   - Minimum consecutive perfect bhops to trigger a detection.");
+		PrintToServer("\tticks - Jump tick buffer before min is ignored.");
+		PrintToServer("\tmax   - Maximum consecutive perfect bhops to trigger an instant ban.");
+		PrintToServer("\ttotal - How many detections before banning.");
+		PrintToServer("\n");
+		print_current_bhop_settings();
+
+		return Plugin_Handled;
+	}
+
+	GetCmdArg(2, buffer, sizeof(buffer));
+	value = StringToInt(buffer, 10);
+	GetCmdArg(1, buffer, sizeof(buffer));
+
+	// Working with strings is always the least fun part ):
+	if (StrEqual(buffer, "min", false)
+		|| StrEqual(buffer, "minimal", false)
+		|| StrEqual(buffer, "minimum", false)) {
+		index = BHOP_INDEX_MIN;
+	}
+	else if (StrEqual(buffer, "jump", false)
+		|| StrEqual(buffer, "jumps", false)
+		|| StrEqual(buffer, "tick", false)
+		|| StrEqual(buffer, "ticks", false)
+		|| StrEqual(buffer, "buf", false)
+		|| StrEqual(buffer, "buff", false)
+		|| StrEqual(buffer, "buffer", false)
+		|| StrEqual(buffer, "jump_tick", false)
+		|| StrEqual(buffer, "jump_ticks", false)
+		|| StrEqual(buffer, "jumptick", false)
+		|| StrEqual(buffer, "jumpticks", false)) {
+		index = BHOP_INDEX_JUMP;
+	}
+	else if (StrEqual(buffer, "max", false)
+		|| StrEqual(buffer, "maximal", false)
+		|| StrEqual(buffer, "maximum", false)) {
+		index = BHOP_INDEX_MAX;
+	}
+	else if (StrEqual(buffer, "tot", false)
+		|| StrEqual(buffer, "total", false)
+		|| StrEqual(buffer, "all", false)
+		|| StrEqual(buffer, "detection", false)
+		|| StrEqual(buffer, "detections", false)) {
+		index = BHOP_INDEX_TOTAL;
+	}
+	else {
+		PrintToServer("Error: Unknown type \"%s\"", buffer);
+		return Plugin_Handled;
+	}
+
+	if (value < bhop_settings_min[index]) {
+		// Total setting CANNOT be set to be lower than the min,
+		// 	no matter what!
+		if (index == BHOP_INDEX_TOTAL) {
+			value = bhop_settings_min[index];
+		}
+		else if (value != 0) {
+			PrintToServer("Warning: Minimum value is %d, use '0' to disable feature.",
+				bhop_settings_min[index]);
+			value = bhop_settings_min[index];
+		}
+	}
+
+	PrintToServer("[Lilac] Changed Bhop setting \"%s\" to %d.",
+		buffer, value);
+
+	bhop_settings[index] = value;
+	print_current_bhop_settings();
+
+	// Both being 0 means we won't detect anything, lol.
+	// So let's warn the admin :)
+	if (!bhop_settings[BHOP_INDEX_MIN] && !bhop_settings[BHOP_INDEX_MAX])
+		PrintToServer("Warning: Min and Max are set to 0, bhop detection is now disabled!");
+
+	return Plugin_Handled;
+}
+
+static void print_current_bhop_settings()
+{
+	// Yeah, a little messy...
+	PrintToServer("Current Custom Bhop values:");
+	PrintToServer("    Type  : Min possible : Current");
+	PrintToServer("    Min   : %2d           : %d", bhop_settings_min[BHOP_INDEX_MIN], bhop_settings[BHOP_INDEX_MIN]);
+	if (bhop_settings[BHOP_INDEX_JUMP] == -1)
+		PrintToServer("    Ticks : %2d           : %d", bhop_settings_min[BHOP_INDEX_JUMP], bhop_settings[BHOP_INDEX_JUMP]);
+	else
+		PrintToServer("    Ticks : %2d           : %d (+%d = %d total)", bhop_settings_min[BHOP_INDEX_JUMP], bhop_settings[BHOP_INDEX_JUMP], bhop_settings[BHOP_INDEX_MIN], bhop_settings[BHOP_INDEX_JUMP] + bhop_settings[BHOP_INDEX_MIN]);
+	PrintToServer("    Max   : %2d           : %d", bhop_settings_min[BHOP_INDEX_MAX], bhop_settings[BHOP_INDEX_MAX]);
+	PrintToServer("    Total : %2d           : %d", bhop_settings_min[BHOP_INDEX_TOTAL], bhop_settings[BHOP_INDEX_TOTAL]);
 }
 
 public Action lilac_ban_status(int args)
@@ -179,40 +292,42 @@ public Action lilac_ban_status(int args)
 	int ban_type = 0;
 	char tmp[24];
 
-	PrintToServer("=========[Lilac Ban Status]=========", PLUGIN_VERSION);
+	PrintToServer("====[Little Anti-Cheat %s - Ban Status]====", PLUGIN_VERSION);
 	PrintToServer("Checking ban plugins:");
 	PrintToServer("Material-Admin:");
 	PrintToServer("\tLoaded: %s", ((materialadmin_exist) ? "Yes" : "No"));
 	PrintToServer("\tNative Exists: %s", ((NATIVE_EXISTS("MABanPlayer")) ? "Yes" : "No"));
 	PrintToServer("\tConVar: lilac_materialadmin = %d", icvar[CVAR_MA]);
-	
-	#if !defined _materialadmin_included
+
+#if !defined _materialadmin_included
 	PrintToServer("\tWARNING: Material-Admin was NOT included when compiled, banning through MA won't work!");
 	PrintToServer("\tПредупреждение: Material-Admin НЕ БЫЛ включен при компиляции, баны через MA не будут работать!");
-	#else
+#else
 	ban_type = ((icvar[CVAR_MA] && NATIVE_EXISTS("MABanPlayer")) ? 2 : 0);
-	#endif
-	
+#endif
+
 	PrintToServer("Sourcebans++:");
 	PrintToServer("\tLoaded: %s", ((sourcebanspp_exist) ? "Yes" : "No"));
 	PrintToServer("\tNative Exists: %s", ((NATIVE_EXISTS("SBPP_BanPlayer")) ? "Yes" : "No"));
 	PrintToServer("\tConVar: lilac_sourcebans = %d", icvar[CVAR_SB]);
-	
-	#if !defined _sourcebanspp_included
+
+#if !defined _sourcebanspp_included
 	PrintToServer("\tWARNING: Sourcebans++ was NOT included when compiled, banning through SB++ won't work!");
-	#else
+#else
 	if (!ban_type)
 		ban_type = (icvar[CVAR_SB] && NATIVE_EXISTS("SBPP_BanPlayer"));
-	#endif
+#endif
 
 	switch (ban_type) {
 	case 0: { strcopy(tmp, sizeof(tmp), "BaseBans"); }
 	case 1: { strcopy(tmp, sizeof(tmp), "Sourcebans++"); }
 	case 2: { strcopy(tmp, sizeof(tmp), "Material-Admin"); }
-	default: return;
+	default: return Plugin_Handled;
 	}
 
 	PrintToServer("\nBanning will go though %s.\n", tmp);
+
+	return Plugin_Handled;
 }
 
 public Action lilac_set_ban_length(int args)
@@ -222,10 +337,10 @@ public Action lilac_set_ban_length(int args)
 	int time;
 
 	if (args < 2) {
-		PrintToServer("Error: Too few arguments.\n\nUsage:\t\tlilac_set_ban_length <cheat> <minutes>");
-		PrintToServer("Example:\tlilac_set_ban_length bhop 15\n\nSets bhop ban to 15 minutes.");
-		PrintToServer("If ban length is -1, then the length will be ConVar lilac_ban_length\n");
-		PrintToServer("Possible cheat arguments:");
+		PrintToServer("Error: Too few arguments.\nUsage: lilac_set_ban_length <cheat> <minutes>");
+		PrintToServer("Example:\n\tlilac_set_ban_length bhop 15\n\t(Sets bhop ban to 15 minutes)");
+		PrintToServer("\nIf ban length is -1, then the ban length will be the ConVar lilac_ban_length's value.");
+		PrintToServer("\nPossible cheat arguments:");
 		PrintToServer("\tlilac_set_ban_length angles <minutes>");
 		PrintToServer("\tlilac_set_ban_length chatclear <minutes>");
 		PrintToServer("\tlilac_set_ban_length convar <minutes>");
@@ -242,7 +357,7 @@ public Action lilac_set_ban_length(int args)
 	}
 
 	GetCmdArg(1, feature, sizeof(feature));
-	
+
 	if (StrEqual(feature, "angles", false) || StrEqual(feature, "angle", false)) {
 		index = CHEAT_ANGLES;
 	}
@@ -298,6 +413,8 @@ public Action lilac_set_ban_length(int args)
 		time = -1;
 
 	ban_length_overwrite[index] = time;
+
+	// Todo: Add message showing new times? Like the bhop set command :)
 
 	return Plugin_Handled;
 }
@@ -392,6 +509,7 @@ public void cvar_change(ConVar convar, const char[] oldValue, const char[] newVa
 	}
 	else if (view_as<Handle>(convar) == cvar[CVAR_BHOP]) {
 		icvar[CVAR_BHOP] = StringToInt(newValue, 10);
+		lilac_bhop_set_preset();
 	}
 	else if (view_as<Handle>(convar) == cvar[CVAR_AIMBOT]) {
 		icvar[CVAR_AIMBOT] = StringToInt(newValue, 10);
@@ -421,9 +539,6 @@ public void cvar_change(ConVar convar, const char[] oldValue, const char[] newVa
 	}
 	else if (view_as<Handle>(convar) == cvar[CVAR_BACKTRACK_PATCH]) {
 		icvar[CVAR_BACKTRACK_PATCH] = StringToInt(newValue, 10);
-
-		if (icvar[CVAR_BACKTRACK_PATCH] == 1)
-			PrintToServer("[Little Anti-Cheat %s] WARNING: Patch method 1 isn't recommended, use patch method 2 instead.", PLUGIN_VERSION);
 	}
 	else if (view_as<Handle>(convar) == cvar[CVAR_BACKTRACK_TOLERANCE]) {
 		icvar[CVAR_BACKTRACK_TOLERANCE] = StringToInt(newValue, 10);
@@ -498,6 +613,46 @@ public void cvar_change(ConVar convar, const char[] oldValue, const char[] newVa
 			// Delay convar checks for 30 seconds.
 			time_sv_cheats = GetTime() + QUERY_TIMEOUT;
 		}
+	}
+}
+
+static void lilac_bhop_set_preset()
+{
+	int mode = intabs(icvar[CVAR_BHOP]);
+
+	switch (mode) {
+	// Backwards compatibility, mode 1 & 2 don't exist anymore.
+	// If a config is already set to use these, change mode to medium.
+	case BHOP_MODE_RESERVED_1, BHOP_MODE_RESERVED_2: {
+		PrintToServer("[Lilac] Warning: Bhop mode 1 & 2 has been disabled, setting Bhop mode to %d (Medium).",
+			BHOP_MODE_MEDIUM);
+		SetConVarInt(cvar[CVAR_BHOP], BHOP_MODE_MEDIUM, false, false);
+	}
+	case BHOP_MODE_LOW, BHOP_MODE_CUSTOM: {
+		// Can't do switch fall-through in SourcePawn.
+		// Makes me miss C :(
+		if (mode == BHOP_MODE_CUSTOM) {
+			PrintToServer("[Lilac] WARNING: DO NOT USE CUSTOM BHOP MODE UNLESS YOU KNOW WHAT YOU ARE DOING!");
+			PrintToServer("[Lilac] ВНИМАНИЕ: НЕ ИСПОЛЬЗУЙТЕ ПОЛЬЗОВАТЕЛЬСКИЙ РЕЖИМ BHOP, ЕСЛИ ВЫ НЕ ЗНАЕТЕ, ЧТО ВЫ ДЕЛАЕТЕ!");
+		}
+
+		bhop_settings[BHOP_INDEX_MIN] = 7;
+		bhop_settings[BHOP_INDEX_JUMP] = bhop_settings[BHOP_INDEX_MIN] + 5; // SMAC bypass + buffer of 5.
+		bhop_settings[BHOP_INDEX_MAX] = 20;
+		bhop_settings[BHOP_INDEX_TOTAL] = 5;
+	}
+	case BHOP_MODE_MEDIUM: {
+		bhop_settings[BHOP_INDEX_MIN] = 7;
+		bhop_settings[BHOP_INDEX_JUMP] = -1;
+		bhop_settings[BHOP_INDEX_MAX] = 15;
+		bhop_settings[BHOP_INDEX_TOTAL] = 4;
+	}
+	case BHOP_MODE_HIGH: {
+		bhop_settings[BHOP_INDEX_MIN] = 5;
+		bhop_settings[BHOP_INDEX_JUMP] = -1;
+		bhop_settings[BHOP_INDEX_MAX] = 10;
+		bhop_settings[BHOP_INDEX_TOTAL] = 2;
+	}
 	}
 }
 
