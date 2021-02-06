@@ -1,6 +1,6 @@
 /*
 	Little Anti-Cheat
-	Copyright (C) 2018-2020 J_Tanzanite
+	Copyright (C) 2018-2021 J_Tanzanite
 
 	This program is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -52,7 +52,7 @@ public Action timer_check_ping(Handle timer)
 				ping_high[i]--;
 
 			if (ping_high[i] < ping_warn[i] - 2 && ping_warn[i] > 0) {
-				
+
 				ping_warn[i] = 0;
 				PrintToChat(i, "[Lilac] Your ping appears to be fine again, it is safe to rejoin a team and play.");
 			}
