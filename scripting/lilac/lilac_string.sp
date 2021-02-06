@@ -1,6 +1,6 @@
 /*
 	Little Anti-Cheat
-	Copyright (C) 2018-2020 J_Tanzanite
+	Copyright (C) 2018-2021 J_Tanzanite
 
 	This program is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -15,8 +15,6 @@
 	You should have received a copy of the GNU General Public License
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
-
-#warning String-Bans and Kicks have been disabled for now. Because this needs further testing before it can be declared stable.
 
 public Action OnClientSayCommand(int client, const char[] command, const char[] sArgs)
 {
@@ -41,12 +39,13 @@ public Action OnClientSayCommand(int client, const char[] command, const char[] 
 	// A string with Bismillah spam will be reported as being
 	// 	a valid string (Function returns true),
 	// 	but the bit flag is still set.
+
 	// Invalid string and no newlines/carriage returns.
-	if (!(is_string_valid(sArgs, flags)) && !(flags & (STR_FLAG_ASCII_NEWLINE | STR_FLAG_ASCII_CRETURN))) {
+	if (!(is_string_valid(sArgs, flags)) && !(flags & (STRFLAG_NEWLINE | STRFLAG_CRETURN))) {
 		PrintToChat(client, "[Lilac] %T", "chat_invalid_characters", client);
 		return Plugin_Stop;
 	}
-	else if ((flags & STR_FLAG_UTF8_BISMILLAH_SPAM)) {
+	else if ((flags & STRFLAG_BISMILLAH_SPAM)) {
 		// Bismillah, as explained by 3kliksphilip here: https://youtu.be/hP1N1YRitlM?t=94
 		// Block this exploit.
 		PrintToChat(client, "[Lilac] %T", "chat_bismillah_spam", client);
@@ -98,7 +97,7 @@ static bool does_string_contain_newline(const char []string)
 {
 	for (int i = 0; string[i]; i++) {
 		// Newline or carriage return.
-		if (string[i] == '\n' || string[i] == 0x0d)
+		if (string[i] == '\n' || string[i] == '\r')
 			return true;
 	}
 
@@ -156,7 +155,7 @@ static void check_name(int client, const char []name)
 	// I should fix that, but for now, lets do this instead (tmp fix).
 
 	// Player was detected of having a newline or carriage return in their name, which is a cheat feature...
-	if (icvar[CVAR_FILTER_NAME] == 2 && (flags & (STR_FLAG_ASCII_NEWLINE | STR_FLAG_ASCII_CRETURN))) {
+	if (icvar[CVAR_FILTER_NAME] == 2 && (flags & (STRFLAG_NEWLINE | STRFLAG_CRETURN))) {
 		if (playerinfo_banned_flags[client][CHEAT_NEWLINE_NAME])
 			return;
 
@@ -177,8 +176,7 @@ static void check_name(int client, const char []name)
 				lilac_log_extra(client);
 		}
 
-		// Debug: Todo: Uncomment this later once it's proven stable.
-		// lilac_ban_client(client, CHEAT_NEWLINE_NAME);
+		lilac_ban_client(client, CHEAT_NEWLINE_NAME);
 	}
 	else {
 		// Invalid name.
@@ -194,15 +192,23 @@ static void check_name(int client, const char []name)
 		}
 
 		// Log only.
-		// Debug: Todo: Uncomment this later once it's proven stable.
-		// if (icvar[CVAR_FILTER_NAME] > 0)
-		// 	KickClient(client, "[Lilac] %T", "kick_bad_name", client);
+		if (icvar[CVAR_FILTER_NAME] > 0)
+			KickClient(client, "[Lilac] %T", "kick_bad_name", client);
 	}
 }
 
 
 
-/* ---- UTF-8 code from an old C project of mine... Fixed it up a bit. ---- */
+/*
+	UTF-8 code from an old C project of mine... Fixed it up a bit.
+
+	Note: 5 and 6 byte encodings aren't valid in UTF-8 anymore.
+	Originally, UTF-8 could have up to 6 byte long encodings, but in
+	2003 it was changed to be maximum 4 bytes, to match the limitations
+	of UTF-16.
+
+	2003 was long ago, and so the 4 byte maximum is used here.
+*/
 
 
 
@@ -217,19 +223,19 @@ static bool is_string_valid(const char []string, int &flags)
 		// Multi-Byte.
 		if (length > 1) {
 			// Check if it's valid UTF-8.
-			int wchar = utf8_to_wchar(string[i], flags);
+			int codepoint = utf8_decode(string[i], flags);
 
-			if (wchar == -1)
+			if (codepoint == -1)
 				return false;
 
 			// Bismillah character spam (Maximum two uses).
-			if (wchar == 0xfdfd) {
+			if (codepoint == 0xfdfd) {
 				if (++bismillah > 2)
-					flags |= STR_FLAG_UTF8_BISMILLAH_SPAM;
+					flags |= STRFLAG_BISMILLAH_SPAM;
 			}
-			else if (wchar >= 0x80 && wchar <= 0x9f) {
+			else if (codepoint >= 0x80 && codepoint <= 0x9f) {
 				// C1 Control characters are illegal.
-				flags |= STR_FLAG_UTF8_CONTROL;
+				flags |= STRFLAG_CTRL_1;
 				return false;
 			}
 
@@ -237,19 +243,19 @@ static bool is_string_valid(const char []string, int &flags)
 		}
 		else { // ASCII.
 			if (string[i] == '\n') { // Newline.
-				flags |= STR_FLAG_ASCII_NEWLINE;
+				flags |= STRFLAG_NEWLINE;
 				return false;
 			}
 			else if (string[i] == 0x0d) { // Carriage return.
-				flags |= STR_FLAG_ASCII_CRETURN;
+				flags |= STRFLAG_CRETURN;
 				return false;
 			}
 			else if (string[i] < 32) { // Control character.
-				flags |= STR_FLAG_ASCII_CONTROL;
+				flags |= STRFLAG_CTRL_0;
 				return false;
 			}
 			else if (string[i] == 0x7f) { // Del.
-				flags |= STR_FLAG_ASCII_DEL;
+				flags |= STRFLAG_DEL;
 				return false;
 			}
 		}
@@ -263,19 +269,19 @@ static bool utf8_is_valid_header(char c, int &flags)
 	// 0xf5 is always higher than the U+10ffff limit.
 	// Also, prevents one extra bit here: 0b1111 1 000
 	if (c >= 0xf5) {
-		flags |= STR_FLAG_UTF8_OVER_LIMIT;
+		flags |= STRFLAG_OVER_LIMIT;
 		return false;
 	}
 
 	// Two byte encoding for single ASCII byte.
 	if (c == 0xc0 || c == 0xc1) {
-		flags |= STR_FLAG_UTF8_OVERLONG_ENCODING;
+		flags |= STRFLAG_OVERLONG;
 		return false;
 	}
 
 	// Must have 2 high order bits set.
 	if ((c & 0b11000000) != 0b11000000) {
-		flags |= STR_FLAG_UTF8_BAD_HEADER;
+		flags |= STRFLAG_BAD_HEADER;
 		return false;
 	}
 
@@ -294,73 +300,66 @@ static int utf8_get_header_length(char c)
 	return 1;
 }
 
-static int utf8_to_wchar(const char []c, int &flags)
+static int utf8_decode(const char []c, int &flags)
 {
 	static int header_bits[] = {
 		0, 0, // Fillers.
 		0b00011111,
 		0b00001111,
 		0b00000111
-		// Note: 5 & 6 byte encodings aren't valid anymore.
-		// ...
-		// In 2003, the standard for UTF-8 was changed.
-		// Or... Something like that? Not entirely sure...
-		// Either way, 2003 was long ago, and I'll enforce
-		// the current standard of UTF-8; where the maximum
-		// encoding possible is 4 bytes.
 	};
 
-	int wchar = 0;
+	int codepoint = 0;
 	int length = utf8_get_header_length(c[0]);
 
 	for (int i = 0; i < length; i++) {
 		// Invalid byte.
 		if (!(c[i] & 0b10000000)) {
-			flags |= STR_FLAG_UTF8_BAD_HEADER;
+			flags |= STRFLAG_BAD_HEADER;
 			return -1;
 		}
 
 		if (!i) {
 			if (utf8_is_valid_header(c[i], flags) == false) {
-				flags |= STR_FLAG_UTF8_BAD_HEADER;
+				flags |= STRFLAG_BAD_HEADER;
 				return -1;
 			}
 
-			wchar = (header_bits[length] & c[i]);
+			codepoint = (header_bits[length] & c[i]);
 		}
 		else {
 			if ((c[i] & 0b11000000) != 0b10000000) {
-				flags |= STR_FLAG_UTF8_BAD_CONT;
+				flags |= STRFLAG_BAD_CONT;
 				return -1;
 			}
 
-			wchar <<= 6;
-			wchar += (0b00111111 & c[i]);
+			codepoint <<= 6;
+			codepoint += (0b00111111 & c[i]);
 		}
 	}
 
 	// Check for overlong encoding.
-	if (wchar_to_length(wchar) != length) {
-		flags |= STR_FLAG_UTF8_OVERLONG_ENCODING;
+	if (codepoint_to_length(codepoint) != length) {
+		flags |= STRFLAG_OVERLONG;
 		return -1;
 	}
 
 	// Reserved for UTF-16.
-	if (wchar >= 0xd800 && wchar <= 0xdfff) {
-		flags |= STR_FLAG_UTF8_UTF16;
+	if (codepoint >= 0xd800 && codepoint <= 0xdfff) {
+		flags |= STRFLAG_UTF16;
 		return -1;
 	}
 
 	// Greater values than this aren't valid.
-	if (wchar > 0x10ffff) {
-		flags |= STR_FLAG_UTF8_OVER_LIMIT;
+	if (codepoint > 0x10ffff) {
+		flags |= STRFLAG_OVER_LIMIT;
 		return -1;
 	}
 
-	return wchar;
+	return codepoint;
 }
 
-static int wchar_to_length(int n)
+static int codepoint_to_length(int n)
 {
 	if (n <= 0b1111111) // 7 bits
 		return 1;
