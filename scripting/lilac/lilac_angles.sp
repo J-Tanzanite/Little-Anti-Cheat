@@ -1,6 +1,6 @@
 /*
 	Little Anti-Cheat
-	Copyright (C) 2018-2020 J_Tanzanite
+	Copyright (C) 2018-2021 J_Tanzanite
 
 	This program is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -21,6 +21,23 @@ void lilac_angles_check(int client, float angles[3])
 	if (!IsPlayerAlive(client)
 		|| playerinfo_time_teleported[client] + 5.0 > GetGameTime())
 		return;
+
+	// In TF2, if players use the bumpercarts outside of
+	//     official halloween map areas while standing on
+	//     weird inclines, you can trigger a false positive.
+	// Yes... It's weird... Yes, this is rare and only happens
+	//     on community servers where they provide carts outside
+	//     of official halloween map areas...
+	// Anyway, thanks WOLFA22 for reporting this!
+	if (ggame == GAME_TF2) {
+		if (TF2_IsPlayerInCondition(client, TFCond_HalloweenKart)) {
+			playerinfo_time_bumpercart[client] = GetGameTime();
+			return;
+		}
+		else if (GetGameTime() - playerinfo_time_bumpercart[client] < 5.0) {
+			return;
+		}
+	}
 
 	if ((FloatAbs(angles[0]) > max_angles[0] && max_angles[0])
 		|| (FloatAbs(angles[2]) > max_angles[2] && max_angles[2]))
