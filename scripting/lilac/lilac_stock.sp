@@ -1,6 +1,6 @@
 /*
 	Little Anti-Cheat
-	Copyright (C) 2018-2020 J_Tanzanite
+	Copyright (C) 2018-2021 J_Tanzanite
 
 	This program is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -50,6 +50,7 @@ void lilac_reset_client(int client)
 	playerinfo_index[client] = 0;
 	playerinfo_aimlock_sus[client] = 0;
 	playerinfo_aimlock[client] = 0;
+	playerinfo_time_bumpercart[client] = 0.0;
 	playerinfo_time_teleported[client] = 0.0;
 	playerinfo_time_aimlock[client] = 0.0;
 	playerinfo_time_process_aimlock[client] = 0.0;
