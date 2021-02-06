@@ -1,6 +1,6 @@
 /*
 	Little Anti-Cheat
-	Copyright (C) 2018-2020 J_Tanzanite
+	Copyright (C) 2018-2021 J_Tanzanite
 
 	This program is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -18,6 +18,7 @@
 
 #include <sourcemod>
 #include <sdktools_engine>
+#include <sdktools_entoutput>
 #undef REQUIRE_PLUGIN
 #undef REQUIRE_EXTENSIONS
 #tryinclude <materialadmin>
@@ -109,7 +110,7 @@ public void OnPluginStart()
 	}
 	else if (StrEqual(gamefolder, "left4dead", false)) {
 		ggame = GAME_L4D;
-		
+
 		// Same as L4D2, the smoker handles pitch differently it seems.
 		// Thanks to finishlast for reporting this!
 		max_angles = view_as<float>({0.0, 0.0, 50.01});
@@ -130,6 +131,8 @@ public void OnPluginStart()
 	HookEvent("player_spawn", event_teleported, EventHookMode_Post);
 	HookEvent("player_changename", event_namechange, EventHookMode_Post);
 
+	HookEntityOutput("trigger_teleport", "OnEndTouch", map_teleport);
+
 	// Default ban lengths are -1. (Global ConVar).
 	for (int i = 0; i < CHEAT_MAX; i++)
 		ban_length_overwrite[i] = -1;
@@ -139,9 +142,6 @@ public void OnPluginStart()
 
 	// Bans for Macros are 15 minutes by default.
 	ban_length_overwrite[CHEAT_MACRO] = 15;
-
-	// This sets up convars and such.
-	lilac_config_setup();
 
 	// If sv_maxupdaterate is changed mid-game and then this plugin
 	// 	is loaded, then it could lead to false positives.
@@ -172,13 +172,19 @@ public void OnPluginStart()
 	macro_max = (tick_rate >= 60 && tick_rate <= MACRO_LOG_LENGTH) ? 20 : 0;
 
 	if (tick_rate > 50) {
-		bhop_max[BHOP_SIMPLISTIC] = 10;
-		bhop_max[BHOP_ADVANCED] = 5;
+		bhop_settings_min[BHOP_INDEX_MIN] = 5;
+		bhop_settings_min[BHOP_INDEX_MAX] = 10;
+		bhop_settings_min[BHOP_INDEX_TOTAL] = 2;
 	}
 	else {
-		bhop_max[BHOP_SIMPLISTIC] = 20;
-		bhop_max[BHOP_ADVANCED] = 10;
+		bhop_settings_min[BHOP_INDEX_MIN] = 10;
+		bhop_settings_min[BHOP_INDEX_MAX] = 20;
+		bhop_settings_min[BHOP_INDEX_TOTAL] = 4;
 	}
+	bhop_settings_min[BHOP_INDEX_JUMP] = -1;
+
+	// This sets up convars and such.
+	lilac_config_setup();
 
 	if (icvar[CVAR_LOG])
 		lilac_log_first_time_setup();
@@ -261,6 +267,8 @@ public void TF2_OnConditionRemoved(int client, TFCond condition)
 {
 	if (condition == TFCond_Taunting)
 		playerinfo_time_teleported[client] = GetGameTime();
+	else if (condition == TFCond_HalloweenKart)
+		playerinfo_time_bumpercart[client] = GetGameTime();
 }
 
 public Action event_teleported(Event event, const char[] name, bool dontBroadcast)
@@ -269,6 +277,14 @@ public Action event_teleported(Event event, const char[] name, bool dontBroadcas
 
 	if (is_player_valid(client))
 		playerinfo_time_teleported[client] = GetGameTime();
+}
+
+public void map_teleport(const char[] output, int caller, int activator, float delay)
+{
+	if (!is_player_valid(activator) || IsFakeClient(activator))
+		return;
+
+	playerinfo_time_teleported[activator] = GetGameTime();
 }
 
 public Action timer_welcome(Handle timer, int userid)
