@@ -356,7 +356,8 @@ bool is_player_admin(int client)
 bool is_player_valid(int client)
 {
 	return (client >= 1 && client <= MaxClients
-		&& IsClientConnected(client) && IsClientInGame(client));
+		&& IsClientConnected(client) && IsClientInGame(client)
+		&& !IsClientSourceTV(client));
 }
 
 void lilac_forward_client_cheat(int client, int cheat)
