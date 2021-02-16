@@ -133,12 +133,12 @@
 #define STRFLAG_BAD_HEADER       (1 << 7)  // UTF-8 - Bad header.
 #define STRFLAG_BAD_CONT         (1 << 8)  // UTF-8 - Bad continuation.
 #define STRFLAG_UTF16            (1 << 9)  // UTF-8 - UTF-16 reserved codepoint.
-#define STRFLAG_BISMILLAH_SPAM   (1 << 10) // UTF-8 - Bismillah spam.
+#define STRFLAG_WIDE_CHAR_SPAM   (1 << 10) // UTF-8 - Wide char spam.
 
 #define PLUGIN_NAME      "[Lilac] Little Anti-Cheat"
 #define PLUGIN_AUTHOR    "J_Tanzanite"
 #define PLUGIN_DESC      "An opensource Anti-Cheat"
-#define PLUGIN_VERSION   "1.7.0-Dev 8"
+#define PLUGIN_VERSION   "1.7.0-Dev 9"
 #define PLUGIN_URL       "https://github.com/J-Tanzanite/Little-Anti-Cheat"
 
 // Convars.
