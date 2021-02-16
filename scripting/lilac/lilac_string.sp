@@ -24,7 +24,7 @@ public Action OnClientSayCommand(int client, const char[] command, const char[] 
 		return Plugin_Continue;
 
 	// Prevent players banned for Chat-Clear from spamming chat.
-	// 	Helps legit players see the cheater was banned.
+	//     Helps legit players see the cheater was banned.
 	if (playerinfo_banned_flags[client][CHEAT_CHATCLEAR])
 		return Plugin_Stop;
 
@@ -32,23 +32,30 @@ public Action OnClientSayCommand(int client, const char[] command, const char[] 
 		return Plugin_Continue;
 
 	// Just for future reference, because it may be unclear
-	// 	how "is_string_valid()" works.
+	//     how "is_string_valid()" works.
 	// Normally, it will set the "flags" variable with bits
-	// 	telling you what's wrong with a string.
-	// But the Bismillah-spam bit is an exception.
-	// A string with Bismillah spam will be reported as being
-	// 	a valid string (Function returns true),
-	// 	but the bit flag is still set.
+	//     telling you what's wrong with a string and return false.
+	// But the wide-char-spam bit is an exception,
+	//     it will set the bit, but won't return false.
+	// This is because wide-char spam gets its own message
+	//     when blocking the chat.
+	// Plus, it's still technically a valid string.
 
 	// Invalid string and no newlines/carriage returns.
+	// Newlines in chat will we dealt with in post.
+	// This is just so people can see that the player did indeed
+	//     clear the chat before banning, otherwise people
+	//     would be confused and think the ban was an error.
 	if (!(is_string_valid(sArgs, flags)) && !(flags & (STRFLAG_NEWLINE | STRFLAG_CRETURN))) {
 		PrintToChat(client, "[Lilac] %T", "chat_invalid_characters", client);
 		return Plugin_Stop;
 	}
-	else if ((flags & STRFLAG_BISMILLAH_SPAM)) {
-		// Bismillah, as explained by 3kliksphilip here: https://youtu.be/hP1N1YRitlM?t=94
+	else if ((flags & STRFLAG_WIDE_CHAR_SPAM)) {
+		// Wide char spam (Example: Bismillah spam),
+		//     as explained by 3kliksphilip here: https://youtu.be/hP1N1YRitlM?t=94
+		//     this clears the chat and is annoying.
 		// Block this exploit.
-		PrintToChat(client, "[Lilac] %T", "chat_bismillah_spam", client);
+		PrintToChat(client, "[Lilac] %T", "chat_wide_char_spam", client);
 		return Plugin_Stop;
 	}
 
@@ -150,8 +157,8 @@ static void check_name(int client, const char []name)
 		return;
 
 	// Todo: Currently logging "const char []name" because on the
-	// 	event name_change, we don't actually log the player's
-	// 	most recent name, rather their previous name.
+	//     event name_change, we don't actually log the player's
+	//     most recent name, rather their previous name.
 	// I should fix that, but for now, lets do this instead (tmp fix).
 
 	// Player was detected of having a newline or carriage return in their name, which is a cheat feature...
@@ -214,7 +221,7 @@ static void check_name(int client, const char []name)
 
 static bool is_string_valid(const char []string, int &flags)
 {
-	int bismillah = 0;
+	int widechar = 0;
 	flags = 0;
 
 	for (int i = 0; string[i]; i++) {
@@ -228,12 +235,15 @@ static bool is_string_valid(const char []string, int &flags)
 			if (codepoint == -1)
 				return false;
 
-			// Bismillah character spam (Maximum two uses).
-			if (codepoint == 0xfdfd) {
-				if (++bismillah > 2)
-					flags |= STRFLAG_BISMILLAH_SPAM;
+			// Wide character spam (Maximum 3 uses).
+			switch (codepoint) {
+			case 0xfdfd: { // Bismillah.
+				if (++widechar > 3)
+					flags |= STRFLAG_WIDE_CHAR_SPAM;
 			}
-			else if (codepoint >= 0x80 && codepoint <= 0x9f) {
+			}
+
+			if (codepoint >= 0x80 && codepoint <= 0x9f) {
 				// C1 Control characters are illegal.
 				flags |= STRFLAG_CTRL_1;
 				return false;
