@@ -81,21 +81,21 @@
 
 	"chat_invalid_characters"
 	{
-		"no" 	"Chat melding blokkert, fjern ugyldige karakterer og prøv igjen"
+		"no" 	"Chat melding blokkert, fjern ugyldige bokstaver og prøv igjen"
 	}
 
-	"chat_bismillah_spam"
+	"chat_wide_char_spam"
 	{
-		"no"	"Chat melding blokkert, Bismillah spam oppdaget"
+		"no"	"Chat melding blokkert, lang-bokstav spam oppdaget"
 	}
 
 	"kick_bad_name"
 	{
-		"no"	"Navnet ditt har ugyldige karakterer, vennligst endre navnet ditt"
+		"no"	"Navnet ditt har ugyldige bokstaver, vennligst endre navnet ditt"
 	}
 
 	"ban_name_newline"
 	{
-		"no"	"Ny-linje karakterer i navnet oppdaget"
+		"no"	"Ny-linje bokstav i navnet oppdaget"
 	}
 }
