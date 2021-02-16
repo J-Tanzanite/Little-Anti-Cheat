@@ -28,7 +28,7 @@
 
 #define NATIVE_EXISTS(%0) 	(GetFeatureStatus(FeatureType_Native, %0) == FeatureStatus_Available)
 #define UPDATE_URL 		"https://raw.githubusercontent.com/J-Tanzanite/Little-Anti-Cheat/master/updatefile.txt"
-#define VERSION 		"1.6.2"
+#define VERSION 		"1.6.3"
 
 #define CMD_LENGTH 	330
 
@@ -2413,7 +2413,8 @@ int time_to_ticks(float time)
 bool is_player_valid(int client)
 {
 	return (client >= 1 && client <= MaxClients
-		&& IsClientConnected(client) && IsClientInGame(client));
+		&& IsClientConnected(client) && IsClientInGame(client)
+		&& !IsClientSourceTV(client));
 }
 
 public Action timer_decrement_aimbot(Handle timer, int userid)
