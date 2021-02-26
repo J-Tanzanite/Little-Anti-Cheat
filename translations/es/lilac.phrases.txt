@@ -89,9 +89,9 @@
 		"es" 	"Mensaje bloqueado en el chat, detectados caracteres inválidos"
 	}
 
-	"chat_bismillah_spam"
+	"chat_wide_char_spam"
 	{
-		"es"	"Mensaje bloqueado en el chat, detectado spam Bismillah"
+		"es"	"Mensaje bloqueado en el chat, detectado spam de caracteres"
 	}
 
 	"kick_bad_name"
