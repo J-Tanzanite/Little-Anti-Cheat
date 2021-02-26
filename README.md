@@ -58,7 +58,7 @@ The same goes for other games, non-steam / cracks aren't supported.
  - Russian (by an awesome person c:).
  - Czech (by an awesome person <3).
  - Brazilian Portuguese by SheepyChris (https://github.com/SheepyChris) and Tiagoquix (https://github.com/Tiagoquix).
- - German (by a humble nice German c:).
+ - German (by two humble nice Germans c:).
  - Spanish (by ALEJANDRO ^-^).
  - Ukrainian (by panikajo ;D).
  - Polish (by https://github.com/qawery-just-sad).
