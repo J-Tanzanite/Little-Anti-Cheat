@@ -4,12 +4,10 @@
 	{
 		"Version"
 		{
-			"Latest"	"1.7.0-Dev 8"
+			"Latest"	"1.7.0-Dev 12"
 		}
 
-		"Notes" "Developmental Bhop changes"
-		"Notes" "Backtrack randomized mode was removed"
-		"Notes" "I... Forgot to note down all the changes, overall a lot of things have changed"
+		"Notes" "Updated BHop presets"
 	}
 
 	"Files"
