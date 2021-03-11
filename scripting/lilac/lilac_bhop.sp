@@ -35,7 +35,7 @@ void lilac_bhop_reset_client(int client)
 	detections[client] = 0;
 }
 
-void lilac_bhop_check(int client, int buttons, int last_buttons)
+void lilac_bhop_check(int client, const int buttons, int last_buttons)
 {
 	// Player already banned / logged enough, no need to test anything.
 	if (playerinfo_banned_flags[client][CHEAT_BHOP])

@@ -144,3 +144,4 @@ public void query_reply(QueryCookie cookie, int client, ConVarQueryResult result
 	playerinfo_banned_flags[client][CHEAT_CONVAR] = true;
 	lilac_ban_client(client, CHEAT_CONVAR);
 }
+

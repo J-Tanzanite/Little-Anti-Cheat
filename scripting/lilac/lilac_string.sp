@@ -277,7 +277,7 @@ static bool is_string_valid(const char []string, int &flags)
 static bool utf8_is_valid_header(char c, int &flags)
 {
 	// 0xf5 is always higher than the U+10ffff limit.
-	// Also, prevents one extra bit here: 0b1111 1 000
+	// Also, prevents 5 byte long encodings.
 	if (c >= 0xf5) {
 		flags |= STRFLAG_OVER_LIMIT;
 		return false;

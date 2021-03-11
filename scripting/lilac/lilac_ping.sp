@@ -98,3 +98,4 @@ public Action timer_check_ping(Handle timer)
 
 	return Plugin_Continue;
 }
+

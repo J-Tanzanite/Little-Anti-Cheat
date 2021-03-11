@@ -596,7 +596,7 @@ public void cvar_change(ConVar convar, const char[] oldValue, const char[] newVa
 		GetConVarName(convar, cvarname, sizeof(cvarname));
 
 		if (StrEqual(cvarname, "sv_autobunnyhopping", false)) {
-			cvar_bhop_value = StringToInt(newValue, 10);
+			force_disable_bhop = StringToInt(newValue, 10);
 		}
 		else if (StrEqual(cvarname, "sv_maxupdaterate", false)) {
 			// NoLerp checks need to know this value.
@@ -637,9 +637,12 @@ static void lilac_bhop_set_preset()
 		}
 
 		bhop_settings[BHOP_INDEX_MIN] = 7;
-		bhop_settings[BHOP_INDEX_JUMP] = bhop_settings[BHOP_INDEX_MIN] + 5; // SMAC bypass + buffer of 5.
+		bhop_settings[BHOP_INDEX_JUMP] = 5;
 		bhop_settings[BHOP_INDEX_MAX] = 20;
-		bhop_settings[BHOP_INDEX_TOTAL] = 5;
+		if (bhop_settings_min[BHOP_INDEX_TOTAL] <= 3)
+			bhop_settings[BHOP_INDEX_TOTAL] = 3;
+		else // >-> ...
+			bhop_settings[BHOP_INDEX_TOTAL] = bhop_settings_min[BHOP_INDEX_TOTAL];
 	}
 	case BHOP_MODE_MEDIUM: {
 		bhop_settings[BHOP_INDEX_MIN] = 7;
@@ -650,8 +653,11 @@ static void lilac_bhop_set_preset()
 	case BHOP_MODE_HIGH: {
 		bhop_settings[BHOP_INDEX_MIN] = 5;
 		bhop_settings[BHOP_INDEX_JUMP] = -1;
-		bhop_settings[BHOP_INDEX_MAX] = 10;
-		bhop_settings[BHOP_INDEX_TOTAL] = 2;
+		bhop_settings[BHOP_INDEX_MAX] = 12;
+		if (bhop_settings_min[BHOP_INDEX_TOTAL] <= 3)
+			bhop_settings[BHOP_INDEX_TOTAL] = 3;
+		else
+			bhop_settings[BHOP_INDEX_TOTAL] = bhop_settings_min[BHOP_INDEX_TOTAL];
 	}
 	}
 }

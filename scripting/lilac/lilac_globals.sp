@@ -138,7 +138,7 @@
 #define PLUGIN_NAME      "[Lilac] Little Anti-Cheat"
 #define PLUGIN_AUTHOR    "J_Tanzanite"
 #define PLUGIN_DESC      "An opensource Anti-Cheat"
-#define PLUGIN_VERSION   "1.7.0-Dev 9"
+#define PLUGIN_VERSION   "1.7.0-Dev 12"
 #define PLUGIN_URL       "https://github.com/J-Tanzanite/Little-Anti-Cheat"
 
 // Convars.
@@ -147,7 +147,7 @@ Handle cvar[CVAR_MAX];
 int icvar[CVAR_MAX];
 int sv_cheats = 0;
 int time_sv_cheats = 0;
-int cvar_bhop_value = 0;
+int force_disable_bhop = 0;
 
 // Banlength overwrite.
 int ban_length_overwrite[CHEAT_MAX];

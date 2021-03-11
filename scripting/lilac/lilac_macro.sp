@@ -36,7 +36,7 @@ static void lilac_macro_reset_client_history(int client, int type)
 		macro_history[client][type][i] = false;
 }
 
-void lilac_macro_check(int client, int buttons, int last_buttons)
+void lilac_macro_check(int client, const int buttons, int last_buttons)
 {
 	static int index[MAXPLAYERS + 1];
 

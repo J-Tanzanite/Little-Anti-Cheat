@@ -88,13 +88,13 @@ public void OnPluginStart()
 		ggame = GAME_CSGO;
 
 		if ((cvar_bhop = FindConVar("sv_autobunnyhopping")) != null) {
-			cvar_bhop_value = GetConVarInt(cvar_bhop);
+			force_disable_bhop = GetConVarInt(cvar_bhop);
 			HookConVarChange(cvar_bhop, cvar_change);
 		}
 		else {
 			// We weren't able to get the cvar,
-			// disable bhop checks just in case.
-			cvar_bhop_value = 1;
+			//     disable bhop checks just in case.
+			force_disable_bhop = 1;
 
 			PrintToServer("[Lilac] Unable to to find convar \"sv_autobunnyhopping\", bhop checks have been forcefully disabled.");
 		}
@@ -291,6 +291,8 @@ public Action timer_welcome(Handle timer, int userid)
 {
 	int client = GetClientOfUserId(userid);
 
+	// Todo: Considering there are log-only options now...
+	// Perhaps I should check if ANYTHING can ban at all.
 	if (is_player_valid(client) && icvar[CVAR_WELCOME]
 		&& icvar[CVAR_ENABLE] && icvar[CVAR_BAN])
 		PrintToChat(client, "[Lilac] %T", "welcome_msg", client, PLUGIN_VERSION);
@@ -331,11 +333,11 @@ public Action OnPlayerRunCmd(int client, int& buttons, int& impulse, float vel[3
 			lilac_angles_check(client, angles);
 
 		// Detect Macros.
-		if (icvar[CVAR_MACRO] && macro_max)
+		if (macro_max && icvar[CVAR_MACRO])
 			lilac_macro_check(client, buttons, lbuttons[client]);
 
 		// Detect bhop.
-		if (icvar[CVAR_BHOP] && !cvar_bhop_value)
+		if (!force_disable_bhop && icvar[CVAR_BHOP])
 			lilac_bhop_check(client, buttons, lbuttons[client]);
 
 		// Patch Angle-Cheats.
