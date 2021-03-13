@@ -35,7 +35,7 @@
 
 	"ban_chat_clear"
 	{
-		"pt"		"Limpador de Chat detectado"
+		"pt"		"Limpador de chat detectado"
 	}
 
 	"ban_convar"
@@ -56,5 +56,15 @@
 	"ban_aimlock"
 	{
 		"pt"		"Aimlock detectado"
+	}
+	
+	"ban_anti_duck_delay"
+	{
+		"pt" 	"Anti-Duck-Delay detectado"
+	}
+
+	"ban_noisemaker"
+	{
+		"pt" 	"Infinite Noisemaker detectado"
 	}
 }
