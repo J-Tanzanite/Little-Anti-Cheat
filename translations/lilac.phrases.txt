@@ -3,68 +3,68 @@
 	"welcome_msg"
 	{
 		"#format"	"{1:s}"
-		"en"		"This server is protected by Little Anti-Cheat {1}"
+		"en"		"This server is protected by Little Anti-Cheat {1}."
 	}
 
 	"kick_query_failure"
 	{
-		"en"		"Error: Query response failure, please restart your game if this issue persists"
+		"en"		"Error: query response failure, please restart your game if this issue persists."
 	}
 
 	"kick_interp_exploit"
 	{
 		"#format"	"{1:.0f},{2:d},{3:.3f}"
-		"en"		"Exploit detected: Your interp is too high ({1}ms / {2}ms max). Please set your cl_interp back to {3} or lower"
+		"en"		"Exploit detected: your interp is too high ({1}ms / {2}ms max). Please set your cl_interp back to {3} or lower."
 	}
 
 	"tban_ping_high"
 	{
 		"#format"	"{1:.0f},{2:d}"
-		"en"		"Your ping is too high ({1} / {2} max)"
+		"en"		"Your ping is too high ({1} / {2} max)."
 	}
 
 	"kick_ban_generic"
 	{
-		"en"		"You have been banned from this server"
+		"en"		"You have been banned from this server."
 	}
 
 	"ban_angle"
 	{
-		"en"		"Angle-Cheats Detected"
+		"en"		"Angle-Cheats detected"
 	}
 
 	"ban_chat_clear"
 	{
-		"en"		"Chat-Clear Detected"
+		"en"		"Chat-Clear detected"
 	}
 
 	"ban_convar"
 	{
-		"en"		"Invalid ConVar Detected"
+		"en"		"Invalid ConVar detected"
 	}
 
 	"ban_bhop"
 	{
-		"en"		"Bhop Detected"
+		"en"		"Bhop detected"
 	}
 
 	"ban_aimbot"
 	{
-		"en"		"Aimbot Detected"
+		"en"		"Aimbot detected"
 	}
 
 	"ban_aimlock"
 	{
-		"en"		"Aimlock Detected"
+		"en"		"Aimlock detected"
 	}
 
 	"ban_anti_duck_delay"
 	{
-		"en" 	"Anti-Duck-Delay Detected"
+		"en" 		"Anti-Duck-Delay detected"
 	}
 
 	"ban_noisemaker"
 	{
-		"en" 	"Infinite Noisemaker Detected"
+		"en" 		"Infinite Noise Maker detected"
 	}
 }
