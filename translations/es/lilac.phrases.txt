@@ -8,7 +8,7 @@
 
 	"kick_query_failure"
 	{
-		"es"	"Error: No hay respuesta en la consulta, reinicia el juego si el problema continúa."
+		"es"		"Error: No hay respuesta en la consulta, reinicia el juego si el problema continúa."
 	}
 
 	"kick_interp_exploit"
@@ -25,57 +25,57 @@
 
 	"kick_ban_generic"
 	{
-		"es"	"Has sido prohibido en este servidor"
+		"es"		"Has sido prohibido en este servidor"
 	}
 
 	"ban_angle"
 	{
-		"es"	"Detectado Angle-Cheats"
+		"es"		"Detectado Angle-Cheats"
 	}
 
 	"ban_chat_clear"
 	{
-		"es"	"Detectado Chat-Cleaner"
+		"es"		"Detectado Chat-Cleaner"
 	}
 
 	"ban_convar"
 	{
-		"es"	"Detectado ConVar no permitido"
+		"es"		"Detectado ConVar no permitido"
 	}
 
 	"ban_nolerp"
 	{
-		"es"	"Detectado NoLerp"
+		"es"		"Detectado NoLerp"
 	}
 
 	"ban_bhop"
 	{
-		"es"	"Detectado Bhop"
+		"es"		"Detectado Bhop"
 	}
 
 	"ban_aimbot"
 	{
-		"es"	"Detectado Aimbot"
+		"es"		"Detectado Aimbot"
 	}
 
 	"ban_aimlock"
 	{
-		"es"	"Detectado Aimlock"
+		"es"		"Detectado Aimlock"
 	}
 
 	"ban_anti_duck_delay"
 	{
-		"es" 	"Detectado Anti-Duck-Delay"
+		"es" 		"Detectado Anti-Duck-Delay"
 	}
 
 	"ban_noisemaker"
 	{
-		"es" 	"Detectado Noisemaker infinito"
+		"es" 		"Detectado Noisemaker infinito"
 	}
 
 	"ban_macro"
 	{
-		"es"	"Detectada Macro"
+		"es"		"Detectada Macro"
 	}
 
 	"kick_macro"
@@ -86,21 +86,21 @@
 
 	"chat_invalid_characters"
 	{
-		"es" 	"Mensaje bloqueado en el chat, detectados caracteres inválidos"
+		"es" 		"Mensaje bloqueado en el chat, detectados caracteres inválidos"
 	}
 
 	"chat_wide_char_spam"
 	{
-		"es"	"Mensaje bloqueado en el chat, detectado spam de caracteres"
+		"es"		"Mensaje bloqueado en el chat, detectado spam de caracteres"
 	}
 
 	"kick_bad_name"
 	{
-		"es"	"Tu nombre contiene caracteres inválidos, por favor cámbiate nombre"
+		"es"		"Tu nombre contiene caracteres inválidos, por favor cámbiate nombre"
 	}
 
 	"ban_name_newline"
 	{
-		"es"	"Detectado Newlines en el nombre"
+		"es"		"Detectado Newlines en el nombre"
 	}
 }

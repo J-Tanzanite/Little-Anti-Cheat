@@ -45,7 +45,7 @@
 	
 	"ban_nolerp"
 	{
-		"en"		"NoLerp Detected"
+		"pt"		"NoLerp Detected"
 	}
 
 	"ban_bhop"

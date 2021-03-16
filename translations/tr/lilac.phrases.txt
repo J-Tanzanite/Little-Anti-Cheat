@@ -8,7 +8,7 @@
 
 	"kick_query_failure"
 	{
-		"tr"	"Hata: Query yanıtı hatası, bu sorun devam ederse lütfen oyununuzu yeniden başlatın"
+		"tr"		"Hata: Query yanıtı hatası, bu sorun devam ederse lütfen oyununuzu yeniden başlatın"
 	}
 
 	"kick_interp_exploit"
@@ -25,36 +25,36 @@
 
 	"kick_ban_generic"
 	{
-		"tr"	"Bu sunucudan yasaklandınız"
+		"tr"		"Bu sunucudan yasaklandınız"
 	}
 
 	"ban_angle"
 	{
-		"tr"	"Angle-Cheats Algılandı"
+		"tr"		"Angle-Cheats Algılandı"
 	}
 
 	"ban_chat_clear"
 	{
-		"tr"	"Chat-Clear Algılandı"
+		"tr"		"Chat-Clear Algılandı"
 	}
 
 	"ban_convar"
 	{
-		"tr"	"Geçersiz ConVar Tespit Edildi"
+		"tr"		"Geçersiz ConVar Tespit Edildi"
 	}
 
 	"ban_bhop"
 	{
-		"tr"	"Bhop Algılandı"
+		"tr"		"Bhop Algılandı"
 	}
 
 	"ban_aimbot"
 	{
-		"tr"	"Aimbot Algılandı"
+		"tr"		"Aimbot Algılandı"
 	}
 
 	"ban_aimlock"
 	{
-		"tr"	"Aimlock Algılandı"
+		"tr"		"Aimlock Algılandı"
 	}
 }
