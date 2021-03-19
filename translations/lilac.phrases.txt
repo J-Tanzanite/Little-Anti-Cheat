@@ -43,6 +43,11 @@
 		"en"		"Invalid ConVar Detected"
 	}
 
+	"ban_nolerp"
+	{
+		"en"		"NoLerp Detected"
+	}
+
 	"ban_bhop"
 	{
 		"en"		"Bhop Detected"
@@ -60,11 +65,42 @@
 
 	"ban_anti_duck_delay"
 	{
-		"en" 	"Anti-Duck-Delay Detected"
+		"en" 		"Anti-Duck-Delay Detected"
 	}
 
 	"ban_noisemaker"
 	{
-		"en" 	"Infinite Noisemaker Detected"
+		"en" 		"Infinite Noisemaker Detected"
+	}
+
+	"ban_macro"
+	{
+		"en"		"Macro Detected"
+	}
+
+	"kick_macro"
+	{
+		"#format"	"{1:s}"
+		"en"		"{1} Macro is not allowed on this server"
+	}
+
+	"chat_invalid_characters"
+	{
+		"en" 		"Chat message blocked, invalid characters detected"
+	}
+
+	"chat_wide_char_spam"
+	{
+		"en"		"Chat message blocked, wide-char spam detected"
+	}
+
+	"kick_bad_name"
+	{
+		"en"		"Your name contains invalid characters, please change your name"
+	}
+
+	"ban_name_newline"
+	{
+		"en"		"Name Newlines Detected"
 	}
 }
