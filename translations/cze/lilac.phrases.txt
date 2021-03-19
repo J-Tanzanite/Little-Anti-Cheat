@@ -8,7 +8,7 @@
 
 	"kick_query_failure"
 	{
-		"cze"	"Error: Selhnání odpovědi na dotaz, restartujte hru pokud problém nadále přetrvává"
+		"cze"		"Error: Selhnání odpovědi na dotaz, restartujte hru pokud problém nadále přetrvává"
 	}
 
 	"kick_interp_exploit"
@@ -25,36 +25,36 @@
 
 	"kick_ban_generic"
 	{
-		"cze"	"Byl jste zabanován z tohoto serveru"
+		"cze"		"Byl jste zabanován z tohoto serveru"
 	}
 
 	"ban_angle"
 	{
-		"cze"	"Angle-Cheats detekován"
+		"cze"		"Angle-Cheats detekován"
 	}
 
 	"ban_chat_clear"
 	{
-		"cze"	"Chat-Clear detekován"
+		"cze"		"Chat-Clear detekován"
 	}
 
 	"ban_convar"
 	{
-		"cze"	"Nalezen špatný ConVar"
+		"cze"		"Nalezen špatný ConVar"
 	}
 
 	"ban_bhop"
 	{
-		"cze"	"Bhop detekován"
+		"cze"		"Bhop detekován"
 	}
 
 	"ban_aimbot"
 	{
-		"cze"	"Aimbot detekován"
+		"cze"		"Aimbot detekován"
 	}
 
 	"ban_aimlock"
 	{
-		"cze"	"Aimlock detekován"
+		"cze"		"Aimlock detekován"
 	}
 }

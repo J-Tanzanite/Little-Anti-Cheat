@@ -8,7 +8,7 @@
 
 	"kick_query_failure"
 	{
-		"de"	"Fehler: Anfragebeantwortungsfehler, bitte starten Sie Ihr Spiel neu, falls dieses Problem weiterhin besteht"
+		"de"		"Fehler: Anfragebeantwortungsfehler, bitte starten Sie Ihr Spiel neu, falls dieses Problem weiterhin besteht"
 	}
 
 	"kick_interp_exploit"
@@ -25,57 +25,57 @@
 
 	"kick_ban_generic"
 	{
-		"de"	"Sie wurden von diesem Server gesperrt"
+		"de"		"Sie wurden von diesem Server gesperrt"
 	}
 
 	"ban_angle"
 	{
-		"de"	"Angle-Cheats erkannt"
+		"de"		"Angle-Cheats erkannt"
 	}
 
 	"ban_chat_clear"
 	{
-		"de"	"Chat-Cleaner erkannt"
+		"de"		"Chat-Cleaner erkannt"
 	}
 
 	"ban_convar"
 	{
-		"de"	"Invalid ConVar erkannt"
+		"de"		"Invalid ConVar erkannt"
 	}
 
 	"ban_nolerp"
 	{
-		"de"	"NoLerp erkannt"
+		"de"		"NoLerp erkannt"
 	}
 
 	"ban_bhop"
 	{
-		"de"	"Bhop erkannt"
+		"de"		"Bhop erkannt"
 	}
 
 	"ban_aimbot"
 	{
-		"de"	"Aimbot erkannt"
+		"de"		"Aimbot erkannt"
 	}
 
 	"ban_aimlock"
 	{
-		"de"	"Aimlock erkannt"
+		"de"		"Aimlock erkannt"
 	}
 
 	"ban_anti_duck_delay"
 	{
-		"de" 	"Anti-Duck-Delay erkannt"
+		"de" 		"Anti-Duck-Delay erkannt"
 	}
 
 	"ban_noisemaker"
 	{
-		"de" 	"Infinite Noisemaker erkannt"
+		"de" 		"Infinite Noisemaker erkannt"
 	}
 
 	"ban_macro"
 	{
-		"de"	"Macro erkannt"
+		"de"		"Macro erkannt"
 	}
 
 	"kick_macro"
@@ -86,21 +86,21 @@
 
 	"chat_invalid_characters"
 	{
-		"de" 	"Chat-Nachricht blockiert, ungültige Zeichen erkannt"
+		"de" 		"Chat-Nachricht blockiert, ungültige Zeichen erkannt"
 	}
 
 	"chat_bismillah_spam"
 	{
-		"de"	"Chat-Nachricht blockiert, Bismillah-Spam erkannt"
+		"de"		"Chat-Nachricht blockiert, Bismillah-Spam erkannt"
 	}
 
 	"kick_bad_name"
 	{
-		"de"	"Ihr Name enthält ungültige Zeichen, bitte ändern Sie Ihren Namen"
+		"de"		"Ihr Name enthält ungültige Zeichen, bitte ändern Sie Ihren Namen"
 	}
 
 	"ban_name_newline"
 	{
-		"de"	"Unzuverlässige Zeichen im Namen erkannt"
+		"de"		"Unzuverlässige Zeichen im Namen erkannt"
 	}
 }
