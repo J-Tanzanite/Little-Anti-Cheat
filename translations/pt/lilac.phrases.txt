@@ -69,7 +69,7 @@
 	{
 		"pt" 		"Brinquedo Barulhento Infinito detectado"
 	}
-	
+
 	"ban_macro"
 	{
 		"pt"		"Macro detectado"

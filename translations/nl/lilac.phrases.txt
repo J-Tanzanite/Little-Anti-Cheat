@@ -60,11 +60,11 @@
 
 	"ban_anti_duck_delay"
 	{
-		"nl"	"Snelle squat gedetecteerd"
+		"nl"		"Snelle squat gedetecteerd"
 	}
 
 	"ban_noisemaker"
 	{
-		"nl"	"Oneindige noisemaker gedetecteerd"
+		"nl"		"Oneindige noisemaker gedetecteerd"
 	}
 }

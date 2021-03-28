@@ -48,6 +48,11 @@
 		"en"		"NoLerp Detected"
 	}
 
+	"ban_nolerp"
+	{
+		"en"		"NoLerp Detected"
+	}
+
 	"ban_bhop"
 	{
 		"en"		"Bhop Detected"
@@ -72,7 +77,7 @@
 	{
 		"en" 		"Infinite Noise Maker Detected"
 	}
-	
+
 	"ban_macro"
 	{
 		"en"		"Macro Detected"
