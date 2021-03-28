@@ -96,7 +96,7 @@
 
 	"kick_bad_name"
 	{
-		"en"		"Your name contains invalid characters. Please change your name"
+		"en"		"Your name contains invalid characters, please change your name"
 	}
 
 	"ban_name_newline"
