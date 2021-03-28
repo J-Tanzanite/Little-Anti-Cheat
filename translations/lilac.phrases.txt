@@ -42,11 +42,6 @@
 	{
 		"en"		"Invalid ConVar Detected"
 	}
-	
-	"ban_nolerp"
-	{
-		"en"		"NoLerp Detected"
-	}
 
 	"ban_nolerp"
 	{
