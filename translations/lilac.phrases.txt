@@ -70,7 +70,7 @@
 
 	"ban_noisemaker"
 	{
-		"en" 		"Infinite Noisemaker Detected"
+		"en" 		"Infinite Noise Maker Detected"
 	}
 
 	"ban_macro"
@@ -86,12 +86,12 @@
 
 	"chat_invalid_characters"
 	{
-		"en" 		"Chat message blocked, invalid characters detected"
+		"en" 		"Your chat message has been blocked (Reason: Invalid Characters)."
 	}
 
 	"chat_wide_char_spam"
 	{
-		"en"		"Chat message blocked, wide-char spam detected"
+		"en"		"Your chat message has been blocked (Reason: Wide-Char Spam)."
 	}
 
 	"kick_bad_name"
