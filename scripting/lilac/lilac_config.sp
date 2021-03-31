@@ -86,7 +86,7 @@ void lilac_config_setup()
 	cvar[CVAR_ANTI_DUCK_DELAY] = CreateConVar("lilac_anti_duck_delay", "1",
 		"CS:GO Only, detect Anti-Duck-Delay/FastDuck.\n-1 = Log only.\n0 = Disabled.\n1 = Enabled.",
 		FCVAR_PROTECTED, true, -1.0, true, 1.0);
-	cvar[CVAR_NOISEMAKER_SPAM] = CreateConVar("lilac_noisemaker", "0",
+	cvar[CVAR_NOISEMAKER_SPAM] = CreateConVar("lilac_noisemaker", "1",
 		"TF2 Only, detect infinite noisemaker spam. STILL IN BETA, DOES NOT BAN, ONLY LOGS! MAY HAVE SOME ISSUES!\n-1 = Log only.\n0 = Disabled.\n1 = Enabled.",
 		FCVAR_PROTECTED, true, -1.0, true, 1.0);
 	cvar[CVAR_BACKTRACK_PATCH] = CreateConVar("lilac_backtrack_patch", "0",
@@ -105,8 +105,8 @@ void lilac_config_setup()
 		"Kicks players attempting to exploit interpolation, any interp higher than this value = kick.\nMinimum value possible = 105 (Default interp in games = 100).\n0 or less than 105 = Disabled.",
 		FCVAR_PROTECTED, true, 0.0, true, 510.0); // 500 is max possible.
 	cvar[CVAR_MACRO] = CreateConVar("lilac_macro", "0",
-		"Detect macros.\n-1 = Log only.\n0 = Disabled.\n1 = Enabled.",
-		FCVAR_PROTECTED, true, -1.0, true, 1.0);
+		"Detect macros.\n-1 = Log only.\n0 = Disabled.\n1 = Enabled.\n2 = Enabled, but no logging.",
+		FCVAR_PROTECTED, true, -1.0, true, 2.0);
 	cvar[CVAR_MACRO_WARNING] = CreateConVar("lilac_macro_warning", "1",
 		"Warning mode for Macro detection:\n0 = No warning.\n1 = Warn player using macro.\n2 = Warn admins on server.\n3 = Warn everyone.",
 		FCVAR_PROTECTED, true, 0.0, true, 3.0);
@@ -143,6 +143,25 @@ void lilac_config_setup()
 	else {
 		// Assume the value is 0 if we can't fetch it.
 		lilac_lerp_maxupdaterate_changed(0);
+	}
+
+	// If the server allows clients to set the interp ratio to
+	//     whatever they want, then false positives become possible.
+	// Thanks RoseTheFox / Bud for reporting this :)
+	if ((tcvar = FindConVar("sv_client_min_interp_ratio")) != null) {
+		HookConVarChange(tcvar, cvar_change);
+		lilac_lerp_ratio_changed(GetConVarInt(tcvar));
+
+		if ((tcvar = FindConVar("sv_client_max_interp_ratio")) != null) {
+			HookConVarChange(tcvar, cvar_change);
+			lilac_lerp_ratio_changed(GetConVarInt(tcvar));
+		}
+		else {
+			lilac_lerp_ratio_changed(0);
+		}
+	}
+	else {
+		lilac_lerp_ratio_changed(0);
 	}
 
 	if ((tcvar = FindConVar("sv_cheats")) != null) {
@@ -606,6 +625,12 @@ public void cvar_change(ConVar convar, const char[] oldValue, const char[] newVa
 			// 	Ignore players already in-game.
 			for (int i = 1; i <= MaxClients; i++)
 				lilac_lerp_ignore_nolerp_client(i);
+		}
+		else if (StrEqual(cvarname, "sv_client_min_interp_ratio", false)) {
+			lilac_lerp_ratio_changed(StringToInt(newValue));
+		}
+		else if (StrEqual(cvarname, "sv_client_max_interp_ratio", false)) {
+			lilac_lerp_ratio_changed(StringToInt(newValue));
 		}
 		else if (StrEqual(cvarname, "sv_cheats", false)) {
 			sv_cheats = StringToInt(newValue);
