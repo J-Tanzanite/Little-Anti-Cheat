@@ -84,6 +84,9 @@ public void OnPluginStart()
 		HookEvent("post_inventory_application", event_inventoryupdate, EventHookMode_Post);
 		HookEvent("player_teleported", event_teleported, EventHookMode_Post);
 	}
+	else if (StrEqual(gamefolder, "cstrike", false)) {
+		ggame = GAME_CSS;
+	}
 	else if (StrEqual(gamefolder, "csgo", false)) {
 		ggame = GAME_CSGO;
 

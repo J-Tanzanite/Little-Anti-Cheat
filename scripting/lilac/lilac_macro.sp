@@ -113,20 +113,20 @@ static void lilac_detected_macro(int client, int type)
 		return;
 	}
 
-	lilac_forward_client_cheat(client, CHEAT_MACRO);
-
 	switch (type) {
 	case MACRO_AUTOJUMP: { strcopy(string, sizeof(string), "Auto-Jump"); }
 	case MACRO_AUTOSHOOT: { strcopy(string, sizeof(string), "Auto-Shoot"); }
 	default: { return; } // Invalid type.
 	}
 
+	lilac_forward_client_cheat(client, CHEAT_MACRO);
+
 	// Ignore the first detection.
 	if (++macro_detected[client][type] < 2)
 		return;
 
-	// Log.
-	if (icvar[CVAR_LOG]) {
+	// Log (2 == detect, but no logging).
+	if (icvar[CVAR_LOG] && icvar[CVAR_MACRO] < 2) {
 		lilac_log_setup_client(client);
 		Format(line, sizeof(line),
 			"%s was detected of using Macro %s (Detection: %d | Max presses: %d).",
@@ -150,10 +150,10 @@ static void lilac_detected_macro(int client, int type)
 			for (int i = 1; macro_detected[client][type] == 2 && i <= MaxClients; i++) {
 				if (!is_player_valid(i) || IsFakeClient(i))
 					continue;
-	
+
 				if (!is_player_admin(i))
 					continue;
-	
+
 				PrintToChat(i, "[Little Anti-Cheat] %N was detected of using Macro %s.",
 					client, string);
 			}

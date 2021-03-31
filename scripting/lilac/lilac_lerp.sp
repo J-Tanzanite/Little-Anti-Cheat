@@ -18,6 +18,7 @@
 
 static float min_lerp_possible = 0.0;
 static bool ignore_nolerp[MAXPLAYERS + 1];
+static bool ignore_nolerp_all = false;
 
 void lilac_lerp_reset_client(int client)
 {
@@ -29,8 +30,21 @@ void lilac_lerp_ignore_nolerp_client(int client)
 	ignore_nolerp[client] = true;
 }
 
+void lilac_lerp_ratio_changed(int value)
+{
+	// Permamently disable nolerp checks.
+	// Yes, this is a little harsh, but if servers allow
+	//     any interp ratio, they are unlikely to change
+	//     it back to any restrictive value.
+	if (value < 1)
+		ignore_nolerp_all = true;
+}
+
 void lilac_lerp_maxupdaterate_changed(int value)
 {
+	if (ignore_nolerp_all)
+		return;
+
 	min_lerp_possible = ((value > 0) ? 1.0 / float(value) : 0.0);
 }
 
@@ -51,6 +65,7 @@ public Action timer_check_lerp(Handle timer)
 		}
 
 		if (!icvar[CVAR_NOLERP]
+			|| ignore_nolerp_all
 			|| ignore_nolerp[i]
 			|| playerinfo_banned_flags[i][CHEAT_NOLERP]
 			|| min_lerp_possible < 0.005) // Minvalue invalid or too low.

@@ -23,10 +23,11 @@
 
 #define GAME_UNKNOWN   0
 #define GAME_TF2       1
-#define GAME_CSGO      2
-#define GAME_DODS      3
-#define GAME_L4D2      4
-#define GAME_L4D       5
+#define GAME_CSS       2
+#define GAME_CSGO      3
+#define GAME_DODS      4
+#define GAME_L4D2      5
+#define GAME_L4D       6
 
 // In case anyone wants to change this later on in a pull request or whatever,
 //     DON'T!!!
@@ -138,7 +139,7 @@
 #define PLUGIN_NAME      "[Lilac] Little Anti-Cheat"
 #define PLUGIN_AUTHOR    "J_Tanzanite"
 #define PLUGIN_DESC      "An opensource Anti-Cheat"
-#define PLUGIN_VERSION   "1.7.0-Dev 12"
+#define PLUGIN_VERSION   "1.7.0-Dev 13"
 #define PLUGIN_URL       "https://github.com/J-Tanzanite/Little-Anti-Cheat"
 
 // Convars.
