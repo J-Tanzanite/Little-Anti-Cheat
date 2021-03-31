@@ -4,10 +4,14 @@
 	{
 		"Version"
 		{
-			"Latest"	"1.7.0-Dev 12"
+			"Latest"	"1.7.0-Dev 13"
 		}
 
-		"Notes" "Updated BHop presets"
+		"Notes" "Added Counter-Strike:Source to the official supported game list."
+		"Notes" "Added new Macro mode to detect but not log."
+		"Notes" "Fixed false positive for NoLerp, thanks RoseTheFox!"
+		"Notes" "Updated default ConVar for noisemaker spam."
+		
 	}
 
 	"Files"
