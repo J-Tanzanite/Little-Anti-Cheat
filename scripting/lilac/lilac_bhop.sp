@@ -137,6 +137,8 @@ static void lilac_ban_bhop(int client)
 		if (icvar[CVAR_LOG_EXTRA])
 			lilac_log_extra(client);
 	}
+
+	lilac_ban_client(client, CHEAT_BHOP);
 }
 
 public Action timer_decrement_bhop(Handle timer, int userid)
