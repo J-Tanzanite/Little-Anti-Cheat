@@ -52,6 +52,7 @@ The same goes for other games, non-steam / cracks aren't supported.
 ### Current languages supported:
  - Simplified Chinese (by RoyZ https://github.com/RoyZ-CSGO ^-^).
  - Dutch (by snowy UwU OwO EwE).
+ - Danish (by kS the Man / ksgoescoding c:).
  - Norwegian (by me, the translations could be better).
  - French (by Rasi / GreenGuyRasi).
  - English (by me lol duh hue hue hue).
