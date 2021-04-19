@@ -43,6 +43,11 @@
 		"tr"		"Geçersiz ConVar Tespit Edildi"
 	}
 
+	"ban_nolerp"
+	{
+		"tr"		"NoLerp Algılandı"
+	}
+
 	"ban_bhop"
 	{
 		"tr"		"Bhop Algılandı"
@@ -56,5 +61,46 @@
 	"ban_aimlock"
 	{
 		"tr"		"Aimlock Algılandı"
+	}
+
+	"ban_anti_duck_delay"
+	{
+		"tr" 		"FastDuck Algılandı"
+	}
+
+	"ban_noisemaker"
+	{
+		"tr" 		"Sonsuz Gürültücü Tespit Edildi"
+	}
+
+	"ban_macro"
+	{
+		"tr"		"Makro Algılandı"
+	}
+
+	"kick_macro"
+	{
+		"#format"	"{1:s}"
+		"tr"		"{1} Bu sunucuda makroya izin verilmiyor"
+	}
+
+	"chat_invalid_characters"
+	{
+		"tr" 		"Sohbet mesajınız engellendi (Nedeni: Geçersiz Karakterler)."
+	}
+
+	"chat_wide_char_spam"
+	{
+		"tr"		"Sohbet mesajınız engellendi (Nedeni: Geniş Karakterli Spam)."
+	}
+
+	"kick_bad_name"
+	{
+		"tr"		"Adınız geçersiz karakterler içeriyor, lütfen adınızı değiştirin"
+	}
+
+	"ban_name_newline"
+	{
+		"tr"		"Adınızda Yeni Satır Algılandı"
 	}
 }
