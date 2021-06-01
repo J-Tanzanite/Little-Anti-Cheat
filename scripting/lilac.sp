@@ -22,6 +22,7 @@
 #undef REQUIRE_EXTENSIONS
 #tryinclude <materialadmin>
 #tryinclude <sourcebanspp>
+#tryinclude <sourceirc>
 #tryinclude <updater>
 #include <tf2>
 #include <tf2_stocks>
@@ -468,6 +469,12 @@ public Action lilac_ban_status(int args)
 	if (!ban_type)
 		ban_type = (icvar[CVAR_SB] && NATIVE_EXISTS("SBPP_BanPlayer"));
 	#endif
+	
+	PrintToServer("SourceIRC:");
+	PrintToServer("\tNative Exists: %s", ((NATIVE_EXISTS("IRC_MsgFlaggedChannels")) ? "Yes" : "No"));
+	if (NATIVE_EXISTS("IRC_MsgFlaggedChannels")) {
+		IRC_MsgFlaggedChannels("lilac", "[LILAC] is active and logging to SourceIRC!");
+	}
 
 	switch (ban_type) {
 	case 0: { strcopy(tmp, sizeof(tmp), "BaseBans"); }
@@ -586,7 +593,7 @@ public APLRes AskPluginLoad2(Handle hMyself, bool bLate, char[] sError, int err_
 	MarkNativeAsOptional("MABanPlayer");
 	MarkNativeAsOptional("Updater_AddPlugin");
 	MarkNativeAsOptional("Updater_RemovePlugin");
-
+	MarkNativeAsOptional("IRC_MsgFlaggedChannels");
 	return APLRes_Success;
 }
 
@@ -2202,6 +2209,20 @@ void lilac_log(bool cleanup)
 	}
 
 	WriteFileLine(file, "%s", line);
+	// Just echo log lines to SourceIRC
+	if (NATIVE_EXISTS("IRC_MsgFlaggedChannels")) {
+		// Note- SourceIRC Expects messages to be clean with no \r or \n, so clean it if not already done.
+		if (!cleanup) {
+			for (int i = 0; line[i]; i++) {
+				if (line[i] == '\n' || line[i] == 0x0d)
+					line[i] = '*';
+				else if (line[i] < 32)
+					line[i] = '#';
+			}
+		}
+		IRC_MsgFlaggedChannels("lilac", "[LILAC] %s", line);
+	}
+	
 	CloseHandle(file);
 }
 
