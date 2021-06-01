@@ -112,7 +112,7 @@ void lilac_log_extra(int client)
 
 void lilac_log(bool cleanup)
 {
-	Handle file = OpenFile("addons/sourcemod/logs/lilac.log", "a");
+	Handle file = OpenFile(log_file, "a");
 
 	if (file == null) {
 		PrintToServer("[Lilac] Cannot open log file.");
@@ -140,7 +140,7 @@ void lilac_log_first_time_setup()
 	// Some admins may not understand how to interpret cheat logs
 	// correctly, thus, we should warn them so they don't panic
 	// over trivial stuff.
-	if (!FileExists("addons/sourcemod/logs/lilac.log", false, NULL_STRING)) {
+	if (!FileExists(log_file, false, NULL_STRING)) {
 		Format(line, sizeof(line),
 "=========[Notice]=========\n\
 Thank you for installing Little Anti-Cheat %s!\n\
