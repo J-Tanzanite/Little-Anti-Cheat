@@ -188,3 +188,7 @@ float playerinfo_angles[MAXPLAYERS + 1][CMD_LENGTH][3];
 float playerinfo_time_usercmd[MAXPLAYERS + 1][CMD_LENGTH];
 float playerinfo_time_forward[MAXPLAYERS + 1][CHEAT_MAX];
 bool playerinfo_banned_flags[MAXPLAYERS + 1][CHEAT_MAX];
+
+
+// Forward declare SourceIRC native so we can compile without it but still use it if present:
+native Function IRC_MsgFlaggedChannels(const char[] flag, const char[] format, any:...);

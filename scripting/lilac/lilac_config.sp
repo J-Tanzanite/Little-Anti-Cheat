@@ -337,6 +337,12 @@ public Action lilac_ban_status(int args)
 		ban_type = (icvar[CVAR_SB] && NATIVE_EXISTS("SBPP_BanPlayer"));
 #endif
 
+	PrintToServer("SourceIRC:");
+	PrintToServer("\tNative Exists: %s", ((NATIVE_EXISTS("IRC_MsgFlaggedChannels")) ? "Yes" : "No"));
+	if (NATIVE_EXISTS("IRC_MsgFlaggedChannels")) {
+		IRC_MsgFlaggedChannels("lilac", "[LILAC] is active and logging to SourceIRC!");
+	}
+
 	switch (ban_type) {
 	case 0: { strcopy(tmp, sizeof(tmp), "BaseBans"); }
 	case 1: { strcopy(tmp, sizeof(tmp), "Sourcebans++"); }

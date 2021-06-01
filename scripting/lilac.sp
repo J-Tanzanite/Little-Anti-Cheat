@@ -212,6 +212,7 @@ public APLRes AskPluginLoad2(Handle hMyself, bool bLate, char[] sError, int err_
 	MarkNativeAsOptional("MABanPlayer");
 	MarkNativeAsOptional("Updater_AddPlugin");
 	MarkNativeAsOptional("Updater_RemovePlugin");
+	MarkNativeAsOptional("IRC_MsgFlaggedChannels");
 
 	return APLRes_Success;
 }
