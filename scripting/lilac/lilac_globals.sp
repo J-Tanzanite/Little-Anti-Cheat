@@ -83,7 +83,8 @@
 #define CVAR_FILTER_CHAT           33
 #define CVAR_LOSS_FIX              34
 #define CVAR_AUTO_UPDATE           35
-#define CVAR_MAX                   36
+#define CVAR_SOURCEIRC			   36
+#define CVAR_MAX                   37
 
 #define BHOP_INDEX_MIN     0
 #define BHOP_INDEX_JUMP    1

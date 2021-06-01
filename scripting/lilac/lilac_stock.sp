@@ -133,7 +133,7 @@ void lilac_log(bool cleanup)
 
 	WriteFileLine(file, "%s", line);
 	// Just echo log lines to SourceIRC
-	if (NATIVE_EXISTS("IRC_MsgFlaggedChannels")) {
+	if (icvar[CVAR_SOURCEIRC] && NATIVE_EXISTS("IRC_MsgFlaggedChannels")) {
 			// Note- SourceIRC Expects messages to be clean with no \r or \n, so clean it if not already done.
 			if (!cleanup) {
 					for (int i = 0; line[i]; i++) {

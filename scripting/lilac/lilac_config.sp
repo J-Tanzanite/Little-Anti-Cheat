@@ -32,6 +32,9 @@ void lilac_config_setup()
 	cvar[CVAR_MA] = CreateConVar("lilac_materialadmin", "1",
 		"Ban players via Material-Admin (Fork of Sourcebans++. If it isn't installed, will default to sourcebans++ or basebans).",
 		FCVAR_PROTECTED, true, 0.0, true, 1.0);
+	cvar[CVAR_SOURCEIRC] = CreateConVar("lilac_sourceirc", "1",
+		"Enable reflecting log messages to SourceIRC channels flagged with 'lilac', if SourceIRC is available.",
+		FCVAR_PROTECTED, true, 0.0, true, 1.0);
 	cvar[CVAR_LOG] = CreateConVar("lilac_log", "1",
 		"Enable cheat logging.",
 		FCVAR_PROTECTED, true, 0.0, true, 1.0);
@@ -339,7 +342,8 @@ public Action lilac_ban_status(int args)
 
 	PrintToServer("SourceIRC:");
 	PrintToServer("\tNative Exists: %s", ((NATIVE_EXISTS("IRC_MsgFlaggedChannels")) ? "Yes" : "No"));
-	if (NATIVE_EXISTS("IRC_MsgFlaggedChannels")) {
+	PrintToServer("\tConVar: lilac_sourceirc = %d", icvar[CVAR_SOURCEIRC]);
+	if (icvar[CVAR_SOURCEIRC] && NATIVE_EXISTS("IRC_MsgFlaggedChannels")) {
 		IRC_MsgFlaggedChannels("lilac", "[LILAC] is active and logging to SourceIRC!");
 	}
 
@@ -489,6 +493,9 @@ public void cvar_change(ConVar convar, const char[] oldValue, const char[] newVa
 	}
 	else if (view_as<Handle>(convar) == cvar[CVAR_MA]) {
 		icvar[CVAR_MA] = StringToInt(newValue, 10);
+	}
+	else if (view_as<Handle>(convar) == cvar[CVAR_SOURCEIRC]) {
+		icvar[CVAR_SOURCEIRC] = StringToInt(newValue, 10);
 	}
 	else if (view_as<Handle>(convar) == cvar[CVAR_LOG]) {
 		icvar[CVAR_LOG] = StringToInt(newValue, 10);
