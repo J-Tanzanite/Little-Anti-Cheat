@@ -162,6 +162,8 @@ float playerinfo_time_forward[MAXPLAYERS + 1][CHEAT_MAX];
 bool playerinfo_banned_flags[MAXPLAYERS + 1][CHEAT_MAX];
 bool playerinfo_ignore_lerp[MAXPLAYERS + 1];
 
+char g_sLogPath[PLATFORM_MAX_PATH];
+
 // Basic query list.
 char query_list[][] = {
 	"sv_cheats",
@@ -586,6 +588,8 @@ public APLRes AskPluginLoad2(Handle hMyself, bool bLate, char[] sError, int err_
 	MarkNativeAsOptional("MABanPlayer");
 	MarkNativeAsOptional("Updater_AddPlugin");
 	MarkNativeAsOptional("Updater_RemovePlugin");
+
+	BuildPath(Path_SM, g_sLogPath, sizeof(g_sLogPath), "logs/lilac.log");
 
 	return APLRes_Success;
 }
@@ -2182,7 +2186,7 @@ void lilac_log_extra(int client)
 
 void lilac_log(bool cleanup)
 {
-	Handle file = OpenFile("addons/sourcemod/logs/lilac.log", "a");
+	Handle file = OpenFile(g_sLogPath, "a");
 
 	if (file == null) {
 		PrintToServer("[Lilac] Cannot open log file.");
@@ -2210,7 +2214,7 @@ void lilac_log_first_time_setup()
 	// Some admins may not understand how to interpret cheat logs
 	// correctly, thus, we should warn them so they don't panic
 	// over trivial stuff.
-	if (!FileExists("addons/sourcemod/logs/lilac.log", false, NULL_STRING)) {
+	if (!FileExists(g_sLogPath, false, NULL_STRING)) {
 		Format(line, sizeof(line),
 "=========[Notice]=========\n\
 Thank you for installing Little Anti-Cheat %s!\n\
