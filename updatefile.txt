@@ -4,11 +4,11 @@
 	{
 		"Version"
 		{
-			"Latest"	"1.7.0-Dev 14"
+			"Latest"	"1.7.0-Dev 15"
 		}
 
-		"Notes" "Fixed Bhop detections not banning."
-		
+		"Notes" "Added support for forked servers (No idea how to phrase this, new to me, sm_basepath thingy)"
+		"Notes" "Added SourceIRC support"
 	}
 
 	"Files"
