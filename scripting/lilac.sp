@@ -213,6 +213,8 @@ public APLRes AskPluginLoad2(Handle hMyself, bool bLate, char[] sError, int err_
 	MarkNativeAsOptional("Updater_AddPlugin");
 	MarkNativeAsOptional("Updater_RemovePlugin");
 
+	// Build the log path for the file in case the user has overridden sm_basepath. 
+	BuildPath(Path_SM, log_file, sizeof(log_file), "logs/lilac.log");
 	return APLRes_Success;
 }
 
