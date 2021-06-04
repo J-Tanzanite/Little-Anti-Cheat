@@ -83,8 +83,9 @@
 #define CVAR_FILTER_CHAT           33
 #define CVAR_LOSS_FIX              34
 #define CVAR_AUTO_UPDATE           35
-#define CVAR_DATABASE              36
-#define CVAR_MAX                   37
+#define CVAR_SOURCEIRC             36
+#define CVAR_DATABASE              37
+#define CVAR_MAX                   38
 
 #define BHOP_INDEX_MIN     0
 #define BHOP_INDEX_JUMP    1
@@ -194,3 +195,7 @@ float playerinfo_angles[MAXPLAYERS + 1][CMD_LENGTH][3];
 float playerinfo_time_usercmd[MAXPLAYERS + 1][CMD_LENGTH];
 float playerinfo_time_forward[MAXPLAYERS + 1][CHEAT_MAX];
 bool playerinfo_banned_flags[MAXPLAYERS + 1][CHEAT_MAX];
+
+
+// Forward declare SourceIRC native so we can compile without it but still use it if present:
+native Function IRC_MsgFlaggedChannels(const char[] flag, const char[] format, any:...);
