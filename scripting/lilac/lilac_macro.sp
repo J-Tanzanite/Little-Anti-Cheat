@@ -139,11 +139,11 @@ static void lilac_detected_macro(int client, int type)
 	}
 	
 	int char_index;
-    while (str[char_index])
-    {
-        str[char_index] = CharToLower(str[char_index]); // lower each character
-        char_index++;
-    }
+	while (str[char_index])
+	{
+		str[char_index] = CharToLower(str[char_index]); // lower each character
+		char_index++;
+	}
 	Format(string, sizeof(string), "macro_%s", string);
 	database_log(client, string, macro_detected[client][type], macro_max);
 
