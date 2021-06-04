@@ -54,6 +54,7 @@
 #include "lilac/lilac_bhop.sp"
 #include "lilac/lilac_config.sp"
 #include "lilac/lilac_convar.sp"
+#include "lilac/lilac_database.sp"
 #include "lilac/lilac_lerp.sp"
 #include "lilac/lilac_macro.sp"
 #include "lilac/lilac_noisemaker.sp"
@@ -203,6 +204,11 @@ public void OnAllPluginsLoaded()
 
 	// Startup message.
 	PrintToServer("[Little Anti-Cheat %s] Successfully loaded!", PLUGIN_VERSION);
+}
+
+public void OnConfigsExecuted()
+{
+	Database_OnConfigExecuted();
 }
 
 public APLRes AskPluginLoad2(Handle hMyself, bool bLate, char[] sError, int err_max)

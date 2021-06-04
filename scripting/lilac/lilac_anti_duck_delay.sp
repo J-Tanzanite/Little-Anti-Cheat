@@ -47,6 +47,7 @@ void lilac_anti_duck_delay_check(int client, const int buttons)
 		if (icvar[CVAR_LOG_EXTRA])
 			lilac_log_extra(client);
 	}
+	database_log(client, "anti_duck_delay", DATABASE_BAN);
 
 	lilac_ban_client(client, CHEAT_ANTI_DUCK_DELAY);
 }

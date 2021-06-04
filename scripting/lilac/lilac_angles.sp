@@ -88,6 +88,7 @@ static void lilac_detected_angles(int client, float ang[3])
 		if (icvar[CVAR_LOG_EXTRA])
 			lilac_log_extra(client);
 	}
+	database_log(client, "angles", DATABASE_BAN); // no need to add more data, these 3 angles are already included
 
 	lilac_ban_client(client, CHEAT_ANGLES);
 }
