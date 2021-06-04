@@ -114,7 +114,7 @@ static void lilac_detected_bhop(int client)
 		if (icvar[CVAR_LOG_EXTRA] == 2)
 			lilac_log_extra(client);
 	}
-	database_log(client, "bhop", detections[client], perfect_bhops[client], jump_ticks[client]);
+	database_log(client, "bhop", detections[client], float(perfect_bhops[client]), float(jump_ticks[client]));
 
 	if (detections[client] >= bhop_settings[BHOP_INDEX_TOTAL])
 		lilac_ban_bhop(client);

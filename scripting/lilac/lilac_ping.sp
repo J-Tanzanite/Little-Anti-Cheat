@@ -86,7 +86,7 @@ public Action timer_check_ping(Handle timer)
 			if (icvar[CVAR_LOG_EXTRA] == 2)
 				lilac_log_extra(i);
 		}
-		database_log(client, "high_ping", DATABASE_KICK);
+		database_log(i, "high_ping", DATABASE_KICK);
 
 		Format(reason, sizeof(reason), "[Lilac] %T", "tban_ping_high", i,
 			ping, icvar[CVAR_MAX_PING]);

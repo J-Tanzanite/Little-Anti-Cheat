@@ -200,6 +200,8 @@ public void OnConfigsExecuted()
 	lilac_bhop_set_preset(); // We need to call this here, in case of a plugin reload.
 
 	run_status_ban = false;
+	
+	Database_OnConfigExecuted();
 }
 
 public Action lilac_bhop_set(int args)

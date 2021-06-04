@@ -89,7 +89,7 @@ public Action timer_query(Handle timer)
 				if (icvar[CVAR_LOG_EXTRA] == 2)
 					lilac_log_extra(i);
 			}
-			database_log(client, "cvar_query_failure", DATABASE_KICK, float(QUERY_MAX_FAILURES), QUERY_TIMER * QUERY_MAX_FAILURES);
+			database_log(i, "cvar_query_failure", DATABASE_KICK, float(QUERY_MAX_FAILURES), QUERY_TIMER * QUERY_MAX_FAILURES);
 
 			KickClient(i, "[Lilac] %T", "kick_query_failure", i);
 		}

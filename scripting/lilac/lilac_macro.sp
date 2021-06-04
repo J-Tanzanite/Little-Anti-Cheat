@@ -139,13 +139,13 @@ static void lilac_detected_macro(int client, int type)
 	}
 	
 	int char_index;
-	while (str[char_index])
+	while (string[char_index])
 	{
-		str[char_index] = CharToLower(str[char_index]); // lower each character
+		string[char_index] = CharToLower(string[char_index]); // lower each character
 		char_index++;
 	}
 	Format(string, sizeof(string), "macro_%s", string);
-	database_log(client, string, macro_detected[client][type], macro_max);
+	database_log(client, string, macro_detected[client][type], float(macro_max));
 
 	// If we are using log-only, then don't warn, there's no point.
 	if (icvar[CVAR_MACRO] > -1) {

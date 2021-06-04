@@ -29,12 +29,12 @@ void Database_OnConfigExecuted()
 		return;
 	if (!SQL_CheckConfig(db_name))
 		SetFailState("Database config '%s' doesn't exist in databases.cfg", db_name);
-	lil_db.Connect(OnDatabaseConnected, db_name);
+	Database.Connect(OnDatabaseConnected, db_name);
 }
 
 public void OnDatabaseConnected(Database db, const char[] error, any data)
 {
-	if (error[0] != '\0')
+	if (!db)
 		SetFailState("Couldn't connect to the database. Please verify your config.");
 	lil_db = db;
 	
@@ -133,8 +133,8 @@ void database_log(int client, char[] cheat, int detection=DATABASE_BAN, float da
 												... "loss_out, "
 												... "choke_inc, "
 												... "choke_out, "
-												... "connection_ticktime, ",
-												... "game_ticktime, ",
+												... "connection_ticktime, "
+												... "game_ticktime, "
 												... "lilac_version) "
 												... "VALUES("
 												... "'%s', "
