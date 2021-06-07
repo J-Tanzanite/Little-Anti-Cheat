@@ -25,17 +25,23 @@ void Database_OnConfigExecuted()
 		return;
 	char db_name[64];
 	GetConVarString(cvar[CVAR_DATABASE], db_name, sizeof(db_name));
-	if (db_name[0] == '\0' || IsCharSpace(db_name[0]))
+	if (db_name[0] == '\0' || IsCharSpace(db_name[0])) // convar is empty
 		return;
 	if (!SQL_CheckConfig(db_name))
-		SetFailState("Database config '%s' doesn't exist in databases.cfg", db_name);
+	{
+		LogError("Database config '%s' doesn't exist in databases.cfg", db_name);
+		return;
+	}
 	Database.Connect(OnDatabaseConnected, db_name);
 }
 
 public void OnDatabaseConnected(Database db, const char[] error, any data)
 {
 	if (!db)
-		SetFailState("Couldn't connect to the database. Please verify your config.");
+	{
+		LogError("Couldn't connect to the database. Please verify your config.");
+		return;
+	}
 	lil_db = db;
 	
 	InitDatabase();
@@ -80,6 +86,12 @@ public void OnDatabaseInit(Database db, DBResultSet results, const char[] error,
 		SetFailState("Database initation query failed (%s)", error);
 }
 
+// Logs a row to the LilAC's database if it exists.
+// @param client		Client index.
+// @param cheat			Cheat name.
+// @param detection		Detection number or sanction: DATABASE_BAN, DATABASE_KICK, DATABASE_LOG_ONLY
+// @param data1			Additional data to pass as a float. You can convert integers to float.
+// @param data2			Additional data to pass as a float. You can convert integers to float.
 void database_log(int client, char[] cheat, int detection=DATABASE_BAN, float data1=0.0, float data2=0.0)
 {
 	if (!lil_db)
