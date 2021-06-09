@@ -83,7 +83,10 @@ void InitDatabase()
 public void OnDatabaseInit(Database db, DBResultSet results, const char[] error, any data)
 {
 	if (error[0] != '\0')
-		SetFailState("Database initation query failed (%s)", error);
+	{
+		LogError("Database initation query failed (%s)", error);
+		delete lil_db;
+	}
 }
 
 // Logs a row to the LilAC's database if it exists.
