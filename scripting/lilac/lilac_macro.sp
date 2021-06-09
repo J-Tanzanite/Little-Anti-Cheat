@@ -139,8 +139,7 @@ static void lilac_detected_macro(int client, int type)
 	}
 	
 	int char_index;
-	while (string[char_index])
-	{
+	while (string[char_index]) {
 		string[char_index] = CharToLower(string[char_index]); // lower each character
 		char_index++;
 	}

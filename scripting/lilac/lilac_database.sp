@@ -27,8 +27,7 @@ void Database_OnConfigExecuted()
 	GetConVarString(cvar[CVAR_DATABASE], db_name, sizeof(db_name));
 	if (db_name[0] == '\0' || IsCharSpace(db_name[0])) // convar is empty
 		return;
-	if (!SQL_CheckConfig(db_name))
-	{
+	if (!SQL_CheckConfig(db_name)) {
 		LogError("Database config '%s' doesn't exist in databases.cfg", db_name);
 		return;
 	}
@@ -37,8 +36,7 @@ void Database_OnConfigExecuted()
 
 public void OnDatabaseConnected(Database db, const char[] error, any data)
 {
-	if (!db)
-	{
+	if (!db) {
 		LogError("Couldn't connect to the database. Please verify your config.");
 		return;
 	}
@@ -82,8 +80,7 @@ void InitDatabase()
 
 public void OnDatabaseInit(Database db, DBResultSet results, const char[] error, any data)
 {
-	if (error[0] != '\0')
-	{
+	if (error[0] != '\0') {
 		LogError("Database initation query failed (%s)", error);
 		delete lil_db;
 	}
@@ -107,8 +104,7 @@ void database_log(int client, char[] cheat, int detection=DATABASE_BAN, float da
 	char safe_name[(sizeof(name)*2)+1];
 	if (!GetClientName(client, name, sizeof(name)))
 		strcopy(safe_name, sizeof(safe_name), "<no name>");
-	else
-	{
+	else {
 		TrimString(name);
 		lil_db.Escape(name, safe_name, sizeof(safe_name));
 		if (strlen(safe_name) >= 128) // prevents exploits: don't exceed 127 characters else somes names could break the query
