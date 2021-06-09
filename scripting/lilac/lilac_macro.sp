@@ -95,7 +95,7 @@ static int get_macro_input(int macro_type)
 
 static void lilac_detected_macro(int client, int type)
 {
-	char string[16];
+	char string[20];
 
 	// Clear history, prevents overlap.
 	lilac_macro_reset_client_history(client, type);
@@ -137,6 +137,14 @@ static void lilac_detected_macro(int client, int type)
 		if (icvar[CVAR_LOG_EXTRA])
 			lilac_log_extra(client);
 	}
+	
+	int char_index;
+	while (string[char_index]) {
+		string[char_index] = CharToLower(string[char_index]); // lower each character
+		char_index++;
+	}
+	Format(string, sizeof(string), "macro_%s", string);
+	database_log(client, string, macro_detected[client][type], float(macro_max));
 
 	// If we are using log-only, then don't warn, there's no point.
 	if (icvar[CVAR_MACRO] > -1) {

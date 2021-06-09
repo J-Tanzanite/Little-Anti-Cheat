@@ -92,6 +92,7 @@ static void detected_lerp_exploit(int client, float lerp)
 		if (icvar[CVAR_LOG_EXTRA] == 2)
 			lilac_log_extra(client);
 	}
+	database_log(client, "lerp_exploit", DATABASE_KICK, lerp * 1000.0, float(icvar[CVAR_MAX_LERP]));
 
 	KickClient(client, "[Lilac] %T", "kick_interp_exploit", client,
 		lerp * 1000.0, icvar[CVAR_MAX_LERP],
@@ -117,6 +118,7 @@ static void detected_nolerp(int client, float lerp)
 		if (icvar[CVAR_LOG_EXTRA])
 			lilac_log_extra(client);
 	}
+	database_log(client, "nolerp", DATABASE_BAN, lerp * 1000.0);
 
 	lilac_ban_client(client, CHEAT_NOLERP);
 }

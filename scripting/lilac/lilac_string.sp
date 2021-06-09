@@ -94,6 +94,7 @@ public void OnClientSayCommand_Post(int client, const char[] command, const char
 			if (icvar[CVAR_LOG_EXTRA])
 				lilac_log_extra(client);
 		}
+		database_log(client, "chat_clear", DATABASE_BAN);
 
 		lilac_ban_client(client, CHEAT_CHATCLEAR);
 	}
@@ -182,6 +183,7 @@ static void check_name(int client, const char []name)
 			if (icvar[CVAR_LOG_EXTRA])
 				lilac_log_extra(client);
 		}
+		database_log(client, "name_newline", DATABASE_BAN);
 
 		lilac_ban_client(client, CHEAT_NEWLINE_NAME);
 	}
@@ -197,6 +199,7 @@ static void check_name(int client, const char []name)
 			if (icvar[CVAR_LOG_EXTRA])
 				lilac_log_extra(client);
 		}
+		database_log(client, "name_invalid", DATABASE_KICK);
 
 		// Log only.
 		if (icvar[CVAR_FILTER_NAME] > 0)

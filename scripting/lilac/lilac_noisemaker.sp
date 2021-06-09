@@ -146,6 +146,7 @@ static void lilac_detected_noisemaker(int client)
 		if (icvar[CVAR_LOG_EXTRA])
 			lilac_log_extra(client);
 	}
+	database_log(client, "noisemaker", DATABASE_LOG_ONLY);
 
 	// Enable this later if no false positives are reported.
 	// lilac_ban_client(client, CHEAT_NOISEMAKER_SPAM);

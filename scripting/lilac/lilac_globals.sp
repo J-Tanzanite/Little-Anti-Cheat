@@ -83,8 +83,9 @@
 #define CVAR_FILTER_CHAT           33
 #define CVAR_LOSS_FIX              34
 #define CVAR_AUTO_UPDATE           35
-#define CVAR_SOURCEIRC			   36
-#define CVAR_MAX                   37
+#define CVAR_SOURCEIRC             36
+#define CVAR_DATABASE              37
+#define CVAR_MAX                   38
 
 #define BHOP_INDEX_MIN     0
 #define BHOP_INDEX_JUMP    1
@@ -137,10 +138,14 @@
 #define STRFLAG_UTF16            (1 << 9)  // UTF-8 - UTF-16 reserved codepoint.
 #define STRFLAG_WIDE_CHAR_SPAM   (1 << 10) // UTF-8 - Wide char spam.
 
+#define DATABASE_BAN 0
+#define DATABASE_KICK -1
+#define DATABASE_LOG_ONLY -2
+
 #define PLUGIN_NAME      "[Lilac] Little Anti-Cheat"
 #define PLUGIN_AUTHOR    "J_Tanzanite"
 #define PLUGIN_DESC      "An opensource Anti-Cheat"
-#define PLUGIN_VERSION   "1.7.0-Dev 15"
+#define PLUGIN_VERSION   "1.7.0-Dev 16"
 #define PLUGIN_URL       "https://github.com/J-Tanzanite/Little-Anti-Cheat"
 
 // Convars.

@@ -191,6 +191,7 @@ static void lilac_detected_aimlock(int client)
 		if (icvar[CVAR_LOG_EXTRA] == 2)
 			lilac_log_extra(client);
 	}
+	database_log(client, "aimlock", playerinfo_aimlock[client]);
 
 	if (playerinfo_aimlock[client] >= icvar[CVAR_AIMLOCK]
 		&& icvar[CVAR_AIMLOCK] >= AIMLOCK_BAN_MIN) {
@@ -206,6 +207,7 @@ static void lilac_detected_aimlock(int client)
 			if (icvar[CVAR_LOG_EXTRA])
 				lilac_log_extra(client);
 		}
+		database_log(client, "aimlock", DATABASE_BAN);
 
 		lilac_ban_client(client, CHEAT_AIMLOCK);
 	}

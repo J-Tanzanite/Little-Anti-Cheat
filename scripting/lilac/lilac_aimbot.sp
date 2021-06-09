@@ -315,6 +315,7 @@ static void lilac_detected_aimbot(int client, float delta, float td, int flags)
 		if (icvar[CVAR_LOG_EXTRA] == 2)
 			lilac_log_extra(client);
 	}
+	database_log(client, "aimbot", aimbot_detection[client], float(flags), td);
 
 	if (aimbot_detection[client] >= icvar[CVAR_AIMBOT]
 		&& icvar[CVAR_AIMBOT] >= AIMBOT_BAN_MIN) {
@@ -329,6 +330,7 @@ static void lilac_detected_aimbot(int client, float delta, float td, int flags)
 			if (icvar[CVAR_LOG_EXTRA])
 				lilac_log_extra(client);
 		}
+		database_log(client, "aimbot", DATABASE_BAN);
 
 		playerinfo_banned_flags[client][CHEAT_AIMBOT] = true;
 		lilac_ban_client(client, CHEAT_AIMBOT);

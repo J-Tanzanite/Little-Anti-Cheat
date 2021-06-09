@@ -54,6 +54,7 @@
 #include "lilac/lilac_bhop.sp"
 #include "lilac/lilac_config.sp"
 #include "lilac/lilac_convar.sp"
+#include "lilac/lilac_database.sp"
 #include "lilac/lilac_lerp.sp"
 #include "lilac/lilac_macro.sp"
 #include "lilac/lilac_noisemaker.sp"

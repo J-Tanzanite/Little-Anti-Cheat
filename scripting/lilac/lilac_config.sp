@@ -131,6 +131,9 @@ void lilac_config_setup()
 	cvar[CVAR_AUTO_UPDATE] = CreateConVar("lilac_auto_update", "0",
 		"Automatically update Little Anti-Cheat.",
 		FCVAR_PROTECTED, true, 0.0, true, 1.0);
+	cvar[CVAR_DATABASE] = CreateConVar("lilac_database", "",
+		"Database to log detections to.\nempty = don't log to database\ndatabase name = log to this database (MySQL & SQLite supported)",
+		FCVAR_PROTECTED);
 
 	for (int i = 0; i < CVAR_MAX; i++) {
 		if (i != CVAR_LOG_DATE)
@@ -197,6 +200,8 @@ public void OnConfigsExecuted()
 	lilac_bhop_set_preset(); // We need to call this here, in case of a plugin reload.
 
 	run_status_ban = false;
+	
+	Database_OnConfigExecuted();
 }
 
 public Action lilac_bhop_set(int args)

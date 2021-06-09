@@ -89,6 +89,7 @@ public Action timer_query(Handle timer)
 				if (icvar[CVAR_LOG_EXTRA] == 2)
 					lilac_log_extra(i);
 			}
+			database_log(i, "cvar_query_failure", DATABASE_KICK, float(QUERY_MAX_FAILURES), QUERY_TIMER * QUERY_MAX_FAILURES);
 
 			KickClient(i, "[Lilac] %T", "kick_query_failure", i);
 		}
@@ -140,6 +141,7 @@ public void query_reply(QueryCookie cookie, int client, ConVarQueryResult result
 		if (icvar[CVAR_LOG_EXTRA])
 			lilac_log_extra(client);
 	}
+	database_log(client, "cvar_invalid", DATABASE_BAN);
 
 	playerinfo_banned_flags[client][CHEAT_CONVAR] = true;
 	lilac_ban_client(client, CHEAT_CONVAR);
