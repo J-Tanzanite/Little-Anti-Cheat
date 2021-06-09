@@ -4,11 +4,10 @@
 	{
 		"Version"
 		{
-			"Latest"	"1.7.0-Dev 15"
+			"Latest"	"1.7.0-Dev 16"
 		}
 
-		"Notes" "Added support for forked servers (No idea how to phrase this, new to me, sm_basepath thingy)"
-		"Notes" "Added SourceIRC support"
+		"Notes" "Added SQL Database logging"
 	}
 
 	"Files"
