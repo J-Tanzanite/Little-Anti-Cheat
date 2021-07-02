@@ -52,7 +52,7 @@ The same goes for other games, non-steam / cracks aren't supported.
  - Bottiger, for fixing this plugin not working in CS:GO and general criticisms.
  - MAGNAT2645 for suggesting a cleaner method of handling convar changes.
  - Larry/LarryBrains for informing me of false Angle-Cheat detections in L4D2.
- - VintagePC (https://github.com/vintagepc) for SourceIRC support and basepath fix (See restructured branch).
+ - VintagePC (https://github.com/vintagepc) for SourceIRC support and basepath fix.
 
 ### Current languages supported:
  - Simplified Chinese (by RoyZ https://github.com/RoyZ-CSGO ^-^).
