@@ -3,7 +3,7 @@
 Little Anti-Cheat is a free and open source anti-cheat for source games, and runs on SourceMod.\
 It was originally developed for some secret servers I had back in the day.\
 But, as I quit cheating and quit having servers, I decided to release this project to help the community out.\
-This Anti-Cheat is by no means perfect, and it is bypassable to some extent, but it should still be a nice alternative (or just complementary) to SMAC (SourceMod Anti-Cheat).
+This Anti-Cheat is by no means perfect, and it is bypassable to some extent, but it should still be helpful in dealing with cheaters :)
 
 ### Current Cheat Detections:
  - Angle-Cheats (Legit Anti-Backstab (TF2), Basic Anti-Aims and Duckspeed).
@@ -13,22 +13,26 @@ This Anti-Cheat is by no means perfect, and it is bypassable to some extent, but
  - Basic Projectile and Hitscan Aimbot.
  - Basic Aimlock.
  - Anti-Duck-Delay/FastDuck (CS:GO only).
+ - Newlines in names.
 
 ### Misc features:
  - Angle-Cheats Patch (Patches Angle-Cheats from working).
  - Max Interp Kicker (Kicks players for attempting to exploit interp (cl_interp 0.5)).
  - Max Ping Kicker (Kicks players for having too high ping (Disabled by default)).
  - Backtrack Patch (Patches backtrack cheats (Disabled by default)).
+ - Macro detection.
+ - Invalid name detection.
+ - Invalid characters in chat patch (+ chat clear exploit fix).
 
 ### Supported Games:
  - [TF2] Team Fortress 2
  - [CS:GO] Counter-Strike:Global Offensive
+ - [CS:S] Counter-Strike:Source
  - [L4D2] Left 4 Dead 2
  - [L4D] Left 4 Dead
  - [DoD:S] Day of Defeat: Source
 
 ### Untested, but should work in:
- - [CS:S] Counter-Strike:Source
  - [HL2:DM] Half-Life 2:DeathMatch
 
 ## Non-Steam versions / CS:S v34 / CS:S v91 / ETC...
