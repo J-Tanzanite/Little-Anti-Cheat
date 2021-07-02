@@ -1,3 +1,62 @@
+1.7.0
+- Reorganized source code to be in separate files.
+- - The plugin itself is still a single file, making installation easier.
+- - But this should make code easier to follow.
+- Removed "Randomized" Backtrack patch method, as the "Lock" method is better.
+- Removed old Bhop detection code.
+- - Bhop detection now has pre-defined "configs", and a custom mode.
+- - "lilac_bhop 1 & 2" have been disabled, if your config already is using those modes, it will automatically swap to "Medium" mode.
+- Added new Command (lilac_bhop_set), only available if "lilac_bhop" is set to 3 (custom mode).
+- Added compile warnings if Sourcebans++, Material-Admin or Updater includes fail.
+- - These are just warnings, not errors.
+- Added new ConVar "lilac_ban_language" (Default 1), which language should be used for ban reasons.
+- - 1 = Server.
+- - 2 = Client.
+- Added Counter-Strike:Source to the official supported list of games.
+- - People use it and don't report issues.
+- Added new Macro ConVar mode ("lilac_macro 2"), allows detecting macros without logging.
+- Added new ConVar "lilac_macro" (Default 0), detect macro usage.
+- Added new ConVar "lilac_macro_warning" (Default 1).
+- - 0 = Disabled.
+- - 1 = Warn player.
+- - 2 = Warn admins.
+- - 3 = Warn everyone.
+- Added new ConVar "lilac_macro_method" (Default 0).
+- - 0 = Kick.
+- - 1 = Ban (Default ban length is 15 minutes, min possible is 15, max is 60).
+- Added new ConVar "lilac_macro_mode" (Default 0), what types of macros to detect.
+- - 0 = All.
+- - 1 = Auto-Jump.
+- - 2 = Auto-Shoot.
+- Added new ConVar "lilac_filter_name" (Default 2).
+- - 0 = Disabled.
+- - 1 = Kick only.
+- - 2 = Ban cheaters with newlines in name.
+- Added new ConVar "lilac_filter_chat" (Default 1).
+- - Filters chat for invalid characters, also blocks Bismillah spam.
+- Fixed ban status message (lilac_ban_status) being spammed.
+- Fixed general code ordering to be more efficient.
+- Fixed Aimlock detection method being bloated and not running correctly.
+- Fixed map teleports causing issues for Aimbot&Aimlock detection and Backtrack patch.
+- Fixed false positive for NoLerp on servers which allow any interp ratio (sv_client_min_interp_ratio && sv_client_max_interp_ratio), thanks RoseTheFox!
+- Updated default ConVar value of "lilac_noisemaker" to be "1".
+- Updated all cheat detections to have a "log only" option.
+- - Negative values, example: "lilac_angles -1" will detect Angle-Cheats, but log only.
+- - Check ConVar descriptions for more info.
+- Updated NoLerp bans to no longer be displayed as ConVar bans.
+- - NoLerp bans have their own ban message now, need help updating all translations to reflect this.
+- Updated command "lilac_ban_status" to include Lilac's version number.
+- Updated outdated coding style.
+- Updated German translations, thanks freakexeuLow.
+- Updated Norwegian translations, thanks... Me...
+- Updated Spanish translations, thanks 4LEJ4NDRO.
+
+1.6.3
+- Fixed so SourceTV isn't considered a valid player.
+
+1.6.2 (Never officially released on AM)
+- Fixed rare case in TF2 where bumper carts used outside of cart areas in official halloween maps could cause false positives when stood on weird inclines.
+
 1.6.1
 - Fixed bug where angle-cheats would ban all players in L4D and L4D2.
 
