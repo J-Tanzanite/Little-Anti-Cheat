@@ -16,6 +16,11 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+#if defined TF2C
+	// Delet dis...
+	#endinput
+#endif
+
 void lilac_anti_duck_delay_check(int client, const int buttons)
 {
 	if (!(buttons & IN_BULLRUSH))

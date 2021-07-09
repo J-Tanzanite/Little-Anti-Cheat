@@ -293,7 +293,7 @@ static bool utf8_is_valid_header(char c, int &flags)
 	}
 
 	// Must have 2 high order bits set.
-	if ((c & 0b11000000) != 0b11000000) {
+	if ((c & 0xc0) != 0xc0) {
 		flags |= STRFLAG_BAD_HEADER;
 		return false;
 	}
@@ -303,11 +303,11 @@ static bool utf8_is_valid_header(char c, int &flags)
 
 static int utf8_get_header_length(char c)
 {
-	switch ((c & 0b11110000)) {
+	switch ((c & 0xf0)) {
 	// Masking can sometimes include this extra bit.
-	case 0b11010000, 0b11000000: return 2;
-	case 0b11100000: return 3;
-	case 0b11110000: return 4; // The one extra bit (5 byte long encoding) issue is covered above by the 0xf5 check.
+	case 0xd0, 0xc0: return 2;
+	case 0xe0: return 3;
+	case 0xf0: return 4; // The one extra bit (5 byte long encoding) issue is covered above by the 0xf5 check.
 	}
 
 	return 1;
@@ -317,9 +317,9 @@ static int utf8_decode(const char []c, int &flags)
 {
 	static int header_bits[] = {
 		0, 0, // Fillers.
-		0b00011111,
-		0b00001111,
-		0b00000111
+		0x1f,
+		0x0f,
+		0x07
 	};
 
 	int codepoint = 0;
@@ -327,7 +327,7 @@ static int utf8_decode(const char []c, int &flags)
 
 	for (int i = 0; i < length; i++) {
 		// Invalid byte.
-		if (!(c[i] & 0b10000000)) {
+		if (!(c[i] & 0x80)) {
 			flags |= STRFLAG_BAD_HEADER;
 			return -1;
 		}
@@ -341,13 +341,13 @@ static int utf8_decode(const char []c, int &flags)
 			codepoint = (header_bits[length] & c[i]);
 		}
 		else {
-			if ((c[i] & 0b11000000) != 0b10000000) {
+			if ((c[i] & 0xc0) != 0x80) {
 				flags |= STRFLAG_BAD_CONT;
 				return -1;
 			}
 
 			codepoint <<= 6;
-			codepoint += (0b00111111 & c[i]);
+			codepoint += (0x3f & c[i]);
 		}
 	}
 
@@ -374,13 +374,13 @@ static int utf8_decode(const char []c, int &flags)
 
 static int codepoint_to_length(int n)
 {
-	if (n <= 0b1111111) // 7 bits
+	if (n < 0x80)
 		return 1;
-	else if (n <= 0b11111111111) // 11 bits
+	else if (n < 0x800)
 		return 2;
-	else if (n <= 0b1111111111111111) // 16 bits
+	else if (n < 0x100000)
 		return 3;
-	else if (n <= 0b111111111111111111111) // 21 bits
+	else if (n < 0x110000)
 		return 4;
 
 	return 0;

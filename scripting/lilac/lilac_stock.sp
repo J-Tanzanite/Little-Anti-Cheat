@@ -41,7 +41,10 @@ void lilac_reset_client(int client)
 	lilac_backtrack_reset_client(client);
 	lilac_bhop_reset_client(client);
 	lilac_macro_reset_client(client);
+#if !defined TF2C
+	// Noisemaker file is empty, so this function doesn't exist in TF2c.
 	lilac_noisemaker_reset_client(client);
+#endif
 	lilac_aimbot_reset_client(client);
 	lilac_ping_reset_client(client);
 	lilac_convar_reset_client(client);

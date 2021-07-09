@@ -17,7 +17,7 @@
 */
 
 #define NATIVE_EXISTS(%0)   (GetFeatureStatus(FeatureType_Native, %0) == FeatureStatus_Available)
-#define UPDATE_URL          "https://raw.githubusercontent.com/J-Tanzanite/Little-Anti-Cheat/master/updatefile.txt"
+#define UPDATE_URL          "https://raw.githubusercontent.com/J-Tanzanite/Little-Anti-Cheat/TF2Classic/updatefile.txt"
 
 #define CMD_LENGTH   330
 
@@ -145,11 +145,10 @@
 #define PLUGIN_NAME      "[Lilac] Little Anti-Cheat"
 #define PLUGIN_AUTHOR    "J_Tanzanite"
 #define PLUGIN_DESC      "An opensource Anti-Cheat"
-#define PLUGIN_VERSION   "1.7.0"
+#define PLUGIN_VERSION   "1.7.1-Dev 1"
 #define PLUGIN_URL       "https://github.com/J-Tanzanite/Little-Anti-Cheat"
 
 // Convars.
-Handle cvar_bhop = null;
 Handle cvar[CVAR_MAX];
 int icvar[CVAR_MAX];
 int sv_cheats = 0;

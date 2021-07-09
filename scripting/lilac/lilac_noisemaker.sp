@@ -16,6 +16,11 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+#if defined TF2C
+	// Delet dis 2!
+	#endinput
+#endif
+
 static int noisemaker_type[MAXPLAYERS + 1];
 static int noisemaker_entity[MAXPLAYERS + 1];
 static int noisemaker_entity_prev[MAXPLAYERS + 1];
