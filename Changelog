@@ -6,6 +6,10 @@
 - Removed old Bhop detection code.
 - - Bhop detection now has pre-defined "configs", and a custom mode.
 - - "lilac_bhop 1 & 2" have been disabled, if your config already is using those modes, it will automatically swap to "Medium" mode.
+- Added SourceIRC support.
+- Added new ConVar "lilac_sourceirc" (Default 1), send logs to SourceIRC.
+- Added Database logging.
+- Added new ConVar "lilac_database" (Default ""). Send logs to MySQL or SQLite.
 - Added new Command (lilac_bhop_set), only available if "lilac_bhop" is set to 3 (custom mode).
 - Added compile warnings if Sourcebans++, Material-Admin or Updater includes fail.
 - - These are just warnings, not errors.
@@ -34,6 +38,7 @@
 - - 2 = Ban cheaters with newlines in name.
 - Added new ConVar "lilac_filter_chat" (Default 1).
 - - Filters chat for invalid characters, also blocks Bismillah spam.
+- Fixed sm_basepath not being respected.
 - Fixed ban status message (lilac_ban_status) being spammed.
 - Fixed general code ordering to be more efficient.
 - Fixed Aimlock detection method being bloated and not running correctly.
