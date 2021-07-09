@@ -378,7 +378,7 @@ static int codepoint_to_length(int n)
 		return 1;
 	else if (n < 0x800)
 		return 2;
-	else if (n < 0x100000)
+	else if (n < 0x10000)
 		return 3;
 	else if (n < 0x110000)
 		return 4;
