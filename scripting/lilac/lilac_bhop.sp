@@ -31,7 +31,6 @@ static void bhop_reset(int client)
 void lilac_bhop_reset_client(int client)
 {
 	bhop_reset(client);
-
 	detections[client] = 0;
 }
 
@@ -57,6 +56,11 @@ void lilac_bhop_check(int client, const int buttons, int last_buttons)
 	}
 }
 
+static bool forward_allow_detection(int client)
+{
+	return (lilac_forward_allow_cheat_detection(client, CHEAT_BHOP) == true);
+}
+
 static void check_bhop_max(int client)
 {
 	// Invalid max, disable max bhop bans.
@@ -64,6 +68,9 @@ static void check_bhop_max(int client)
 		return;
 
 	if (perfect_bhops[client] < bhop_settings[BHOP_INDEX_MAX])
+		return;
+
+	if (forward_allow_detection(client) == false)
 		return;
 
 	// Client just hit the max threshhold, insta ban.
@@ -86,14 +93,14 @@ static void check_bhop_min(int client)
 		+ bhop_settings[BHOP_INDEX_MIN])
 		return;
 
+	if (forward_allow_detection(client) == false)
+		return;
+
 	lilac_detected_bhop(client);
 }
 
 static void lilac_detected_bhop(int client)
 {
-	if (lilac_forward_allow_cheat_detection(client, CHEAT_BHOP) == false)
-		return;
-
 	lilac_forward_client_cheat(client, CHEAT_BHOP);
 
 	// Detection expires in 10 minutes.
