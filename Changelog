@@ -1,4 +1,4 @@
-1.7.0
+1.7.1
 - Reorganized source code to be in separate files.
 - - The plugin itself is still a single file, making installation easier.
 - - But this should make code easier to follow.
@@ -38,6 +38,7 @@
 - - 2 = Ban cheaters with newlines in name.
 - Added new ConVar "lilac_filter_chat" (Default 1).
 - - Filters chat for invalid characters, also blocks Bismillah spam.
+- Fixed Swedish translations being in the wrong folder... Yes really :'D
 - Fixed sm_basepath not being respected.
 - Fixed ban status message (lilac_ban_status) being spammed.
 - Fixed general code ordering to be more efficient.
