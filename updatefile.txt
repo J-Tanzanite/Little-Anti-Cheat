@@ -4,7 +4,7 @@
 	{
 		"Version"
 		{
-			"Latest"	"1.7.0"
+			"Latest"	"1.7.1"
 		}
 
 		"Notes" "Reorganized source code to be in separate files, plugin is still a single binary."
@@ -24,6 +24,7 @@
 		"Notes" "Added new ConVar lilac_macro_mode."
 		"Notes" "Added new ConVar lilac_filter_name."
 		"Notes" "Added new ConVar lilac_filter_chat."
+		"Notes" "Fixed Swedish translations not being in wrong folder... Yes really."
 		"Notes" "Fixed sm_basepath not being respected."
 		"Notes" "Fixed false positive for NoLerp on servers which allow any interp ratio."
 		"Notes" "Fixed ban status message (lilac_ban_status) being spammed."
