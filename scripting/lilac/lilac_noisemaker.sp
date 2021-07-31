@@ -16,6 +16,11 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+/* Delet dis! */
+#if defined TF2C
+	#endinput
+#endif
+
 static int noisemaker_type[MAXPLAYERS + 1];
 static int noisemaker_entity[MAXPLAYERS + 1];
 static int noisemaker_entity_prev[MAXPLAYERS + 1];
@@ -74,21 +79,21 @@ void check_inventory_for_noisemaker(int client)
 static int get_entity_noisemaker_type(int itemindex)
 {
 	switch (itemindex) {
-	case 280: return NOISEMAKER_TYPE_LIMITED; // Black cat.
-	case 281: return NOISEMAKER_TYPE_LIMITED; // Gremlin.
-	case 282: return NOISEMAKER_TYPE_LIMITED; // Werewolf.
-	case 283: return NOISEMAKER_TYPE_LIMITED; // Witch.
-	case 284: return NOISEMAKER_TYPE_LIMITED; // Banshee.
-	case 286: return NOISEMAKER_TYPE_LIMITED; // Crazy Laugh.
-	case 288: return NOISEMAKER_TYPE_LIMITED; // Stabby.
-	case 362: return NOISEMAKER_TYPE_LIMITED; // Bell.
-	case 364: return NOISEMAKER_TYPE_LIMITED; // Gong.
-	case 365: return NOISEMAKER_TYPE_LIMITED; // Koto.
-	case 493: return NOISEMAKER_TYPE_LIMITED; // Fireworks.
-	case 542: return NOISEMAKER_TYPE_LIMITED; // Vuvuzela.
+	case 280: return NOISEMAKER_TYPE_LIMITED; /* Black cat. */
+	case 281: return NOISEMAKER_TYPE_LIMITED; /* Gremlin. */
+	case 282: return NOISEMAKER_TYPE_LIMITED; /* Werewolf. */
+	case 283: return NOISEMAKER_TYPE_LIMITED; /* Witch. */
+	case 284: return NOISEMAKER_TYPE_LIMITED; /* Banshee. */
+	case 286: return NOISEMAKER_TYPE_LIMITED; /* Crazy Laugh. */
+	case 288: return NOISEMAKER_TYPE_LIMITED; /* Stabby. */
+	case 362: return NOISEMAKER_TYPE_LIMITED; /* Bell. */
+	case 364: return NOISEMAKER_TYPE_LIMITED; /* Gong. */
+	case 365: return NOISEMAKER_TYPE_LIMITED; /* Koto. */
+	case 493: return NOISEMAKER_TYPE_LIMITED; /* Fireworks. */
+	case 542: return NOISEMAKER_TYPE_LIMITED; /* Vuvuzela. */
 
-	case 536: return NOISEMAKER_TYPE_UNLIMITED; // Birthday.
-	case 673: return NOISEMAKER_TYPE_UNLIMITED; // Winter 2011.
+	case 536: return NOISEMAKER_TYPE_UNLIMITED; /* Birthday. */
+	case 673: return NOISEMAKER_TYPE_UNLIMITED; /* Winter 2011. */
 	}
 
 	return NOISEMAKER_TYPE_NONE;
@@ -116,8 +121,9 @@ public Action OnClientCommandKeyValues(int client, KeyValues kv)
 	if (StrEqual(command, "+use_action_slot_item_server", false)
 		|| StrEqual(command, "-use_action_slot_item_server", false)) {
 
-		// Since this reacts to both + and -, and the maximum is 25 uses per noisemaker,
-		// 	detect the double of that + a buffer of 10.
+		/* Since this reacts to both + and -,
+		 * and the maximum is 25 uses per noisemaker,
+		 * detect the double of that + a buffer of 10. */
 		if (++noisemaker_detection[client] > 60)
 			lilac_detected_noisemaker(client);
 	}
@@ -148,6 +154,6 @@ static void lilac_detected_noisemaker(int client)
 	}
 	database_log(client, "noisemaker", DATABASE_LOG_ONLY);
 
-	// Enable this later if no false positives are reported.
-	// lilac_ban_client(client, CHEAT_NOISEMAKER_SPAM);
+	/* Enable this later if no false positives are reported. */
+	/* lilac_ban_client(client, CHEAT_NOISEMAKER_SPAM); */
 }

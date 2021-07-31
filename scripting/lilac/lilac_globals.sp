@@ -29,11 +29,12 @@
 #define GAME_L4D2      5
 #define GAME_L4D       6
 
-// In case anyone wants to change this later on in a pull request or whatever,
-//     DON'T!!!
-// These values cannot be changed due to forwards,
-//     changing them will cause issues for other plugins.
-// You can add new stuff, but not change the number of anything here.
+/* In case anyone wants to change this later on in a pull request or whatever,
+ * DON'T DON'T DON'T DON'T DON'T DON'T DON'T DON'T DON'T DON'T DON'T!!!
+ * ...  DON'T...
+ * These values cannot be changed due to forwards,
+ *     changing them will cause issues for other plugins.
+ * You can add new stuff, but not change the number of anything here. */
 #define CHEAT_ANGLES             0
 #define CHEAT_CHATCLEAR          1
 #define CHEAT_CONVAR             2
@@ -43,7 +44,7 @@
 #define CHEAT_AIMLOCK            6
 #define CHEAT_ANTI_DUCK_DELAY    7
 #define CHEAT_NOISEMAKER_SPAM    8
-#define CHEAT_MACRO              9 // Macros aren't actually cheats, but are forwarded as such.
+#define CHEAT_MACRO              9 /* Macros aren't actually cheats, but are forwarded as such. */
 #define CHEAT_NEWLINE_NAME      10
 #define CHEAT_MAX               11
 
@@ -126,17 +127,8 @@
 #define AIMBOT_FLAG_SNAP         (1 << 2)
 #define AIMBOT_FLAG_SNAP2        (1 << 3)
 
-#define STRFLAG_NEWLINE          (1 << 0)  // ASCII - Newline.
-#define STRFLAG_CRETURN          (1 << 1)  // ASCII - Carriage return.
-#define STRFLAG_DEL              (1 << 2)  // ASCII - Delete character.
-#define STRFLAG_CTRL_0           (1 << 3)  // ASCII - Control character 0.
-#define STRFLAG_CTRL_1           (1 << 4)  // UTF-8 - Control character 1.
-#define STRFLAG_OVER_LIMIT       (1 << 5)  // UTF-8 - Over U+10FFFF limit.
-#define STRFLAG_OVERLONG         (1 << 6)  // UTF-8 - Overlong encoding.
-#define STRFLAG_BAD_HEADER       (1 << 7)  // UTF-8 - Bad header.
-#define STRFLAG_BAD_CONT         (1 << 8)  // UTF-8 - Bad continuation.
-#define STRFLAG_UTF16            (1 << 9)  // UTF-8 - UTF-16 reserved codepoint.
-#define STRFLAG_WIDE_CHAR_SPAM   (1 << 10) // UTF-8 - Wide char spam.
+#define STRFLAG_NEWLINE          (1 << 0) /* Carriage return or Newline. */
+#define STRFLAG_WIDE_CHAR_SPAM   (1 << 1) /* Lots of wide character spam. */
 
 #define DATABASE_BAN 0
 #define DATABASE_KICK -1
@@ -145,21 +137,20 @@
 #define PLUGIN_NAME      "[Lilac] Little Anti-Cheat"
 #define PLUGIN_AUTHOR    "J_Tanzanite"
 #define PLUGIN_DESC      "An opensource Anti-Cheat"
-#define PLUGIN_VERSION   "1.7.1"
+#define PLUGIN_VERSION   "1.7.2"
 #define PLUGIN_URL       "https://github.com/J-Tanzanite/Little-Anti-Cheat"
 
-// Convars.
-Handle cvar_bhop = null;
+/* Convars. */
 Handle cvar[CVAR_MAX];
 int icvar[CVAR_MAX];
 int sv_cheats = 0;
 int time_sv_cheats = 0;
 int force_disable_bhop = 0;
 
-// Banlength overwrite.
+/* Banlength overwrite. */
 int ban_length_overwrite[CHEAT_MAX];
 
-// Misc.
+/* Misc. */
 int ggame;
 int tick_rate;
 int macro_max;
@@ -174,14 +165,14 @@ Handle forwardhandle = INVALID_HANDLE;
 Handle forwardhandleban = INVALID_HANDLE;
 Handle forwardhandleallow = INVALID_HANDLE;
 
-// External plugins.
+/* External plugins. */
 bool sourcebanspp_exist = false;
 bool materialadmin_exist = false;
 
-// Logging.
-// Todo: Might wanna move a lot of this variables to
-//     their own files if they are only used there.
-// Just so the code gets a lot cleaner.
+/* Logging.
+ * Todo: Might wanna move a lot of this variables to
+ * their own files if they are only used there.
+ * Just so the code gets a lot cleaner. */
 int playerinfo_index[MAXPLAYERS + 1];
 int playerinfo_buttons[MAXPLAYERS + 1][CMD_LENGTH];
 int playerinfo_actions[MAXPLAYERS + 1][CMD_LENGTH];
@@ -197,5 +188,5 @@ float playerinfo_time_forward[MAXPLAYERS + 1][CHEAT_MAX];
 bool playerinfo_banned_flags[MAXPLAYERS + 1][CHEAT_MAX];
 
 
-// Forward declare SourceIRC native so we can compile without it but still use it if present:
+/* Forward declare SourceIRC native so we can compile without it but still use it if present: */
 native Function IRC_MsgFlaggedChannels(const char[] flag, const char[] format, any:...);
