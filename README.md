@@ -48,6 +48,7 @@ The same goes for other games, non-steam / cracks aren't supported.
 
 ### Credits / Special Thanks to:
  - J_Tanzanite... Yeah I'm crediting myself for writing this AC...
+ - Azalty, for being (rightly) stubborn regarding an issue and for contributing database logging.
  - foon, for fixing sourcebans++ not working (https://forums.alliedmods.net/showthread.php?p=2689297#post2689297).
  - Bottiger, for fixing this plugin not working in CS:GO and general criticisms.
  - MAGNAT2645 for suggesting a cleaner method of handling convar changes.
