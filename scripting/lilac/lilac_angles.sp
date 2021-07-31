@@ -22,13 +22,14 @@ void lilac_angles_check(int client, float angles[3])
 		|| playerinfo_time_teleported[client] + 5.0 > GetGameTime())
 		return;
 
-	// In TF2, if players use the bumpercarts outside of
-	//     official halloween map areas while standing on
-	//     weird inclines, you can trigger a false positive.
-	// Yes... It's weird... Yes, this is rare and only happens
-	//     on community servers where they provide carts outside
-	//     of official halloween map areas...
-	// Anyway, thanks WOLFA22 for reporting this!
+	/* In TF2, if players use the bumpercarts outside of
+	 * official halloween map areas while standing on
+	 * weird inclines, you can trigger a false positive.
+	 * Yes... It's weird... Yes, this is rare and only happens
+	 * on community servers where they provide carts outside
+	 * of official halloween map areas...
+	 * Anyway, thanks WOLFA22 for reporting this! */
+#if !defined TF2C
 	if (ggame == GAME_TF2) {
 		if (TF2_IsPlayerInCondition(client, TFCond_HalloweenKart)) {
 			playerinfo_time_bumpercart[client] = GetGameTime();
@@ -38,6 +39,7 @@ void lilac_angles_check(int client, float angles[3])
 			return;
 		}
 	}
+#endif
 
 	if ((FloatAbs(angles[0]) > max_angles[0] && max_angles[0])
 		|| (FloatAbs(angles[2]) > max_angles[2] && max_angles[2]))
@@ -46,7 +48,7 @@ void lilac_angles_check(int client, float angles[3])
 
 void lilac_angles_patch(float angles[3])
 {
-	// Patch Pitch.
+	/* Patch Pitch. */
 	if (max_angles[0] != 0.0) {
 		if (angles[0] > max_angles[0])
 			angles[0] = max_angles[0];
@@ -54,7 +56,7 @@ void lilac_angles_patch(float angles[3])
 			angles[0] = (max_angles[0] * -1.0);
 	}
 
-	// Patch roll.
+	/* Patch roll. */
 	angles[2] = 0.0;
 }
 
@@ -63,12 +65,12 @@ static void lilac_detected_angles(int client, float ang[3])
 	if (playerinfo_banned_flags[client][CHEAT_ANGLES])
 		return;
 
-	// Spam prevention.
+	/* Spam prevention. */
 	if (playerinfo_time_forward[client][CHEAT_ANGLES] > GetGameTime())
 		return;
 
 	if (lilac_forward_allow_cheat_detection(client, CHEAT_ANGLES) == false) {
-		// Don't spam this forward again for the next 20 seconds.
+		/* Don't spam this forward again for the next 20 seconds. */
 		playerinfo_time_forward[client][CHEAT_ANGLES] = GetGameTime() + 20.0;
 		return;
 	}
@@ -88,7 +90,9 @@ static void lilac_detected_angles(int client, float ang[3])
 		if (icvar[CVAR_LOG_EXTRA])
 			lilac_log_extra(client);
 	}
-	database_log(client, "angles", DATABASE_BAN); // no need to add more data, these 3 angles are already included
+
+	/* no need to add more data, these 3 angles are already included. */
+	database_log(client, "angles", DATABASE_BAN);
 
 	lilac_ban_client(client, CHEAT_ANGLES);
 }

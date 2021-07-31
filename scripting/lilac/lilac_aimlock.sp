@@ -21,13 +21,13 @@ static bool aimlock_skip_player(int client)
 	if (!is_player_valid(client)
 		|| IsFakeClient(client)
 		|| !IsPlayerAlive(client)
-		|| GetClientTeam(client) < 2 // Not on a valid team.
-		|| GetGameTime() - playerinfo_time_teleported[client] < 2.0 // Player recently teleported.
+		|| GetClientTeam(client) < 2 /* Not on a valid team. */
+		|| GetGameTime() - playerinfo_time_teleported[client] < 2.0 /* Player recently teleported. */
 		|| skip_due_to_loss(client)
-		|| playerinfo_banned_flags[client][CHEAT_AIMLOCK]) // Already banned/logged.
+		|| playerinfo_banned_flags[client][CHEAT_AIMLOCK]) /* Already banned/logged. */
 		return true;
 
-	// Lightweight mode is enabled, don't process players who aren't in que.
+	/* Lightweight mode is enabled, don't process players who aren't in que. */
 	if (icvar[CVAR_AIMLOCK_LIGHT] == 1 && lilac_is_player_in_aimlock_que(client) == false)
 		return true;
 
@@ -40,8 +40,8 @@ static bool aimlock_skip_target(int client, int target)
 		|| !is_player_valid(target)
 		|| GetClientTeam(client) == GetClientTeam(target)
 		|| !IsPlayerAlive(target)
-		|| GetClientTeam(target) < 2 // Target isn't in a valid team.
-		|| GetGameTime() - playerinfo_time_teleported[target] < 2.0); // Teleported.
+		|| GetClientTeam(target) < 2 /* Target isn't in a valid team. */
+		|| GetGameTime() - playerinfo_time_teleported[target] < 2.0); /* Teleported. */
 }
 
 public Action timer_check_aimlock(Handle timer)
@@ -56,12 +56,12 @@ public Action timer_check_aimlock(Handle timer)
 	for (int client = 1; client <= MaxClients; client++) {
 		detected_aimlock[client] = false;
 
-		// Don't process more than 5 players.
-		// Note: Don't use a "break" statement here!
-		// We need to set detected_aimlock[...] to false
-		// 	on every single player!
-		// This will then also serve as a "is_player_valid()"
-		// 	for players who need to be detected for Aimlock.
+		/* Don't process more than 5 players.
+		 * Note: Don't use a "break" statement here!
+		 * We need to set detected_aimlock[...] to false
+		 * on every single player!
+		 * This will then also serve as a "is_player_valid()"
+		 * for players who need to be detected for Aimlock. */
 		if (icvar[CVAR_AIMLOCK_LIGHT] == 1 && players_processed >= 5)
 			continue;
 
@@ -79,17 +79,17 @@ public Action timer_check_aimlock(Handle timer)
 
 			GetClientEyePosition(target, pos2);
 
-			// Too close to an enemy, don't report aimlock
-			// 	detections and stop processing this player.
+			/* Too close to an enemy, don't report aimlock
+			 * detections and stop processing this player. */
 			if (GetVectorDistance(pos, pos2) < 300.0) {
 				detected_aimlock[client] = false;
 				process = false;
 				continue;
 			}
 
-			// Player has already been detected of using aimlock,
-			// 	don't check for aimlock again, only check
-			// 	if the player is too close to other enemies.
+			/* Player has already been detected of using aimlock,
+			 * don't check for aimlock again, only check
+			 * if the player is too close to other enemies. */
 			if (detected_aimlock[client])
 				continue;
 
@@ -120,7 +120,7 @@ static bool is_aimlocking(int client, float pos[3], float pos2[3])
 		if (ind < 0)
 			ind += CMD_LENGTH;
 
-		// Only process aimlock time.
+		/* Only process aimlock time. */
 		if (GetGameTime() - playerinfo_time_usercmd[client][ind] < 0.5 + 0.1) {
 			get_player_log_angles(client, ind, false, ang);
 			laimdist = angle_delta(ang, ideal);
@@ -152,10 +152,9 @@ static void lilac_detected_aimlock(int client)
 	if (playerinfo_banned_flags[client][CHEAT_AIMLOCK])
 		return;
 
-	// Suspicions reset after 3 minutes.
-	// 	This means you need to get two aimlocks within
-	// 	three minutes of each other to get a single
-	// 	detection.
+	/* Suspicions reset after 3 minutes.
+	 * This means you need to get two aimlocks within
+	 * three minutes of each other to get a single detection. */
 	if (GetGameTime() - playerinfo_time_aimlock[client] < 180.0)
 		playerinfo_aimlock_sus[client]++;
 	else
@@ -171,12 +170,12 @@ static void lilac_detected_aimlock(int client)
 	if (lilac_forward_allow_cheat_detection(client, CHEAT_AIMLOCK) == false)
 		return;
 
-	// Detection expires in 10 minutes.
+	/* Detection expires in 10 minutes. */
 	CreateTimer(600.0, timer_decrement_aimlock, GetClientUserId(client), TIMER_FLAG_NO_MAPCHANGE);
 
 	lilac_forward_client_cheat(client, CHEAT_AIMLOCK);
 
-	// Don't log the first detection.
+	/* Don't log the first detection. */
 	if (++playerinfo_aimlock[client] < 2)
 		return;
 
@@ -218,7 +217,7 @@ void lilac_aimlock_light_test(int client)
 	int ind;
 	float lastang[3], ang[3];
 
-	// Player recently teleported, spawned or taunted. Ignore.
+	/* Player recently teleported, spawned or taunted. Ignore. */
 	if (GetGameTime() - playerinfo_time_teleported[client] < 3.0)
 		return;
 
@@ -230,11 +229,11 @@ void lilac_aimlock_light_test(int client)
 		get_player_log_angles(client, ind, false, ang);
 
 		if (i) {
-			// This player has a somewhat big delta,
-			// 	test this player for aimlock for 200 seconds.
-			// Even if we end up flagging more than 5 players
-			// 	for this, that's fine as only 5 players
-			// 	can be processed in the aimlock check timer.
+			/* This player has a somewhat big delta,
+			 * test this player for aimlock for 200 seconds.
+			 * Even if we end up flagging more than 5 players
+			 * for this, that's fine as only 5 players
+			 * can be processed in the aimlock check timer. */
 			if (angle_delta(lastang, ang) > 20.0) {
 				playerinfo_time_process_aimlock[client] = GetGameTime() + 200.0;
 				return;
@@ -248,13 +247,13 @@ void lilac_aimlock_light_test(int client)
 
 static bool lilac_is_player_in_aimlock_que(int client)
 {
-	// Test for aimlock on players who:
-	return (GetGameTime() < playerinfo_time_process_aimlock[client] // Are in the que.
-		|| playerinfo_aimlock[client] // Already has a detection.
-		|| lilac_aimbot_get_client_detections(client) > 1 // Already have been detected for aimbot twice.
-		|| GetClientTime(client) < 240.0 // Client just joined the game.
+	/* Test for aimlock on players who: */
+	return (GetGameTime() < playerinfo_time_process_aimlock[client] /* Are in the que. */
+		|| playerinfo_aimlock[client] /* Already has a detection. */
+		|| lilac_aimbot_get_client_detections(client) > 1 /* Already have been detected for aimbot twice. */
+		|| GetClientTime(client) < 240.0 /* Client just joined the game. */
 		|| (GetGameTime() - playerinfo_time_aimlock[client] < 180.0
-			&& playerinfo_time_aimlock[client] > 1.0)); // Had one aimlock the past three minutes.
+			&& playerinfo_time_aimlock[client] > 1.0)); /* Had one aimlock the past three minutes. */
 }
 
 public Action timer_decrement_aimlock(Handle timer, int userid)

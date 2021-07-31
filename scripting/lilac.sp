@@ -24,12 +24,16 @@
 #tryinclude <materialadmin>
 #tryinclude <sourcebanspp>
 #tryinclude <updater>
-#include <tf2>
-#include <tf2_stocks>
+#if defined TF2C
+	#include <tf2c>
+#else
+	#include <tf2>
+	#include <tf2_stocks>
+#endif
 #define REQUIRE_PLUGIN
 #define REQUIRE_EXTENSIONS
 
-// Include warnings:
+/* Include warnings: */
 #if !defined _updater_included
 	#warning "updater.inc" include file not found, auto update functionality will not work!
 #endif
@@ -44,7 +48,7 @@
 #pragma semicolon 1
 #pragma newdecls required
 
-#include "lilac/lilac_globals.sp" // Must be at top, contains defines.
+#include "lilac/lilac_globals.sp" /* Must be at top, contains defines. */
 
 #include "lilac/lilac_aimbot.sp"
 #include "lilac/lilac_aimlock.sp"
@@ -60,7 +64,7 @@
 #include "lilac/lilac_noisemaker.sp"
 #include "lilac/lilac_ping.sp"
 #include "lilac/lilac_stock.sp"
-#include "lilac/lilac_string.sp" // String takes care of chat and names.
+#include "lilac/lilac_string.sp" /* String takes care of chat and names. */
 
 
 public Plugin myinfo = {
@@ -74,10 +78,16 @@ public Plugin myinfo = {
 
 public void OnPluginStart()
 {
-	char gamefolder[32];
-
 	LoadTranslations("lilac.phrases.txt");
 
+#if defined TF2C
+	ggame = GAME_TF2;
+	/* Post inventory check isn't needed,
+	 * as noisemaker spam isn't a thing in TF2Classic. */
+	HookEvent("player_teleported", event_teleported, EventHookMode_Post);
+	HookEvent("player_death", event_player_death_tf2, EventHookMode_Pre);
+#else
+	char gamefolder[32];
 	GetGameFolderName(gamefolder, sizeof(gamefolder));
 	if (StrEqual(gamefolder, "tf", false)) {
 		ggame = GAME_TF2;
@@ -89,15 +99,16 @@ public void OnPluginStart()
 		ggame = GAME_CSS;
 	}
 	else if (StrEqual(gamefolder, "csgo", false)) {
+		Handle tvar = null;
 		ggame = GAME_CSGO;
 
-		if ((cvar_bhop = FindConVar("sv_autobunnyhopping")) != null) {
-			force_disable_bhop = GetConVarInt(cvar_bhop);
-			HookConVarChange(cvar_bhop, cvar_change);
+		if ((tvar = FindConVar("sv_autobunnyhopping")) != null) {
+			force_disable_bhop = GetConVarInt(tvar);
+			HookConVarChange(tvar, cvar_change);
 		}
 		else {
-			// We weren't able to get the cvar,
-			//     disable bhop checks just in case.
+			/* We weren't able to get the cvar,
+			 * disable bhop checks just in case. */
 			force_disable_bhop = 1;
 
 			PrintToServer("[Lilac] Unable to to find convar \"sv_autobunnyhopping\", bhop checks have been forcefully disabled.");
@@ -106,17 +117,17 @@ public void OnPluginStart()
 	else if (StrEqual(gamefolder, "left4dead2", false)) {
 		ggame = GAME_L4D2;
 
-		// Pitch AA isn't really used much in L4D2 afaik, plus,
-		// 	like larrybrains reported, causes false positives for
-		// 	the infected team memeber smoker.
-		// Thanks to Larrybrains for reporting this!
+		/* Pitch AA isn't really used much in L4D2 afaik, plus,
+		 * like larrybrains reported, causes false positives for
+		 * the infected team memeber smoker.
+		 * Thanks to Larrybrains for reporting this! */
 		max_angles = view_as<float>({0.0, 0.0, 50.01});
 	}
 	else if (StrEqual(gamefolder, "left4dead", false)) {
 		ggame = GAME_L4D;
 
-		// Same as L4D2, the smoker handles pitch differently it seems.
-		// Thanks to finishlast for reporting this!
+		/* Same as L4D2, the smoker handles pitch differently it seems.
+		 * Thanks to finishlast for reporting this! */
 		max_angles = view_as<float>({0.0, 0.0, 50.01});
 	}
 	else if (StrEqual(gamefolder, "dod", false)) {
@@ -131,30 +142,33 @@ public void OnPluginStart()
 		HookEvent("player_death", event_player_death_tf2, EventHookMode_Pre);
 	else
 		HookEvent("player_death", event_player_death, EventHookMode_Pre);
+#endif /* TF2C check. */
 
 	HookEvent("player_spawn", event_teleported, EventHookMode_Post);
 	HookEvent("player_changename", event_namechange, EventHookMode_Post);
 
 	HookEntityOutput("trigger_teleport", "OnEndTouch", map_teleport);
 
-	// Default ban lengths are -1. (Global ConVar).
+	/* Default ban lengths are -1. (Global ConVar). */
 	for (int i = 0; i < CHEAT_MAX; i++)
 		ban_length_overwrite[i] = -1;
 
-	// Bans for Bhop last 1 month by default.
+	/* Bans for Bhop last 1 month by default. */
 	ban_length_overwrite[CHEAT_BHOP] = 24 * 30 * 60;
 
-	// Bans for Macros are 15 minutes by default.
+	/* Bans for Macros are 15 minutes by default. */
 	ban_length_overwrite[CHEAT_MACRO] = 15;
 
-	// If sv_maxupdaterate is changed mid-game and then this plugin
-	// 	is loaded, then it could lead to false positives.
-	// Reset all stats on all players already in-game, but ignore lerp.
-	// Also check players already in-game for noisemaker.
+	/* If sv_maxupdaterate is changed mid-game and then this plugin
+	 * is loaded, then it could lead to false positives.
+	 * Reset all stats on all players already in-game, but ignore lerp.
+	 * Also check players already in-game for noisemaker. */
 	for (int i = 1; i <= MaxClients; i++) {
 		lilac_reset_client(i);
 		lilac_lerp_ignore_nolerp_client(i);
+#if !defined TF2C
 		check_inventory_for_noisemaker(i);
+#endif
 	}
 
 	forwardhandle = CreateGlobalForward("lilac_cheater_detected",
@@ -172,7 +186,7 @@ public void OnPluginStart()
 
 	tick_rate = RoundToNearest(1.0 / GetTickInterval());
 
-	// Ignore low tickrates.
+	/* Ignore low tickrates. */
 	macro_max = (tick_rate >= 60 && tick_rate <= MACRO_LOG_LENGTH) ? 20 : 0;
 
 	if (tick_rate > 50) {
@@ -187,7 +201,7 @@ public void OnPluginStart()
 	}
 	bhop_settings_min[BHOP_INDEX_JUMP] = -1;
 
-	// This sets up convars and such.
+	/* This sets up convars and such. */
 	lilac_config_setup();
 
 	if (icvar[CVAR_LOG])
@@ -202,20 +216,20 @@ public void OnAllPluginsLoaded()
 	if (LibraryExists("updater"))
 		lilac_update_url();
 
-	// Startup message.
+	/* Startup message. */
 	PrintToServer("[Little Anti-Cheat %s] Successfully loaded!", PLUGIN_VERSION);
 }
 
 public APLRes AskPluginLoad2(Handle hMyself, bool bLate, char[] sError, int err_max)
 {
-	// Been told this isn't needed, but just in case.
+	/* Been told this isn't needed, but just in case. */
 	MarkNativeAsOptional("SBPP_BanPlayer");
 	MarkNativeAsOptional("MABanPlayer");
 	MarkNativeAsOptional("Updater_AddPlugin");
 	MarkNativeAsOptional("Updater_RemovePlugin");
 	MarkNativeAsOptional("IRC_MsgFlaggedChannels");
 
-	// Build the log path for the file in case the user has overridden sm_basepath. 
+	/* Build the log path for the file in case the user has overridden sm_basepath. */
 	BuildPath(Path_SM, log_file, sizeof(log_file), "logs/lilac.log");
 	return APLRes_Success;
 }
@@ -298,8 +312,8 @@ public Action timer_welcome(Handle timer, int userid)
 {
 	int client = GetClientOfUserId(userid);
 
-	// Todo: Considering there are log-only options now...
-	// Perhaps I should check if ANYTHING can ban at all.
+	/* Todo: Considering there are log-only options now...
+	 * Perhaps I should check if ANYTHING can ban at all. */
 	if (is_player_valid(client) && icvar[CVAR_WELCOME]
 		&& icvar[CVAR_ENABLE] && icvar[CVAR_BAN])
 		PrintToChat(client, "[Lilac] %T", "welcome_msg", client, PLUGIN_VERSION);
@@ -314,14 +328,14 @@ public Action OnPlayerRunCmd(int client, int& buttons, int& impulse, float vel[3
 	if (!is_player_valid(client) || IsFakeClient(client))
 		return Plugin_Continue;
 
-	// Increment the index.
+	/* Increment the index. */
 	if (++playerinfo_index[client] >= CMD_LENGTH)
 		playerinfo_index[client] = 0;
 
-	// Store when the tick was processed.
+	/* Store when the tick was processed. */
 	playerinfo_time_usercmd[client][playerinfo_index[client]] = GetGameTime();
 
-	// Store information.
+	/* Store information. */
 	lilac_backtrack_store_tickcount(client, tickcount);
 	set_player_log_angles(client, angles, playerinfo_index[client]);
 	playerinfo_buttons[client][playerinfo_index[client]] = buttons;
@@ -331,27 +345,28 @@ public Action OnPlayerRunCmd(int client, int& buttons, int& impulse, float vel[3
 		playerinfo_actions[client][playerinfo_index[client]] |= ACTION_SHOT;
 
 	if (icvar[CVAR_ENABLE]) {
-		// Detect Anti-Duck-Delay.
+#if !defined TF2C
+		/* Detect Anti-Duck-Delay. */
 		if (ggame == GAME_CSGO && icvar[CVAR_ANTI_DUCK_DELAY])
 			lilac_anti_duck_delay_check(client, buttons);
-
-		// Detect Angle-Cheats.
+#endif
+		/* Detect Angle-Cheats. */
 		if (icvar[CVAR_ANGLES])
 			lilac_angles_check(client, angles);
 
-		// Detect Macros.
+		/* Detect Macros. */
 		if (macro_max && icvar[CVAR_MACRO])
 			lilac_macro_check(client, buttons, lbuttons[client]);
 
-		// Detect bhop.
+		/* Detect bhop. */
 		if (!force_disable_bhop && icvar[CVAR_BHOP])
 			lilac_bhop_check(client, buttons, lbuttons[client]);
 
-		// Patch Angle-Cheats.
+		/* Patch Angle-Cheats. */
 		if (icvar[CVAR_PATCH_ANGLES])
 			lilac_angles_patch(angles);
 
-		// Patch Backtracking.
+		/* Patch Backtracking. */
 		if (icvar[CVAR_BACKTRACK_PATCH])
 			tickcount = lilac_backtrack_patch(client, tickcount);
 	}

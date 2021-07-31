@@ -32,10 +32,10 @@ void lilac_lerp_ignore_nolerp_client(int client)
 
 void lilac_lerp_ratio_changed(int value)
 {
-	// Permamently disable nolerp checks.
-	// Yes, this is a little harsh, but if servers allow
-	//     any interp ratio, they are unlikely to change
-	//     it back to any restrictive value.
+	/* Permamently disable nolerp checks.
+	 * Yes, this is a little harsh, but if servers allow
+	 * any interp ratio, they are unlikely to change
+	 * it back to any restrictive value. */
 	if (value < 1)
 		ignore_nolerp_all = true;
 }
@@ -68,7 +68,7 @@ public Action timer_check_lerp(Handle timer)
 			|| ignore_nolerp_all
 			|| ignore_nolerp[i]
 			|| playerinfo_banned_flags[i][CHEAT_NOLERP]
-			|| min_lerp_possible < 0.005) // Minvalue invalid or too low.
+			|| min_lerp_possible < 0.005) /* Minvalue invalid or too low. */
 			continue;
 
 		if (lerp > min_lerp_possible * 0.95 /* buffer */)

@@ -106,7 +106,7 @@ void lilac_config_setup()
 		FCVAR_PROTECTED, true, 0.0, true, 90.0);
 	cvar[CVAR_MAX_LERP] = CreateConVar("lilac_max_lerp", "105",
 		"Kicks players attempting to exploit interpolation, any interp higher than this value = kick.\nMinimum value possible = 105 (Default interp in games = 100).\n0 or less than 105 = Disabled.",
-		FCVAR_PROTECTED, true, 0.0, true, 510.0); // 500 is max possible.
+		FCVAR_PROTECTED, true, 0.0, true, 510.0); /* 500 is max possible. */
 	cvar[CVAR_MACRO] = CreateConVar("lilac_macro", "0",
 		"Detect macros.\n-1 = Log only.\n0 = Disabled.\n1 = Enabled.\n2 = Enabled, but no logging.",
 		FCVAR_PROTECTED, true, -1.0, true, 2.0);
@@ -147,13 +147,13 @@ void lilac_config_setup()
 		lilac_lerp_maxupdaterate_changed(GetConVarInt(tcvar));
 	}
 	else {
-		// Assume the value is 0 if we can't fetch it.
+		/* Assume the value is 0 if we can't fetch it. */
 		lilac_lerp_maxupdaterate_changed(0);
 	}
 
-	// If the server allows clients to set the interp ratio to
-	//     whatever they want, then false positives become possible.
-	// Thanks RoseTheFox / Bud for reporting this :)
+	/* If the server allows clients to set the interp ratio to
+	 *     whatever they want, then false positives become possible.
+	 * Thanks RoseTheFox / Bud for reporting this :) */
 	if ((tcvar = FindConVar("sv_client_min_interp_ratio")) != null) {
 		HookConVarChange(tcvar, cvar_change);
 		lilac_lerp_ratio_changed(GetConVarInt(tcvar));
@@ -183,7 +183,7 @@ void lilac_config_setup()
 	RegServerCmd("lilac_ban_status", lilac_ban_status, "Prints banning status to server console.", 0);
 	RegServerCmd("lilac_bhop_set", lilac_bhop_set, "Sets Custom Bhop settings", 0);
 
-	// Legacy check, execute old config location.
+	/* Legacy check, execute old config location. */
 	if (FileExists("cfg/lilac_config.cfg", false, NULL_STRING))
 		AutoExecConfig(true, "lilac_config", "");
 	else
@@ -197,10 +197,11 @@ public void OnConfigsExecuted()
 	if (run_status_ban)
 		lilac_ban_status(0);
 
-	lilac_bhop_set_preset(); // We need to call this here, in case of a plugin reload.
+	/* We need to call this here, in case of a plugin reload. */
+	lilac_bhop_set_preset();
 
 	run_status_ban = false;
-	
+
 	Database_OnConfigExecuted();
 }
 
@@ -237,7 +238,7 @@ public Action lilac_bhop_set(int args)
 	value = StringToInt(buffer, 10);
 	GetCmdArg(1, buffer, sizeof(buffer));
 
-	// Working with strings is always the least fun part ):
+	/* Working with strings is always the least fun part ): */
 	if (StrEqual(buffer, "min", false)
 		|| StrEqual(buffer, "minimal", false)
 		|| StrEqual(buffer, "minimum", false)) {
@@ -274,8 +275,8 @@ public Action lilac_bhop_set(int args)
 	}
 
 	if (value < bhop_settings_min[index]) {
-		// Total setting CANNOT be set to be lower than the min,
-		// 	no matter what!
+		/* Total setting CANNOT be set to be
+		 * lower than the min, no matter what! */
 		if (index == BHOP_INDEX_TOTAL) {
 			value = bhop_settings_min[index];
 		}
@@ -292,8 +293,8 @@ public Action lilac_bhop_set(int args)
 	bhop_settings[index] = value;
 	print_current_bhop_settings();
 
-	// Both being 0 means we won't detect anything, lol.
-	// So let's warn the admin :)
+	/* Both being 0 means we won't detect anything, lol.
+	 * So let's warn the admin :) */
 	if (!bhop_settings[BHOP_INDEX_MIN] && !bhop_settings[BHOP_INDEX_MAX])
 		PrintToServer("Warning: Min and Max are set to 0, bhop detection is now disabled!");
 
@@ -302,7 +303,7 @@ public Action lilac_bhop_set(int args)
 
 static void print_current_bhop_settings()
 {
-	// Yeah, a little messy...
+	/* Yeah, a little messy... */
 	PrintToServer("Current Custom Bhop values:");
 	PrintToServer("    Type  : Min possible : Current");
 	PrintToServer("    Min   : %2d           : %d", bhop_settings_min[BHOP_INDEX_MIN], bhop_settings[BHOP_INDEX_MIN]);
@@ -413,7 +414,7 @@ public Action lilac_set_ban_length(int args)
 	else if (StrEqual(feature, "aimlock", false) || StrEqual(feature, "lock", false)) {
 		index = CHEAT_AIMLOCK;
 	}
-	// ( @~@) Bruh.... This is... B R U H
+	/* ( @~@) Bruh.... This is... B R U H */
 	else if (StrEqual(feature, "duck", false) || StrEqual(feature, "crouch", false)
 		|| StrEqual(feature, "antiduck", false) || StrEqual(feature, "antiduckdelay", false)
 		|| StrEqual(feature, "fastduck", false)) {
@@ -436,7 +437,7 @@ public Action lilac_set_ban_length(int args)
 	GetCmdArg(2, length, sizeof(length));
 	time = StringToInt(length, 10);
 
-	// Macro exception.
+	/* Macro exception. */
 	if (index == CHEAT_MACRO) {
 		if (time > 60)
 			time = 60;
@@ -448,7 +449,7 @@ public Action lilac_set_ban_length(int args)
 
 	ban_length_overwrite[index] = time;
 
-	// Todo: Add message showing new times? Like the bhop set command :)
+	/* Todo: Add message showing new times? Like the bhop set command :) */
 
 	return Plugin_Handled;
 }
@@ -486,7 +487,7 @@ public void cvar_change(ConVar convar, const char[] oldValue, const char[] newVa
 	char cvarname[64];
 	char testdate[512];
 
-	// Thanks to MAGNAT2645 for informing me I could do this!
+	/* Thanks to MAGNAT2645 for informing me I could do this! */
 	if (view_as<Handle>(convar) == cvar[CVAR_ENABLE]) {
 		icvar[CVAR_ENABLE] = StringToInt(newValue, 10);
 	}
@@ -601,7 +602,7 @@ public void cvar_change(ConVar convar, const char[] oldValue, const char[] newVa
 		if (icvar[CVAR_MACRO] > 0)
 			PrintToServer("[Little Anti-Cheat %s] WARNING: It's recommended to use log-only method for now.", PLUGIN_VERSION);
 
-		// Settings changed, reset counters.
+		/* Settings changed, reset counters. */
 		for (int i = 1; i <= MaxClients; i++)
 			lilac_macro_reset_client(i);
 	}
@@ -636,11 +637,11 @@ public void cvar_change(ConVar convar, const char[] oldValue, const char[] newVa
 			force_disable_bhop = StringToInt(newValue, 10);
 		}
 		else if (StrEqual(cvarname, "sv_maxupdaterate", false)) {
-			// NoLerp checks need to know this value.
+			/* NoLerp checks need to know this value. */
 			lilac_lerp_maxupdaterate_changed(StringToInt(newValue));
 
-			// Changing this convar mid-game can cause false positives.
-			// 	Ignore players already in-game.
+			/* Changing this convar mid-game can cause false positives.
+			 * Ignore players already in-game. */
 			for (int i = 1; i <= MaxClients; i++)
 				lilac_lerp_ignore_nolerp_client(i);
 		}
@@ -653,7 +654,7 @@ public void cvar_change(ConVar convar, const char[] oldValue, const char[] newVa
 		else if (StrEqual(cvarname, "sv_cheats", false)) {
 			sv_cheats = StringToInt(newValue);
 
-			// Delay convar checks for 30 seconds.
+			/* Delay convar checks for 30 seconds. */
 			time_sv_cheats = GetTime() + QUERY_TIMEOUT;
 		}
 	}
@@ -664,16 +665,16 @@ static void lilac_bhop_set_preset()
 	int mode = intabs(icvar[CVAR_BHOP]);
 
 	switch (mode) {
-	// Backwards compatibility, mode 1 & 2 don't exist anymore.
-	// If a config is already set to use these, change mode to medium.
+	/* Backwards compatibility, mode 1 & 2 don't exist anymore.
+	 * If a config is already set to use these, change mode to medium. */
 	case BHOP_MODE_RESERVED_1, BHOP_MODE_RESERVED_2: {
 		PrintToServer("[Lilac] Warning: Bhop mode 1 & 2 has been disabled, setting Bhop mode to %d (Medium).",
 			BHOP_MODE_MEDIUM);
 		SetConVarInt(cvar[CVAR_BHOP], BHOP_MODE_MEDIUM, false, false);
 	}
 	case BHOP_MODE_LOW, BHOP_MODE_CUSTOM: {
-		// Can't do switch fall-through in SourcePawn.
-		// Makes me miss C :(
+		/* Can't do switch fall-through in SourcePawn.
+		 * Makes me miss C :( */
 		if (mode == BHOP_MODE_CUSTOM) {
 			PrintToServer("[Lilac] WARNING: DO NOT USE CUSTOM BHOP MODE UNLESS YOU KNOW WHAT YOU ARE DOING!");
 			PrintToServer("[Lilac] ВНИМАНИЕ: НЕ ИСПОЛЬЗУЙТЕ ПОЛЬЗОВАТЕЛЬСКИЙ РЕЖИМ BHOP, ЕСЛИ ВЫ НЕ ЗНАЕТЕ, ЧТО ВЫ ДЕЛАЕТЕ!");
@@ -684,7 +685,7 @@ static void lilac_bhop_set_preset()
 		bhop_settings[BHOP_INDEX_MAX] = 20;
 		if (bhop_settings_min[BHOP_INDEX_TOTAL] <= 3)
 			bhop_settings[BHOP_INDEX_TOTAL] = 3;
-		else // >-> ...
+		else /* >-> ... */
 			bhop_settings[BHOP_INDEX_TOTAL] = bhop_settings_min[BHOP_INDEX_TOTAL];
 	}
 	case BHOP_MODE_MEDIUM: {

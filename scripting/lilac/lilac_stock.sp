@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-// Todo: I should update this soon...
+/* Useless Todo: I should update this soon... But I won't :P */
 bool bullettime_can_shoot(int client)
 {
 	int weapon;
@@ -41,7 +41,10 @@ void lilac_reset_client(int client)
 	lilac_backtrack_reset_client(client);
 	lilac_bhop_reset_client(client);
 	lilac_macro_reset_client(client);
+#if !defined TF2C
+	/* Noise maker file is empty if compiled for TF2Classic. */
 	lilac_noisemaker_reset_client(client);
+#endif
 	lilac_aimbot_reset_client(client);
 	lilac_ping_reset_client(client);
 	lilac_convar_reset_client(client);
@@ -119,9 +122,9 @@ void lilac_log(bool cleanup)
 		return;
 	}
 
-	// Remove invalid characters.
-	// This doesn't care about invalid utf-8 formatting,
-	// only ASCII control characters.
+	/* Remove invalid characters.
+	 * This doesn't care about invalid utf-8 formatting,
+	 * only ASCII control characters. */
 	if (cleanup) {
 		for (int i = 0; line[i]; i++) {
 			if (line[i] == '\n' || line[i] == 0x0d)
@@ -132,9 +135,9 @@ void lilac_log(bool cleanup)
 	}
 
 	WriteFileLine(file, "%s", line);
-	// Just echo log lines to SourceIRC
+	/* Just echo log lines to SourceIRC */
 	if (icvar[CVAR_SOURCEIRC] && NATIVE_EXISTS("IRC_MsgFlaggedChannels")) {
-		// Note- SourceIRC Expects messages to be clean with no \r or \n, so clean it if not already done.
+		/* Note- SourceIRC Expects messages to be clean with no \r or \n, so clean it if not already done. */
 		if (!cleanup) {
 			for (int i = 0; line[i]; i++) {
 				if (line[i] == '\n' || line[i] == 0x0d)
@@ -150,9 +153,9 @@ void lilac_log(bool cleanup)
 
 void lilac_log_first_time_setup()
 {
-	// Some admins may not understand how to interpret cheat logs
-	// correctly, thus, we should warn them so they don't panic
-	// over trivial stuff.
+	/* Some admins may not understand how to interpret cheat logs
+	 * correctly, thus, we should warn them so they don't panic
+	 * over trivial stuff. */
 	if (!FileExists(log_file, false, NULL_STRING)) {
 		Format(line, sizeof(line),
 "=========[Notice]=========\n\
@@ -173,18 +176,18 @@ void lilac_ban_client(int client, int cheat)
 	int lang = LANG_SERVER;
 	bool log_only = false;
 
-	// Banning has been disabled, don't forward the ban and don't ban.
+	/* Banning has been disabled, don't forward the ban and don't ban. */
 	if (!icvar[CVAR_BAN])
 		return;
 
-	// Check if log only mode has been enabled, in which case, don't ban.
+	/* Check if log only mode has been enabled, in which case, don't ban. */
 	switch (cheat) {
 	case CHEAT_ANGLES: { log_only = icvar[CVAR_ANGLES] < 0; }
 	case CHEAT_CHATCLEAR: { log_only = icvar[CVAR_CHAT] < 0; }
 	case CHEAT_CONVAR: { log_only = icvar[CVAR_CONVAR] < 0; }
 	case CHEAT_NOLERP: { log_only = icvar[CVAR_NOLERP] < 0; }
 	case CHEAT_BHOP: { log_only = icvar[CVAR_BHOP] < 0; }
-	// Aimbot and Aimlock have their own dedicated log-only mode.
+	/* Aimbot and Aimlock have their own dedicated log-only mode. */
 	case CHEAT_ANTI_DUCK_DELAY: { log_only = icvar[CVAR_ANTI_DUCK_DELAY] < 0; }
 	case CHEAT_NOISEMAKER_SPAM: { log_only = icvar[CVAR_NOISEMAKER_SPAM] < 0; }
 	case CHEAT_MACRO: { log_only = icvar[CVAR_MACRO] < 0; }
@@ -284,7 +287,7 @@ void set_player_log_angles(int client, float ang[3], int tick)
 {
 	int i = tick;
 
-	// Normalize tick.
+	/* Normalize tick. */
 	while (i < 0)
 		i += CMD_LENGTH;
 	while (i >= CMD_LENGTH)
@@ -322,13 +325,13 @@ float angle_delta(float []a1, float []a2)
 	p2[1] = a2[1];
 	p1[1] = a1[1];
 
-	// We don't care about roll.
+	/* We don't care about roll. */
 	p1[2] = 0.0;
 	p2[2] = 0.0;
 
 	delta = GetVectorDistance(p1, p2);
 
-	// Normalize maximum 5 times, yaw can sometimes be odd.
+	/* Normalize maximum 5 times, yaw can sometimes be odd. */
 	while (delta > 180.0 && normal > 0) {
 		normal--;
 		delta = FloatAbs(delta - 360.0);
@@ -339,8 +342,8 @@ float angle_delta(float []a1, float []a2)
 
 bool skip_due_to_loss(int client)
 {
-	// Debate: What percentage should this be at?
-	// 	Skip detection if the loss is more than 50%
+	/* Debate: What percentage should this be at?
+	 * Skip detection if the loss is more than 50% */
 	if (icvar[CVAR_LOSS_FIX])
 		return GetClientAvgLoss(client, NetFlow_Both) > 0.5;
 
@@ -362,7 +365,7 @@ int intabs(int num)
 
 bool is_player_admin(int client)
 {
-	// Todo: I don't know if this is correct.
+	/* Todo: I don't know if this is correct. */
 	return CheckCommandAccess(client, "", ADMFLAG_GENERIC | ADMFLAG_KICK | ADMFLAG_SLAY, true);
 }
 

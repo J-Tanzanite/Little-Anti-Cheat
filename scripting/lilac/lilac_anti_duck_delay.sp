@@ -16,6 +16,11 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+/* Delet dis! */
+#if defined TF2C
+	#endinput
+#endif
+
 void lilac_anti_duck_delay_check(int client, const int buttons)
 {
 	if (!(buttons & IN_BULLRUSH))
@@ -24,12 +29,12 @@ void lilac_anti_duck_delay_check(int client, const int buttons)
 	if (playerinfo_banned_flags[client][CHEAT_ANTI_DUCK_DELAY])
 		return;
 
-	// Spam prevention.
+	/* Spam prevention. */
 	if (playerinfo_time_forward[client][CHEAT_ANTI_DUCK_DELAY] > GetGameTime())
 		return;
 
 	if (lilac_forward_allow_cheat_detection(client, CHEAT_ANTI_DUCK_DELAY) == false) {
-		// Don't spam this forward again for the next 10 seconds.
+		/* Don't spam this forward again for the next 10 seconds. */
 		playerinfo_time_forward[client][CHEAT_ANTI_DUCK_DELAY] = GetGameTime() + 10.0;
 		return;
 	}

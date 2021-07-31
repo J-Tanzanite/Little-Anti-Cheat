@@ -39,7 +39,7 @@ public Action event_player_death(Event event, const char[] name, bool dontBroadc
 
 	userid = GetEventInt(event, "attacker", -1);
 
-	// Normal death event, just pass the data as-is for a normal aimbot test.
+	/* Normal death event, just pass the data as-is for a normal aimbot test. */
 	event_death_shared(userid,
 		GetClientOfUserId(userid),
 		GetClientOfUserId(GetEventInt(event, "userid", -1)),
@@ -58,7 +58,7 @@ public Action event_player_death_tf2(Event event, const char[] name, bool dontBr
 
 	GetEventString(event, "weapon_logclassname", wep, sizeof(wep), "");
 
-	// Ignore sentries in TF2.
+	/* Ignore sentries in TF2. */
 	if (!strncmp(wep, "obj_", 4, false))
 		return Plugin_Continue;
 
@@ -67,8 +67,9 @@ public Action event_player_death_tf2(Event event, const char[] name, bool dontBr
 	victim = GetClientOfUserId(GetEventInt(event, "userid", -1));
 	killtype = GetEventInt(event, "customkill", 0);
 
-	// killtype 3 == flamethrower, ignore snap detections as pyros sometimes,
-	// 	sway their aim around.
+	/* killtype 3 == flamethrower,
+	 * ignore snap detections as pyros sometimes,
+	 * sway their aim around. */
 	event_death_shared(userid, client, victim, ((killtype == 3) ? true : false));
 
 	return Plugin_Continue;
@@ -97,14 +98,14 @@ void event_death_shared(int userid, int client, int victim, bool skip_delta)
 	GetClientEyePosition(client, killpos);
 	GetClientEyePosition(victim, deathpos);
 
-	// Killer and victim are too close to each other, skip some detections.
+	/* Killer and victim are too close to each other, skip some detections. */
 	if (GetVectorDistance(killpos, deathpos) < 350.0 || skip_delta)
 		skip_snap = 1;
 
 	CreateDataTimer(0.5, timer_check_aimbot, pack);
 	pack.WriteCell(userid);
 	pack.WriteCell(skip_snap);
-	pack.WriteCell(playerinfo_index[client]); // Fallback to this tick if the shot isn't found.
+	pack.WriteCell(playerinfo_index[client]); /* Fallback to this tick if the shot isn't found. */
 	pack.WriteFloat(killpos[0]);
 	pack.WriteFloat(killpos[1]);
 	pack.WriteFloat(killpos[2]);
@@ -141,20 +142,20 @@ public Action timer_check_aimbot(Handle timer, DataPack pack)
 	deathpos[1] = pack.ReadFloat();
 	deathpos[2] = pack.ReadFloat();
 
-	// Killer may have left the game, cancel.
+	/* Killer may have left the game, cancel. */
 	if (!is_player_valid(client))
 		return;
 
-	// Locate when the shot was fired.
+	/* Locate when the shot was fired. */
 	ind = playerinfo_index[client];
-	// 0.5 (datapacktimer delay) + 0.5 (snap test) + 0.1 (buffer).
-	// We are looking this far back in case of a projectile aimbot shot,
-	// 	as the death event happens way later after the shot.
+	/* 0.5 (datapacktimer delay) + 0.5 (snap test) + 0.1 (buffer).
+	 * We are looking this far back in case of a projectile aimbot shot,
+	 * as the death event happens way later after the shot. */
 	for (int i = 0; i < CMD_LENGTH - time_to_ticks(0.5 + 0.5 + 0.1); i++) {
 		if (--ind < 0)
 			ind += CMD_LENGTH;
 
-		// The shot needs to have happened at least 0.3 seconds ago.
+		/* The shot needs to have happened at least 0.3 seconds ago. */
 		if (GetGameTime() - playerinfo_time_usercmd[client][ind] < 0.3)
 			continue;
 
@@ -164,55 +165,56 @@ public Action timer_check_aimbot(Handle timer, DataPack pack)
 		}
 	}
 
-	// Shot not found, use fallback.
+	/* Shot not found, use fallback. */
 	if (shotindex == -1) {
 		shotindex = fallback;
 
-		// If the latest index is the same as the fallback, then no
-		// 	more usercmds have been processed since the death event.
-		// 	These detections are thus unstable and will be ignored
-		// 	(They require at least one tick after the shot to work).
+		/* If the latest index is the same as the fallback, then no
+		 * more usercmds have been processed since the death event.
+		 * These detections are thus unstable and will be ignored
+		 * (They require at least one tick after the shot to work). */
 		if (playerinfo_index[client] == fallback) {
 			skip_autoshoot = true;
 			skip_repeat = true;
 		}
 	}
 	else {
-		// Don't detect the same shot twice.
+		/* Don't detect the same shot twice. */
 		playerinfo_actions[client][shotindex] = 0;
 	}
 
-	// Skip repeat detections if players are too close to each other.
+	/* Skip repeat detections if players are too close to each other. */
 	if (skip_snap)
 		skip_repeat = true;
 
-	// Player taunted within 0.5 seconds of taking a shot leading to a kill.
-	// Ignore snap detections.
+	/* Player taunted within 0.5 seconds
+	 * of taking a shot leading to a kill.
+	 * Ignore snap detections. */
 	if (-0.1 < playerinfo_time_usercmd[client][shotindex] - playerinfo_time_teleported[client] < 0.5 + 0.1)
 		skip_snap = true;
 
-	// Aimsnap and total delta test.
+	/* Aimsnap and total delta test. */
 	if (skip_snap == false) {
 		aim_at_point(killpos, deathpos, ideal);
 
 		ind = shotindex;
-		// Check angle history 0.5 seconds prior to a shot.
+		/* Check angle history 0.5 seconds prior to a shot. */
 		for (int i = 0; i < time_to_ticks(0.5); i++) {
 			if (ind < 0)
 				ind += CMD_LENGTH;
 
-			// We're looking back further than 0.5 seconds prior to the shot, abort.
+			/* We're looking back further than 0.5 seconds prior to the shot, abort. */
 			if (playerinfo_time_usercmd[client][shotindex] - playerinfo_time_usercmd[client][ind] > 0.5)
 				break;
 
 			laimdist = angle_delta(playerinfo_angles[client][ind], ideal);
 			get_player_log_angles(client, ind, false, ang);
 
-			// Skip first iteration as we need angle deltas.
+			/* Skip first iteration as we need angle deltas. */
 			if (i) {
 				tdelta = angle_delta(lang, ang);
 
-				// Store largest delta.
+				/* Store largest delta. */
 				if (tdelta > delta)
 					delta = tdelta;
 
@@ -231,14 +233,14 @@ public Action timer_check_aimbot(Handle timer, DataPack pack)
 		}
 	}
 
-	// Packetloss is too high, skip all detections but total_delta.
+	/* Packetloss is too high, skip all detections but total_delta. */
 	if (skip_due_to_loss(client)) {
 		skip_autoshoot = true;
 		skip_repeat = true;
 		detected = 0;
 	}
 
-	// Angle-repeat test.
+	/* Angle-repeat test. */
 	if (skip_repeat == false) {
 		get_player_log_angles(client, shotindex - 1, false, ang);
 		get_player_log_angles(client, shotindex + 1, false, lang);
@@ -250,7 +252,7 @@ public Action timer_check_aimbot(Handle timer, DataPack pack)
 			detected |= AIMBOT_FLAG_REPEAT;
 	}
 
-	// Autoshoot test.
+	/* Autoshoot test. */
 	if (skip_autoshoot == false && icvar[CVAR_AIMBOT_AUTOSHOOT]) {
 		int tmp = 0;
 		ind = shotindex + 1;
@@ -266,9 +268,9 @@ public Action timer_check_aimbot(Handle timer, DataPack pack)
 			ind--;
 		}
 
-		// Onetick perfect shot.
-		// Players must get two of them in a row leading to a kill
-		// 	or something else must have been detected to get this flag.
+		/* Onetick perfect shot.
+		 * Players must get two of them in a row leading to a kill
+		 * or something else must have been detected to get this flag. */
 		if (tmp == 1) {
 			if (detected || ++aimbot_autoshoot[client] > 1)
 				detected |= AIMBOT_FLAG_AUTOSHOOT;
@@ -290,12 +292,12 @@ static void lilac_detected_aimbot(int client, float delta, float td, int flags)
 	if (lilac_forward_allow_cheat_detection(client, CHEAT_AIMBOT) == false)
 		return;
 
-	// Detection expires in 10 minutes.
+	/* Detection expires in 10 minutes. */
 	CreateTimer(600.0, timer_decrement_aimbot, GetClientUserId(client), TIMER_FLAG_NO_MAPCHANGE);
 
 	lilac_forward_client_cheat(client, CHEAT_AIMBOT);
 
-	// Don't log the first detection.
+	/* Don't log the first detection. */
 	if (++aimbot_detection[client] < 2)
 		return;
 

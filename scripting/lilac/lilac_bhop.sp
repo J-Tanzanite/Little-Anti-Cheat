@@ -23,7 +23,7 @@ static int detections[MAXPLAYERS + 1];
 
 static void bhop_reset(int client)
 {
-	// -1 because the initial jump doesn't count.
+	/* -1 because the initial jump doesn't count. */
 	jump_ticks[client] = -1;
 	perfect_bhops[client] = -1;
 }
@@ -36,7 +36,7 @@ void lilac_bhop_reset_client(int client)
 
 void lilac_bhop_check(int client, const int buttons, int last_buttons)
 {
-	// Player already banned / logged enough, no need to test anything.
+	/* Player already banned / logged enough, no need to test anything. */
 	if (playerinfo_banned_flags[client][CHEAT_BHOP])
 		return;
 
@@ -63,7 +63,7 @@ static bool forward_allow_detection(int client)
 
 static void check_bhop_max(int client)
 {
-	// Invalid max, disable max bhop bans.
+	/* Invalid max, disable max bhop bans. */
 	if (bhop_settings[BHOP_INDEX_MAX] < bhop_settings_min[BHOP_INDEX_MAX])
 		return;
 
@@ -73,21 +73,21 @@ static void check_bhop_max(int client)
 	if (forward_allow_detection(client) == false)
 		return;
 
-	// Client just hit the max threshhold, insta ban.
+	/* Client just hit the max threshhold, insta ban. */
 	lilac_detected_bhop(client);
 	lilac_ban_bhop(client);
 }
 
 static void check_bhop_min(int client)
 {
-	// Invalid min-Bhop settings.
+	/* Invalid min-Bhop settings. */
 	if (bhop_settings[BHOP_INDEX_MIN] < bhop_settings_min[BHOP_INDEX_MIN])
 		return;
 
 	if (perfect_bhops[client] < bhop_settings[BHOP_INDEX_MIN])
 		return;
 
-	// Jump ticks buffer is set and jump ticks is higher than max, ignore.
+	/* Jump ticks buffer is set and jump ticks is higher than max, ignore. */
 	if (bhop_settings[BHOP_INDEX_JUMP] > -1
 		&& jump_ticks[client] > bhop_settings[BHOP_INDEX_JUMP]
 		+ bhop_settings[BHOP_INDEX_MIN])
@@ -103,10 +103,10 @@ static void lilac_detected_bhop(int client)
 {
 	lilac_forward_client_cheat(client, CHEAT_BHOP);
 
-	// Detection expires in 10 minutes.
+	/* Detection expires in 10 minutes. */
 	CreateTimer(600.0, timer_decrement_bhop, GetClientUserId(client));
 
-	// Don't log the first detection.
+	/* Don't log the first detection. */
 	if (++detections[client] < 2)
 		return;
 
@@ -129,7 +129,7 @@ static void lilac_detected_bhop(int client)
 
 static void lilac_ban_bhop(int client)
 {
-	// Already been banned, ignore.
+	/* Already been banned, ignore. */
 	if (playerinfo_banned_flags[client][CHEAT_BHOP])
 		return;
 

@@ -37,7 +37,7 @@ void lilac_backtrack_store_tickcount(int client, int tickcount)
 
 int lilac_backtrack_patch(int client, int tickcount)
 {
-	// Skip players who recently teleported.
+	/* Skip players who recently teleported. */
 	if (playerinfo_time_teleported[client] + 2.0 > GetGameTime())
 		return tickcount;
 
@@ -59,10 +59,10 @@ static int lilac_lock_tickcount(int client)
 	ping = RoundToNearest(GetClientAvgLatency(client, NetFlow_Outgoing) / GetTickInterval());
 	tick = diff_tickcount[client] + (GetGameTickCount() - ping);
 
-	// Never return higher than server tickcount.
-	// Other than that, lock the tickcount to the player's
-	// 	previous value for the durration of the patch.
-	// 	This patch method shouldn't affect legit laggy players as much.
+	/* Never return higher than server tickcount.
+	 * Other than that, lock the tickcount to the player's
+	 * previous value for the durration of the patch.
+	 * This patch method shouldn't affect legit laggy players as much. */
 	return ((tick > GetGameTickCount()) ? GetGameTickCount() : tick);
 }
 
@@ -73,13 +73,13 @@ static bool lilac_valid_tickcount(int client, int tickcount)
 
 static void lilac_set_client_in_backtrack_timeout(int client)
 {
-	// Set the player in backtrack timeout for 1.1 seconds.
+	/* Set the player in backtrack timeout for 1.1 seconds. */
 	time_timeout[client] = GetGameTime() + 1.1;
 
-	// Lock value.
+	/* Lock value. */
 	diff_tickcount[client] = (prev_tickcount[client] - (GetGameTickCount() - RoundToNearest(GetClientAvgLatency(client, NetFlow_Outgoing) / GetTickInterval()))) + 1;
 
-	// Clamp the value due to floating point errors and network variability.
+	/* Clamp the value due to floating point errors and network variability. */
 	if (diff_tickcount[client] > time_to_ticks(0.2) - 3)
 		diff_tickcount[client] = time_to_ticks(0.2) - 3;
 	else if (diff_tickcount[client] < ((time_to_ticks(0.2) * -1) + 3))
