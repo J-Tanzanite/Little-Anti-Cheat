@@ -23,38 +23,38 @@ public Action OnClientSayCommand(int client, const char[] command, const char[] 
 	if (!icvar[CVAR_ENABLE])
 		return Plugin_Continue;
 
-	// Prevent players banned for Chat-Clear from spamming chat.
-	//     Helps legit players see the cheater was banned.
+	/* Prevent players banned for Chat-Clear from spamming chat.
+	 * Helps legit players see the cheater was banned. */
 	if (playerinfo_banned_flags[client][CHEAT_CHATCLEAR])
 		return Plugin_Stop;
 
 	if (!icvar[CVAR_FILTER_CHAT])
 		return Plugin_Continue;
 
-	// Just for future reference, because it may be unclear
-	//     how "is_string_valid()" works.
-	// Normally, it will set the "flags" variable with bits
-	//     telling you what's wrong with a string and return false.
-	// But the wide-char-spam bit is an exception,
-	//     it will set the bit, but won't return false.
-	// This is because wide-char spam gets its own message
-	//     when blocking the chat.
-	// Plus, it's still technically a valid string.
+	/* Just for future reference, because it may be unclear
+	 * how "is_string_valid()" works.
+	 * Normally, it will set the "flags" variable with bits
+	 * telling you what's wrong with a string and return false.
+	 * But the wide-char-spam bit is an exception,
+	 * it will set the bit, but won't return false.
+	 * This is because wide-char spam gets its own message
+	 * when blocking the chat.
+	 * Plus, it's still technically a valid string. */
 
-	// Invalid string and no newlines/carriage returns.
-	// Newlines in chat will we dealt with in post.
-	// This is just so people can see that the player did indeed
-	//     clear the chat before banning, otherwise people
-	//     would be confused and think the ban was an error.
+	/* Invalid string and no newlines/carriage returns.
+	 * Newlines in chat will we dealt with in post.
+	 * This is just so people can see that the player did indeed
+	 * clear the chat before banning, otherwise people
+	 * would be confused and think the ban was an error. */
 	if (!(is_string_valid(sArgs, flags)) && !(flags & STRFLAG_NEWLINE)) {
 		PrintToChat(client, "[Lilac] %T", "chat_invalid_characters", client);
 		return Plugin_Stop;
 	}
 	else if ((flags & STRFLAG_WIDE_CHAR_SPAM)) {
-		// Wide char spam (Example: Bismillah spam),
-		//     as explained by 3kliksphilip here: https://youtu.be/hP1N1YRitlM?t=94
-		//     this clears the chat and is annoying.
-		// Block this exploit.
+		/* Wide char spam (Example: Bismillah spam),
+		 * as explained by 3kliksphilip here: https://youtu.be/hP1N1YRitlM?t=94
+		 * this clears the chat and is annoying.
+		 * Block this exploit. */
 		PrintToChat(client, "[Lilac] %T", "chat_wide_char_spam", client);
 		return Plugin_Stop;
 	}
@@ -64,15 +64,15 @@ public Action OnClientSayCommand(int client, const char[] command, const char[] 
 
 public void OnClientSayCommand_Post(int client, const char[] command, const char[] sArgs)
 {
-	// Chat-Clear doesn't work in CS:GO.
+	/* Chat-Clear doesn't work in CS:GO. */
 	if (ggame == GAME_CSGO)
 		return;
 
-	// Todo: CVAR_CHAT is... Now an outdated name...
+	/* Todo: CVAR_CHAT is... Now an outdated name... */
 	if (!icvar[CVAR_ENABLE] || !icvar[CVAR_CHAT])
 		return;
 
-	// Don't log chat-clear more than once.
+	/* Don't log chat-clear more than once. */
 	if (playerinfo_banned_flags[client][CHEAT_CHATCLEAR])
 		return;
 
@@ -100,11 +100,11 @@ public void OnClientSayCommand_Post(int client, const char[] command, const char
 	}
 }
 
-// Quick and fast, better to use this than validate the entire string twice.
+/* Quick and fast, better to use this than validate the entire string twice. */
 static bool does_string_contain_newline(const char []string)
 {
 	for (int i = 0; string[i]; i++) {
-		// Newline or carriage return.
+		/* Newline or carriage return. */
 		if (string[i] == '\n' || string[i] == '\r')
 			return true;
 	}
@@ -157,12 +157,12 @@ static void check_name(int client, const char []name)
 	if (is_string_valid(name, flags))
 		return;
 
-	// Todo: Currently logging "const char []name" because on the
-	//     event name_change, we don't actually log the player's
-	//     most recent name, rather their previous name.
-	// I should fix that, but for now, lets do this instead (tmp fix).
+	/* Todo: Currently logging "const char []name" because on the
+	 * event name_change, we don't actually log the player's
+	 * most recent name, rather their previous name.
+	 * I should fix that, but for now, lets do this instead (tmp fix). */
 
-	// Player was detected of having a newline or carriage return in their name, which is a cheat feature...
+	/* Player was detected of having a newline or carriage return in their name, which is a cheat feature... */
 	if (icvar[CVAR_FILTER_NAME] == 2 && (flags & STRFLAG_NEWLINE)) {
 		if (playerinfo_banned_flags[client][CHEAT_NEWLINE_NAME])
 			return;
@@ -188,7 +188,7 @@ static void check_name(int client, const char []name)
 		lilac_ban_client(client, CHEAT_NEWLINE_NAME);
 	}
 	else {
-		// Invalid name.
+		/* Invalid name. */
 		if (icvar[CVAR_LOG_MISC]) {
 			lilac_log_setup_client(client);
 			Format(line, sizeof(line),
@@ -201,7 +201,7 @@ static void check_name(int client, const char []name)
 		}
 		database_log(client, "name_invalid", DATABASE_KICK);
 
-		// Log only.
+		/* Log only. */
 		if (icvar[CVAR_FILTER_NAME] > 0)
 			KickClient(client, "[Lilac] %T", "kick_bad_name", client);
 	}
@@ -262,9 +262,9 @@ static bool is_string_valid(const char []string, int &flags)
 			return false;
 		else if (codepoint >= 0x80 && codepoint <= 0x9f) /* C1 control chars. */
 			return false;
-		else if (codepoint >= 0xe400 && codepoint <= 0xf900) /* PUA. */
+		else if (codepoint >= 0xe000 && codepoint <= 0xf8ff) /* PUA. */
 			return false;
-		else if (codepoint >= 0xf0000 && codepoint <= 0xffffd) /* PUA. */
+		else if (codepoint >= 0xf0000 && codepoint <= 0xfffff) /* PUA. */
 			return false;
 		else if (codepoint >= 0x100000 && codepoint <= 0x10fffd) /* PUA. */
 			return false;
