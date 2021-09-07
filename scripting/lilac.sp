@@ -294,7 +294,7 @@ public void map_teleport(const char[] output, int caller, int activator, float d
 	playerinfo_time_teleported[activator] = GetGameTime();
 }
 
-public Action timer_welcome(Handle timer, int userid)
+public Action timer_welcome(Handle timer, any userid)
 {
 	int client = GetClientOfUserId(userid);
 

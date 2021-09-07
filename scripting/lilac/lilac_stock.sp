@@ -248,7 +248,7 @@ void lilac_ban_client(int client, int cheat)
 	CreateTimer(5.0, timer_kick, GetClientUserId(client));
 }
 
-public Action timer_kick(Handle timer, int userid)
+public Action timer_kick(Handle timer, any userid)
 {
 	int client = GetClientOfUserId(userid);
 

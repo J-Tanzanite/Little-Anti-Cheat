@@ -257,7 +257,7 @@ static bool lilac_is_player_in_aimlock_que(int client)
 			&& playerinfo_time_aimlock[client] > 1.0)); // Had one aimlock the past three minutes.
 }
 
-public Action timer_decrement_aimlock(Handle timer, int userid)
+public Action timer_decrement_aimlock(Handle timer, any userid)
 {
 	int client = GetClientOfUserId(userid);
 

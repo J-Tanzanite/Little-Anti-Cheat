@@ -198,4 +198,4 @@ bool playerinfo_banned_flags[MAXPLAYERS + 1][CHEAT_MAX];
 
 
 // Forward declare SourceIRC native so we can compile without it but still use it if present:
-native Function IRC_MsgFlaggedChannels(const char[] flag, const char[] format, any:...);
+native Function IRC_MsgFlaggedChannels(const char[] flag, const char[] format, any ...);

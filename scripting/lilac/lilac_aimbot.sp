@@ -337,7 +337,7 @@ static void lilac_detected_aimbot(int client, float delta, float td, int flags)
 	}
 }
 
-public Action timer_decrement_aimbot(Handle timer, int userid)
+public Action timer_decrement_aimbot(Handle timer, any userid)
 {
 	int client = GetClientOfUserId(userid);
 

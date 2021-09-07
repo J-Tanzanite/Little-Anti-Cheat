@@ -150,7 +150,7 @@ static void lilac_ban_bhop(int client)
 	lilac_ban_client(client, CHEAT_BHOP);
 }
 
-public Action timer_decrement_bhop(Handle timer, int userid)
+public Action timer_decrement_bhop(Handle timer, any userid)
 {
 	int client;
 
