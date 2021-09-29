@@ -169,7 +169,7 @@ int bhop_settings_min[BHOP_MAX];
 char line[2048];
 char dateformat[512] = "%Y/%m/%d %H:%M:%S";
 char log_file[PLATFORM_MAX_PATH];
-float max_angles[3] = {89.01, 0.0, 50.01};
+float max_angles[3] = {360.0, 360.0, 360.0}; for css v34
 Handle forwardhandle = INVALID_HANDLE;
 Handle forwardhandleban = INVALID_HANDLE;
 Handle forwardhandleallow = INVALID_HANDLE;
