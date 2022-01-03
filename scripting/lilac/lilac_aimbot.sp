@@ -58,8 +58,8 @@ public Action event_player_death_tf2(Event event, const char[] name, bool dontBr
 
 	GetEventString(event, "weapon_logclassname", wep, sizeof(wep), "");
 
-	// Ignore sentries in TF2.
-	if (!strncmp(wep, "obj_", 4, false))
+	// Ignore sentries & world in TF2.
+	if (!strncmp(wep, "obj_", 4, false) || !strncmp(wep, "world", 5, false))
 		return Plugin_Continue;
 
 	userid = GetEventInt(event, "attacker", -1);
