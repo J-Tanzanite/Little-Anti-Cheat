@@ -141,7 +141,7 @@
 #define PLUGIN_URL       "https://github.com/J-Tanzanite/Little-Anti-Cheat"
 
 /* Convars. */
-Convar cvar[CVAR_MAX]; /* ConVar = built in SourceMod  |  Convar = kidfearless's convar_class */
+Convar hcvar[CVAR_MAX]; /* ConVar = built in SourceMod  |  Convar = kidfearless's convar_class */
 int icvar[CVAR_MAX];
 int sv_cheats = 0;
 int time_sv_cheats = 0;
@@ -162,7 +162,7 @@ int macro_max;
 int bhop_settings[BHOP_MAX];
 int bhop_settings_min[BHOP_MAX];
 
-char line[2048];
+char line_buffer[2048];
 char dateformat[512] = "%Y/%m/%d %H:%M:%S";
 char log_file[PLATFORM_MAX_PATH];
 float max_angles[3] = {89.01, 0.0, 50.01};

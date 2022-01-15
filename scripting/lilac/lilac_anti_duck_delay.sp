@@ -45,7 +45,7 @@ void lilac_anti_duck_delay_check(int client, const int buttons)
 
 	if (icvar[CVAR_LOG]) {
 		lilac_log_setup_client(client);
-		Format(line, sizeof(line), "%s was detected and banned for Anti-Duck-Delay.", line);
+		Format(line_buffer, sizeof(line_buffer), "%s was detected and banned for Anti-Duck-Delay.", line_buffer);
 
 		lilac_log(true);
 

@@ -19,6 +19,7 @@
 #include <sourcemod>
 #include <sdktools_engine>
 #include <sdktools_entoutput>
+#include <convar_class>
 #undef REQUIRE_PLUGIN
 #undef REQUIRE_EXTENSIONS
 #tryinclude <materialadmin>
@@ -104,7 +105,7 @@ public void OnPluginStart()
 
 		if ((tvar = FindConVar("sv_autobunnyhopping")) != null) {
 			force_disable_bhop = tvar.IntValue;
-			tvar.AddChangeHook(cvar_change)
+			tvar.AddChangeHook(cvar_change);
 		}
 		else {
 			/* We weren't able to get the cvar,

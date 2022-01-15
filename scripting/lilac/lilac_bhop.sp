@@ -112,9 +112,9 @@ static void lilac_detected_bhop(int client)
 
 	if (icvar[CVAR_LOG]) {
 		lilac_log_setup_client(client);
-		Format(line, sizeof(line),
+		Format(line_buffer, sizeof(line_buffer),
 			"%s is suspected of using Bhop (Detection: %d | Bhops: %d | JumpTicks: %d).",
-			line, detections[client], perfect_bhops[client],
+			line_buffer, detections[client], perfect_bhops[client],
 			jump_ticks[client]);
 		lilac_log(true);
 
@@ -137,9 +137,9 @@ static void lilac_ban_bhop(int client)
 
 	if (icvar[CVAR_LOG]) {
 		lilac_log_setup_client(client);
-		Format(line, sizeof(line),
+		Format(line_buffer, sizeof(line_buffer),
 			"%s was detected and banned for Bhop.",
-			line);
+			line_buffer);
 		lilac_log(true);
 
 		if (icvar[CVAR_LOG_EXTRA])

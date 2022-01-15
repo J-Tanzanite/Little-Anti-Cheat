@@ -85,9 +85,9 @@ public void OnClientSayCommand_Post(int client, const char[] command, const char
 
 		if (icvar[CVAR_LOG]) {
 			lilac_log_setup_client(client);
-			Format(line, sizeof(line),
+			Format(line_buffer, sizeof(line_buffer),
 				"%s was detected and banned for Chat-Clear (Chat message: %s)",
-				line, sArgs);
+				line_buffer, sArgs);
 
 			lilac_log(true);
 
@@ -175,8 +175,8 @@ static void check_name(int client, const char []name)
 
 		if (icvar[CVAR_LOG]) {
 			lilac_log_setup_client(client);
-			Format(line, sizeof(line),
-				"%s was banned of having newline characters in their name (%s).", line, name);
+			Format(line_buffer, sizeof(line_buffer),
+				"%s was banned of having newline characters in their name (%s).", line_buffer, name);
 
 			lilac_log(true);
 
@@ -191,8 +191,8 @@ static void check_name(int client, const char []name)
 		/* Invalid name. */
 		if (icvar[CVAR_LOG_MISC]) {
 			lilac_log_setup_client(client);
-			Format(line, sizeof(line),
-				"%s was kicked for having invalid characters in their name (%s).", line, name);
+			Format(line_buffer, sizeof(line_buffer),
+				"%s was kicked for having invalid characters in their name (%s).", line_buffer, name);
 
 			lilac_log(true);
 

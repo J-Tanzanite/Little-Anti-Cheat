@@ -79,9 +79,9 @@ public Action timer_query(Handle timer)
 		if (++query_failed[i] > QUERY_MAX_FAILURES) {
 			if (icvar[CVAR_LOG_MISC]) {
 				lilac_log_setup_client(i);
-				Format(line, sizeof(line),
+				Format(line_buffer, sizeof(line_buffer),
 					"%s was kicked for failing to respond to %d queries in %.0f seconds.",
-					line, QUERY_MAX_FAILURES,
+					line_buffer, QUERY_MAX_FAILURES,
 					QUERY_TIMER * QUERY_MAX_FAILURES);
 
 				lilac_log(true);
@@ -132,9 +132,9 @@ public void query_reply(QueryCookie cookie, int client, ConVarQueryResult result
 
 	if (icvar[CVAR_LOG]) {
 		lilac_log_setup_client(client);
-		Format(line, sizeof(line),
+		Format(line_buffer, sizeof(line_buffer),
 			"%s was detected and banned for an invalid ConVar (%s %s).",
-			line, cvarName, cvarValue);
+			line_buffer, cvarName, cvarValue);
 
 		lilac_log(true);
 
