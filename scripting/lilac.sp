@@ -99,12 +99,12 @@ public void OnPluginStart()
 		ggame = GAME_CSS;
 	}
 	else if (StrEqual(gamefolder, "csgo", false)) {
-		Handle tvar = null;
+		ConVar tvar;
 		ggame = GAME_CSGO;
 
 		if ((tvar = FindConVar("sv_autobunnyhopping")) != null) {
-			force_disable_bhop = GetConVarInt(tvar);
-			HookConVarChange(tvar, cvar_change);
+			force_disable_bhop = tvar.IntValue;
+			tvar.AddChangeHook(cvar_change)
 		}
 		else {
 			/* We weren't able to get the cvar,
