@@ -21,6 +21,16 @@ void Database_OnConfigExecuted()
 	if (lil_db)
 		return;
 	
+	static bool first_load = true;
+	
+	/* Since db_name is only updated when the config name is CHANGED,
+	 * we need to retrieve it on the first load, since the execution
+	 * of the config file doesn't count like a change. */
+	if (first_load) {
+		hcvar[CVAR_DATABASE].GetString(db_name, sizeof(db_name));
+		first_load = false;
+	}
+	
 	if (db_name[0] == '\0' || IsCharSpace(db_name[0])) /* The config name is empty */
 		return;
 	
