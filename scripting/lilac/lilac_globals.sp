@@ -153,7 +153,7 @@ int ban_length_overwrite[CHEAT_MAX];
 /* Database. */
 Database lil_db;
 char sql_buffer[1500]; /* It's probably bigger than what you need, but better be safe than sorry I guess. */
-char db_name[64]; /* Database config name from cvar[CVAR_DATABASE]. */
+char db_name[64]; /* Database config name from hcvar[CVAR_DATABASE]. */
 
 /* Misc. */
 int ggame;
