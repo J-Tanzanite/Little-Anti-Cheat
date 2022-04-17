@@ -60,6 +60,7 @@ The same goes for other games, non-steam / cracks aren't supported.
  - Danish (by kS the Man / ksgoescoding c:).
  - Norwegian (by me, the translations could be better).
  - French (by Rasi / GreenGuyRasi).
+ - Finnish (By [Veeti](https://forums.alliedmods.net/member.php?u=317665)).
  - English (by me lol duh hue hue hue).
  - Russian (by an awesome person c:).
  - Czech (by an awesome person <3).
