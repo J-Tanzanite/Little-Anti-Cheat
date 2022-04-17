@@ -20,6 +20,7 @@
 		"Plugin"	"Path_SM/translations/cze/lilac.phrases.txt"
 		"Plugin"	"Path_SM/translations/de/lilac.phrases.txt"
 		"Plugin"	"Path_SM/translations/es/lilac.phrases.txt"
+		"Plugin"	"Path_SM/translations/fi/lilac.phrases.txt"
 		"Plugin"	"Path_SM/translations/fr/lilac.phrases.txt"
 		"Plugin"	"Path_SM/translations/nl/lilac.phrases.txt"
 		"Plugin"	"Path_SM/translations/no/lilac.phrases.txt"
