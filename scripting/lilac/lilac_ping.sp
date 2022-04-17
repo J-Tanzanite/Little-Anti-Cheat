@@ -77,9 +77,9 @@ public Action timer_check_ping(Handle timer)
 
 		if (icvar[CVAR_LOG_MISC]) {
 			lilac_log_setup_client(i);
-			Format(line, sizeof(line),
+			Format(line_buffer, sizeof(line_buffer),
 				"%s was kicked for having too high ping (%.3fms / %dms max).",
-				line, ping, icvar[CVAR_MAX_PING]);
+				line_buffer, ping, icvar[CVAR_MAX_PING]);
 
 			lilac_log(true);
 

@@ -304,9 +304,9 @@ static void lilac_detected_aimbot(int client, float delta, float td, int flags)
 
 	if (icvar[CVAR_LOG]) {
 		lilac_log_setup_client(client);
-		Format(line, sizeof(line),
+		Format(line_buffer, sizeof(line_buffer),
 			"%s is suspected of using an aimbot (Detection: %d | Delta: %.0f | TotalDelta: %.0f | Detected:%s%s%s%s%s).",
-			line, aimbot_detection[client], delta, td,
+			line_buffer, aimbot_detection[client], delta, td,
 			((flags & AIMBOT_FLAG_SNAP)      ? " Aim-Snap"     : ""),
 			((flags & AIMBOT_FLAG_SNAP2)     ? " Aim-Snap2"    : ""),
 			((flags & AIMBOT_FLAG_AUTOSHOOT) ? " Autoshoot"    : ""),
@@ -325,8 +325,8 @@ static void lilac_detected_aimbot(int client, float delta, float td, int flags)
 
 		if (icvar[CVAR_LOG]) {
 			lilac_log_setup_client(client);
-			Format(line, sizeof(line),
-				"%s was banned for Aimbot.", line);
+			Format(line_buffer, sizeof(line_buffer),
+				"%s was banned for Aimbot.", line_buffer);
 
 			lilac_log(true);
 

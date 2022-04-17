@@ -181,9 +181,9 @@ static void lilac_detected_aimlock(int client)
 
 	if (icvar[CVAR_LOG]) {
 		lilac_log_setup_client(client);
-		Format(line, sizeof(line),
+		Format(line_buffer, sizeof(line_buffer),
 			"%s is suspected of using an aimlock (Detection: %d).",
-			line, playerinfo_aimlock[client]);
+			line_buffer, playerinfo_aimlock[client]);
 
 		lilac_log(true);
 
@@ -198,8 +198,8 @@ static void lilac_detected_aimlock(int client)
 
 		if (icvar[CVAR_LOG]) {
 			lilac_log_setup_client(client);
-			Format(line, sizeof(line),
-				"%s was banned for Aimlock.", line);
+			Format(line_buffer, sizeof(line_buffer),
+				"%s was banned for Aimlock.", line_buffer);
 
 			lilac_log(true);
 

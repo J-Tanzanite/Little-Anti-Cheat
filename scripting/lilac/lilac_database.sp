@@ -16,17 +16,24 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-Database lil_db;
-char sql_buffer[1500]; /* it's probably bigger than what you need, but better be safe than sorry I guess */
-
 void Database_OnConfigExecuted()
 {
 	if (lil_db)
 		return;
-	char db_name[64];
-	GetConVarString(cvar[CVAR_DATABASE], db_name, sizeof(db_name));
-	if (db_name[0] == '\0' || IsCharSpace(db_name[0])) /* convar is empty */
+	
+	static bool first_load = true;
+	
+	/* Since db_name is only updated when the config name is CHANGED,
+	 * we need to retrieve it on the first load, since the execution
+	 * of the config file doesn't count like a change. */
+	if (first_load) {
+		hcvar[CVAR_DATABASE].GetString(db_name, sizeof(db_name));
+		first_load = false;
+	}
+	
+	if (db_name[0] == '\0' || IsCharSpace(db_name[0])) /* The config name is empty */
 		return;
+	
 	if (!SQL_CheckConfig(db_name)) {
 		LogError("Database config '%s' doesn't exist in databases.cfg", db_name);
 		return;

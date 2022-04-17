@@ -128,9 +128,9 @@ static void lilac_detected_macro(int client, int type)
 	/* Log (2 == detect, but no logging). */
 	if (icvar[CVAR_LOG] && icvar[CVAR_MACRO] < 2) {
 		lilac_log_setup_client(client);
-		Format(line, sizeof(line),
+		Format(line_buffer, sizeof(line_buffer),
 			"%s was detected of using Macro %s (Detection: %d | Max presses: %d).",
-			line, string, macro_detected[client][type], macro_max);
+			line_buffer, string, macro_detected[client][type], macro_max);
 
 		lilac_log(true);
 

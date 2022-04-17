@@ -145,7 +145,7 @@ static void lilac_detected_noisemaker(int client)
 
 	if (icvar[CVAR_LOG]) {
 		lilac_log_setup_client(client);
-		Format(line, sizeof(line), "%s is suspected of using unlimited noisemaker cheats.", line);
+		Format(line_buffer, sizeof(line_buffer), "%s is suspected of using unlimited noisemaker cheats.", line_buffer);
 
 		lilac_log(true);
 

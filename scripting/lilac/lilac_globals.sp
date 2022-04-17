@@ -141,7 +141,7 @@
 #define PLUGIN_URL       "https://github.com/J-Tanzanite/Little-Anti-Cheat"
 
 /* Convars. */
-Handle cvar[CVAR_MAX];
+Convar hcvar[CVAR_MAX]; /* ConVar = built in SourceMod  |  Convar = kidfearless's convar_class */
 int icvar[CVAR_MAX];
 int sv_cheats = 0;
 int time_sv_cheats = 0;
@@ -150,6 +150,11 @@ int force_disable_bhop = 0;
 /* Banlength overwrite. */
 int ban_length_overwrite[CHEAT_MAX];
 
+/* Database. */
+Database lil_db;
+char sql_buffer[1500]; /* It's probably bigger than what you need, but better be safe than sorry I guess. */
+char db_name[64]; /* Database config name from hcvar[CVAR_DATABASE]. */
+
 /* Misc. */
 int ggame;
 int tick_rate;
@@ -157,7 +162,7 @@ int macro_max;
 int bhop_settings[BHOP_MAX];
 int bhop_settings_min[BHOP_MAX];
 
-char line[2048];
+char line_buffer[2048];
 char dateformat[512] = "%Y/%m/%d %H:%M:%S";
 char log_file[PLATFORM_MAX_PATH];
 float max_angles[3] = {89.01, 0.0, 50.01};

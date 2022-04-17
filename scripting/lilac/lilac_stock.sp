@@ -81,7 +81,7 @@ void lilac_log_setup_client(int client)
 	GetClientAuthId(client, AuthId_Steam2, steamid, sizeof(steamid), true);
 	GetClientIP(client, ip, sizeof(ip), true);
 
-	Format(line, sizeof(line),
+	FormatEx(line_buffer, sizeof(line_buffer),
 		"%s [Version %s] {Name: \"%N\" | SteamID: %s | IP: %s}",
 		date, PLUGIN_VERSION, client, steamid, ip);
 }
@@ -97,7 +97,7 @@ void lilac_log_extra(int client)
 
 	get_player_log_angles(client, 0, true, ang);
 
-	Format(line, sizeof(line),
+	FormatEx(line_buffer, sizeof(line_buffer),
 		"\tPos={%.0f,%.0f,%.0f}, Angles={%.5f,%.5f,%.5f}, Map=\"%s\", Team={%d}, Weapon=\"%s\", Latency={Inc:%f,Out:%f}, Loss={Inc:%f,Out:%f}, Choke={Inc:%f,Out:%f}, ConnectionTime={%f seconds}, GameTime={%f seconds}",
 		pos[0], pos[1], pos[2],
 		ang[0], ang[1], ang[2],
@@ -126,27 +126,27 @@ void lilac_log(bool cleanup)
 	 * This doesn't care about invalid utf-8 formatting,
 	 * only ASCII control characters. */
 	if (cleanup) {
-		for (int i = 0; line[i]; i++) {
-			if (line[i] == '\n' || line[i] == 0x0d)
-				line[i] = '*';
-			else if (line[i] < 32)
-				line[i] = '#';
+		for (int i = 0; line_buffer[i]; i++) {
+			if (line_buffer[i] == '\n' || line_buffer[i] == 0x0d)
+				line_buffer[i] = '*';
+			else if (line_buffer[i] < 32)
+				line_buffer[i] = '#';
 		}
 	}
 
-	WriteFileLine(file, "%s", line);
+	WriteFileLine(file, "%s", line_buffer);
 	/* Just echo log lines to SourceIRC */
 	if (icvar[CVAR_SOURCEIRC] && NATIVE_EXISTS("IRC_MsgFlaggedChannels")) {
 		/* Note- SourceIRC Expects messages to be clean with no \r or \n, so clean it if not already done. */
 		if (!cleanup) {
-			for (int i = 0; line[i]; i++) {
-				if (line[i] == '\n' || line[i] == 0x0d)
-					line[i] = '*';
-				else if (line[i] < 32)
-					line[i] = '#';
+			for (int i = 0; line_buffer[i]; i++) {
+				if (line_buffer[i] == '\n' || line_buffer[i] == 0x0d)
+					line_buffer[i] = '*';
+				else if (line_buffer[i] < 32)
+					line_buffer[i] = '#';
 			}
 		}
-		IRC_MsgFlaggedChannels("lilac", "[LILAC] %s", line);
+		IRC_MsgFlaggedChannels("lilac", "[LILAC] %s", line_buffer);
 	}
 	CloseHandle(file);
 }
@@ -157,7 +157,7 @@ void lilac_log_first_time_setup()
 	 * correctly, thus, we should warn them so they don't panic
 	 * over trivial stuff. */
 	if (!FileExists(log_file, false, NULL_STRING)) {
-		Format(line, sizeof(line),
+		FormatEx(line_buffer, sizeof(line_buffer),
 "=========[Notice]=========\n\
 Thank you for installing Little Anti-Cheat %s!\n\
 Just a few notes about this Anti-Cheat:\n\n\
