@@ -85,6 +85,7 @@ void event_death_shared(int userid, int client, int victim, bool skip_delta)
 		|| !is_player_valid(client)
 		|| !is_player_valid(victim)
 		|| IsFakeClient(client)
+		|| !IsPlayerAlive(client)
 		|| playerinfo_banned_flags[client][CHEAT_AIMBOT]
 		|| GetClientTime(client) < 10.1)
 		return;
