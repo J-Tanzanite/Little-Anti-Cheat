@@ -1,4 +1,10 @@
-1.7.0
+1.7.2
+- Added experimental support for TF2Classic (Needs manual recompiling with `TF2C` defined in source).
+- Added Finnish translations, by Veeti.
+- Changed ConVars to use kidfearless's methodmaps version.
+- Fixed so aimbot isn't checked on dead players (Should fix grenades in CS:GO).
+
+1.7.1
 - Reorganized source code to be in separate files.
 - - The plugin itself is still a single file, making installation easier.
 - - But this should make code easier to follow.
