@@ -1,6 +1,7 @@
 1.7.2
 - Added experimental support for TF2Classic (Needs manual recompiling with `TF2C` defined in source).
 - Added Finnish translations, by Veeti.
+- Removed unused UTF-8 check flags.
 - Changed ConVars to use kidfearless's methodmaps version.
 - Fixed so aimbot isn't checked on dead players (Should fix grenades in CS:GO).
 
