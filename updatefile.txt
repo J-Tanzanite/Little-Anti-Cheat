@@ -7,7 +7,9 @@
 			"Latest"	"1.7.2"
 		}
 
+		"Notes" "Added experimental support for TF2Classic (Requires manual recompile)."
 		"Notes" "Added Finnish translations, by Veeti."
+		"Notes" "Removed unused UTF-8 check flags."
 		"Notes" "Changed ConVars to use kidfearless's methodmaps version."
 		"Notes" "Fixed so aimbot isn't checked on dead players (Should fix grenades in CS:GO)."
 	}
