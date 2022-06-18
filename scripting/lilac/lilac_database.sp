@@ -55,7 +55,7 @@ public void OnDatabaseConnected(Database db, const char[] error, any data)
 void InitDatabase()
 {
 	/* SQLite syntax, but seems valid for MySQL too */
-	strcopy(sql_buffer, sizeof(sql_buffer), "CREATE TABLE IF NOT EXISTS lilac_detections("
+	lil_db.Query(OnDatabaseInit, "CREATE TABLE IF NOT EXISTS lilac_detections("
 		... "name varchar(128) NOT NULL, " /* Honestly, you can deal with less bytes. 32 is fine too, but since you shouldn't have a ton of detections, that should be okay. */
 		... "steamid varchar(32) NOT NULL, "
 		... "ip varchar(16) NOT NULL, "
@@ -82,12 +82,15 @@ void InitDatabase()
 		... "connection_ticktime FLOAT NOT NULL, "
 		... "game_ticktime FLOAT NOT NULL, "
 		... "lilac_version varchar(20) NOT NULL)");
-	lil_db.Query(OnDatabaseInit, sql_buffer);
+	
+	/* Sets the right charset to store player names, in case you don't know how to configure your DB (lol).
+	 * This only sets the connection charset. */
+	lil_db.SetCharset("utf8mb4");
 }
 
 public void OnDatabaseInit(Database db, DBResultSet results, const char[] error, any data)
 {
-	if (error[0] != '\0') {
+	if (!results) {
 		LogError("Database initation query failed (%s)", error);
 		delete lil_db;
 	}
@@ -212,6 +215,6 @@ void database_log(int client, char[] cheat, int detection=DATABASE_BAN, float da
 
 public void OnDetectionInserted(Database db, DBResultSet results, const char[] error, any data)
 {
-	if (error[0] != '\0')
+	if (!results)
 		LogError("Detection insertion query failed (%s)", error);
 }
