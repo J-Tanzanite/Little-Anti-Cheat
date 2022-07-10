@@ -3,18 +3,18 @@
 	"welcome_msg"
 	{
 		"#format"	"{1:s}"
-		"cze"		"Tento server je chráněn Little Anti-Cheat {1}"
+		"cze"		"Tento server je chráněn pluginem Little Anti-Cheat {1}"
 	}
 
 	"kick_query_failure"
 	{
-		"cze"		"Error: Selhnání odpovědi na dotaz, restartujte hru pokud problém nadále přetrvává"
+		"cze"		"Error: Selhání odpovědi na dotaz, restartujte hru, pokud problém nadále přetrvává"
 	}
 
 	"kick_interp_exploit"
 	{
 		"#format"	"{1:.0f},{2:d},{3:.3f}"
-		"cze"		"Detekováno neférové zneužití: Interp je příliš velký. ({1}ms / {2}ms max). Prosím nastavte svůj cl_interp na hodnotu {3} či méně"
+		"cze"		"Detekováno neférové zneužití: Interp je příliš velký. ({1}ms / {2}ms max). Prosím, nastavte svůj cl_interp na hodnotu {3} či méně"
 	}
 
 	"tban_ping_high"
@@ -25,12 +25,12 @@
 
 	"kick_ban_generic"
 	{
-		"cze"		"Byl jste zabanován z tohoto serveru"
+		"cze"		"Byl jste zabanován z tohoto serveru"
 	}
 
 	"ban_angle"
 	{
-		"cze"		"Angle-Cheats detekován"
+		"cze"		"Angle-Cheat detekován"
 	}
 
 	"ban_chat_clear"
@@ -40,7 +40,12 @@
 
 	"ban_convar"
 	{
-		"cze"		"Nalezen špatný ConVar"
+		"cze"		"Neplatný ConVar detekován"
+	}
+
+	"ban_nolerp"
+	{
+		"cze"		"NoLerp detekován"
 	}
 
 	"ban_bhop"
@@ -56,5 +61,46 @@
 	"ban_aimlock"
 	{
 		"cze"		"Aimlock detekován"
+	}
+
+	"ban_anti_duck_delay"
+	{
+		"cze" 		"Anti-Duck-Delay detekován"
+	}
+
+	"ban_noisemaker"
+	{
+		"cze" 		"Infinite Noise Maker detekován"
+	}
+
+	"ban_macro"
+	{
+		"cze"		"Detekováno makro"
+	}
+
+	"kick_macro"
+	{
+		"#format"	"{1:s}"
+		"cze"		"{1} Makro není na tomto serveru povolené"
+	}
+
+	"chat_invalid_characters"
+	{
+		"cze" 		"Vaše zpráva byla blokována (Důvod: Neplatné znaky)."
+	}
+
+	"chat_wide_char_spam"
+	{
+		"cze"		"Vaše zpráva byla blokována (Důvod: Spam příliš dlouhých znaků)."
+	}
+
+	"kick_bad_name"
+	{
+		"cze"		"Vaše jméno obsahuje neplatné znaky, prosím, změňte své jméno"
+	}
+
+	"ban_name_newline"
+	{
+		"cze"		"Detekovány nové řádky v jménu"
 	}
 }
