@@ -66,7 +66,7 @@ These **HAVE** to be disabled.
  - French (by Rasi / GreenGuyRasi).
  - English (by me lol duh hue hue hue).
  - Russian (by an awesome person c:).
- - Czech (by an awesome person <3).
+ - Czech (by luk27official and someone else).
  - Brazilian Portuguese by SheepyChris (https://github.com/SheepyChris), Tiagoquix (https://github.com/Tiagoquix) and Crashzk (https://github.com/crashzk).
  - German (by two humble nice Germans c:).
  - Spanish (by ALEJANDRO ^-^).
