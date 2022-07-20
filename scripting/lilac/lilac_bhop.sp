@@ -18,6 +18,7 @@
 
 static int jump_ticks[MAXPLAYERS + 1];
 static int perfect_bhops[MAXPLAYERS + 1];
+static int next_bhop[MAXPLAYERS + 1];
 static int detections[MAXPLAYERS + 1];
 
 
@@ -26,6 +27,7 @@ static void bhop_reset(int client)
 	/* -1 because the initial jump doesn't count. */
 	jump_ticks[client] = -1;
 	perfect_bhops[client] = -1;
+	next_bhop[client] = GetGameTickCount();
 }
 
 void lilac_bhop_reset_client(int client)
@@ -46,19 +48,20 @@ void lilac_bhop_check(int client, const int buttons, int last_buttons)
 	int flags = GetEntityFlags(client);
 	if ((buttons & IN_JUMP) && !(last_buttons & IN_JUMP)) {
 		if ((flags & FL_ONGROUND)) {
-			perfect_bhops[client]++;
-			check_bhop_max(client);
+			if (GetGameTickCount() > next_bhop[client]) {
+				next_bhop[client] = GetGameTickCount() + bhop_settings[BHOP_INDEX_AIR];
+				perfect_bhops[client]++;
+				check_bhop_max(client);
+			}
+			else {
+				bhop_reset(client);
+			}
 		}
 	}
 	else if ((flags & FL_ONGROUND)) {
 		check_bhop_min(client);
 		bhop_reset(client);
 	}
-}
-
-static bool forward_allow_detection(int client)
-{
-	return (lilac_forward_allow_cheat_detection(client, CHEAT_BHOP) == true);
 }
 
 static void check_bhop_max(int client)
@@ -70,11 +73,11 @@ static void check_bhop_max(int client)
 	if (perfect_bhops[client] < bhop_settings[BHOP_INDEX_MAX])
 		return;
 
-	if (forward_allow_detection(client) == false)
+	if (lilac_forward_allow_cheat_detection(client, CHEAT_BHOP) == false)
 		return;
 
 	/* Client just hit the max threshhold, insta ban. */
-	lilac_detected_bhop(client);
+	lilac_detected_bhop(client, true);
 	lilac_ban_bhop(client);
 }
 
@@ -93,13 +96,13 @@ static void check_bhop_min(int client)
 		+ bhop_settings[BHOP_INDEX_MIN])
 		return;
 
-	if (forward_allow_detection(client) == false)
+	if (lilac_forward_allow_cheat_detection(client, CHEAT_BHOP) == false)
 		return;
 
-	lilac_detected_bhop(client);
+	lilac_detected_bhop(client, false);
 }
 
-static void lilac_detected_bhop(int client)
+static void lilac_detected_bhop(int client, bool force_log)
 {
 	lilac_forward_client_cheat(client, CHEAT_BHOP);
 
@@ -107,7 +110,7 @@ static void lilac_detected_bhop(int client)
 	CreateTimer(600.0, timer_decrement_bhop, GetClientUserId(client));
 
 	/* Don't log the first detection. */
-	if (++detections[client] < 2)
+	if (++detections[client] < 2 && force_log == false)
 		return;
 
 	if (icvar[CVAR_LOG]) {

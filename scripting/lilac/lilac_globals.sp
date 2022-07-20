@@ -92,7 +92,8 @@
 #define BHOP_INDEX_JUMP    1
 #define BHOP_INDEX_MAX     2
 #define BHOP_INDEX_TOTAL   3
-#define BHOP_MAX           4
+#define BHOP_INDEX_AIR     4
+#define BHOP_MAX           5
 
 #define BHOP_MODE_DISABLED     0
 #define BHOP_MODE_RESERVED_1   1
@@ -137,7 +138,7 @@
 #define PLUGIN_NAME      "[Lilac] Little Anti-Cheat"
 #define PLUGIN_AUTHOR    "J_Tanzanite"
 #define PLUGIN_DESC      "An opensource Anti-Cheat"
-#define PLUGIN_VERSION   "1.7.2"
+#define PLUGIN_VERSION   "1.7.3"
 #define PLUGIN_URL       "https://github.com/J-Tanzanite/Little-Anti-Cheat"
 
 /* Convars. */
