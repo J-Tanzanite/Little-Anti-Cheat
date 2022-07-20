@@ -209,6 +209,7 @@ public void OnConfigsExecuted()
 public Action lilac_bhop_set(int args)
 {
 	char buffer[16];
+	float fl = 0.0;
 	int value = 0;
 	int index = 0;
 
@@ -223,11 +224,13 @@ public Action lilac_bhop_set(int args)
 		PrintToServer("\tlilac_bhop_set min 7");
 		PrintToServer("\tlilac_bhop_set ticks -1");
 		PrintToServer("\tlilac_bhop_set max 15");
-		PrintToServer("\tlilac_bhop_set total 4.");
+		PrintToServer("\tlilac_bhop_set air 0.3");
+		PrintToServer("\tlilac_bhop_set total 4");
 		PrintToServer("\nType list:");
 		PrintToServer("\tmin   - Minimum consecutive perfect bhops to trigger a detection.");
 		PrintToServer("\tticks - Jump tick buffer before min is ignored.");
 		PrintToServer("\tmax   - Maximum consecutive perfect bhops to trigger an instant ban.");
+		PrintToServer("\tair   - Minimum air-time between bhops in seconds.");
 		PrintToServer("\ttotal - How many detections before banning.");
 		PrintToServer("\n");
 		print_current_bhop_settings();
@@ -236,7 +239,7 @@ public Action lilac_bhop_set(int args)
 	}
 
 	GetCmdArg(2, buffer, sizeof(buffer));
-	value = StringToInt(buffer, 10);
+	fl = StringToFloat(buffer);
 	GetCmdArg(1, buffer, sizeof(buffer));
 
 	/* Working with strings is always the least fun part ): */
@@ -263,6 +266,11 @@ public Action lilac_bhop_set(int args)
 		|| StrEqual(buffer, "maximum", false)) {
 		index = BHOP_INDEX_MAX;
 	}
+	else if (StrEqual(buffer, "air", false)
+		|| StrEqual(buffer, "air-time", false)
+		|| StrEqual(buffer, "airtime", false)) {
+		index = BHOP_INDEX_AIR;
+	}
 	else if (StrEqual(buffer, "tot", false)
 		|| StrEqual(buffer, "total", false)
 		|| StrEqual(buffer, "all", false)
@@ -273,6 +281,15 @@ public Action lilac_bhop_set(int args)
 	else {
 		PrintToServer("Error: Unknown type \"%s\"", buffer);
 		return Plugin_Handled;
+	}
+
+	if (index == BHOP_INDEX_AIR) {
+		if (fl > 1.0)
+			fl = 1.0;
+		value = RoundToCeil(tick_rate * fl);
+	}
+	else {
+		value = RoundToNearest(fl);
 	}
 
 	if (value < bhop_settings_min[index]) {
@@ -288,8 +305,12 @@ public Action lilac_bhop_set(int args)
 		}
 	}
 
-	PrintToServer("[Lilac] Changed Bhop setting \"%s\" to %d.",
-		buffer, value);
+	if (index == BHOP_INDEX_AIR)
+		PrintToServer("[Lilac] Changed Bhop setting \"%s\" to %d ticks.",
+			buffer, value);
+	else
+		PrintToServer("[Lilac] Changed Bhop setting \"%s\" to %d.",
+			buffer, value);
 
 	bhop_settings[index] = value;
 	print_current_bhop_settings();
@@ -305,7 +326,7 @@ public Action lilac_bhop_set(int args)
 static void print_current_bhop_settings()
 {
 	/* Yeah, a little messy... */
-	PrintToServer("Current Custom Bhop values:");
+	PrintToServer("Current Bhop values:");
 	PrintToServer("    Type  : Min possible : Current");
 	PrintToServer("    Min   : %2d           : %d", bhop_settings_min[BHOP_INDEX_MIN], bhop_settings[BHOP_INDEX_MIN]);
 	if (bhop_settings[BHOP_INDEX_JUMP] == -1)
@@ -313,6 +334,7 @@ static void print_current_bhop_settings()
 	else
 		PrintToServer("    Ticks : %2d           : %d (+%d = %d total)", bhop_settings_min[BHOP_INDEX_JUMP], bhop_settings[BHOP_INDEX_JUMP], bhop_settings[BHOP_INDEX_MIN], bhop_settings[BHOP_INDEX_JUMP] + bhop_settings[BHOP_INDEX_MIN]);
 	PrintToServer("    Max   : %2d           : %d", bhop_settings_min[BHOP_INDEX_MAX], bhop_settings[BHOP_INDEX_MAX]);
+	PrintToServer("    Air   : %2d           : %d", bhop_settings_min[BHOP_INDEX_AIR], bhop_settings[BHOP_INDEX_AIR]);
 	PrintToServer("    Total : %2d           : %d", bhop_settings_min[BHOP_INDEX_TOTAL], bhop_settings[BHOP_INDEX_TOTAL]);
 }
 
@@ -489,70 +511,67 @@ public void cvar_change(ConVar convar, const char[] oldValue, const char[] newVa
 	char testdate[512];
 
 	/* Thanks to MAGNAT2645 for informing me I could do this! */
-	if (convar == hcvar[CVAR_ENABLE])
+	if (convar == hcvar[CVAR_ENABLE]) {
 		icvar[CVAR_ENABLE] = StringToInt(newValue, 10);
-	
-	else if (convar == hcvar[CVAR_WELCOME])
+	}
+	else if (convar == hcvar[CVAR_WELCOME]) {
 		icvar[CVAR_WELCOME] = StringToInt(newValue, 10);
-	
-	else if (convar == hcvar[CVAR_SB])
+	}
+	else if (convar == hcvar[CVAR_SB]) {
 		icvar[CVAR_SB] = StringToInt(newValue, 10);
-	
-	else if (convar == hcvar[CVAR_MA])
+	}
+	else if (convar == hcvar[CVAR_MA]) {
 		icvar[CVAR_MA] = StringToInt(newValue, 10);
-	
-	else if (convar == hcvar[CVAR_SOURCEIRC])
+	}
+	else if (convar == hcvar[CVAR_SOURCEIRC]) {
 		icvar[CVAR_SOURCEIRC] = StringToInt(newValue, 10);
-	
-	else if (convar == hcvar[CVAR_LOG])
+	}
+	else if (convar == hcvar[CVAR_LOG]) {
 		icvar[CVAR_LOG] = StringToInt(newValue, 10);
-	
-	else if (convar == hcvar[CVAR_LOG_EXTRA])
+	}
+	else if (convar == hcvar[CVAR_LOG_EXTRA]) {
 		icvar[CVAR_LOG_EXTRA] = StringToInt(newValue, 10);
-	
-	else if (convar == hcvar[CVAR_LOG_MISC])
+	}
+	else if (convar == hcvar[CVAR_LOG_MISC]) {
 		icvar[CVAR_LOG_MISC] = StringToInt(newValue, 10);
-	
+	}
 	else if (convar == hcvar[CVAR_LOG_DATE]) {
 		lilac_setup_date_format(newValue);
 		
 		FormatTime(testdate, sizeof(testdate), dateformat, GetTime());
 		PrintToServer("Date Format Preview: %s", testdate);
 	}
-	
 	else if (convar == hcvar[CVAR_BAN]) {
 		icvar[CVAR_BAN] = StringToInt(newValue, 10);
 
 		if (!icvar[CVAR_BAN])
 			PrintToServer("[Little Anti-Cheat %s] WARNING: 'lilac_ban' has been set to 0, banning of cheaters has been disabled.", PLUGIN_VERSION);
 	}
-	
-	else if (convar == hcvar[CVAR_BAN_LENGTH])
+	else if (convar == hcvar[CVAR_BAN_LENGTH]) {
 		icvar[CVAR_BAN_LENGTH] = StringToInt(newValue, 10);
-	
-	else if (convar == hcvar[CVAR_BAN_LANGUAGE])
+	}
+	else if (convar == hcvar[CVAR_BAN_LANGUAGE]) {
 		icvar[CVAR_BAN_LANGUAGE] = StringToInt(newValue, 10);
-	
-	else if (convar == hcvar[CVAR_ANGLES])
+	}
+	else if (convar == hcvar[CVAR_ANGLES]) {
 		icvar[CVAR_ANGLES] = StringToInt(newValue, 10);
-	
-	else if (convar == hcvar[CVAR_PATCH_ANGLES])
+	}
+	else if (convar == hcvar[CVAR_PATCH_ANGLES]) {
 		icvar[CVAR_PATCH_ANGLES] = StringToInt(newValue, 10);
-	
-	else if (convar == hcvar[CVAR_CHAT])
+	}
+	else if (convar == hcvar[CVAR_CHAT]) {
 		icvar[CVAR_CHAT] = StringToInt(newValue, 10);
-	
-	else if (convar == hcvar[CVAR_CONVAR])
+	}
+	else if (convar == hcvar[CVAR_CONVAR]) {
 		icvar[CVAR_CONVAR] = StringToInt(newValue, 10);
-	
-	else if (convar == hcvar[CVAR_NOLERP])
+	}
+	else if (convar == hcvar[CVAR_NOLERP]) {
 		icvar[CVAR_NOLERP] = StringToInt(newValue, 10);
-	
+	}
 	else if (convar == hcvar[CVAR_BHOP]) {
 		icvar[CVAR_BHOP] = StringToInt(newValue, 10);
 		lilac_bhop_set_preset();
 	}
-	
 	else if (convar == hcvar[CVAR_AIMBOT]) {
 		icvar[CVAR_AIMBOT] = StringToInt(newValue, 10);
 		
@@ -560,10 +579,9 @@ public void cvar_change(ConVar convar, const char[] oldValue, const char[] newVa
 			icvar[CVAR_AIMBOT] < AIMBOT_BAN_MIN)
 			icvar[CVAR_AIMBOT] = 5;
 	}
-	
-	else if (convar == hcvar[CVAR_AIMBOT_AUTOSHOOT])
+	else if (convar == hcvar[CVAR_AIMBOT_AUTOSHOOT]) {
 		icvar[CVAR_AIMBOT_AUTOSHOOT] = StringToInt(newValue, 10);
-	
+	}
 	else if (convar == hcvar[CVAR_AIMLOCK]) {
 		icvar[CVAR_AIMLOCK] = StringToInt(newValue, 10);
 		
@@ -571,39 +589,36 @@ public void cvar_change(ConVar convar, const char[] oldValue, const char[] newVa
 			&& icvar[CVAR_AIMLOCK] < AIMLOCK_BAN_MIN)
 			icvar[CVAR_AIMLOCK] = 5;
 	}
-	
-	else if (convar == hcvar[CVAR_AIMLOCK_LIGHT])
+	else if (convar == hcvar[CVAR_AIMLOCK_LIGHT]) {
 		icvar[CVAR_AIMLOCK_LIGHT] = StringToInt(newValue, 10);
-	
-	else if (convar == hcvar[CVAR_ANTI_DUCK_DELAY])
+	}
+	else if (convar == hcvar[CVAR_ANTI_DUCK_DELAY]) {
 		icvar[CVAR_ANTI_DUCK_DELAY] = StringToInt(newValue, 10);
-	
-	else if (convar == hcvar[CVAR_NOISEMAKER_SPAM])
+	}
+	else if (convar == hcvar[CVAR_NOISEMAKER_SPAM]) {
 		icvar[CVAR_NOISEMAKER_SPAM] = StringToInt(newValue, 10);
-	
-	else if (convar == hcvar[CVAR_BACKTRACK_PATCH])
+	}
+	else if (convar == hcvar[CVAR_BACKTRACK_PATCH]) {
 		icvar[CVAR_BACKTRACK_PATCH] = StringToInt(newValue, 10);
-	
+	}
 	else if (convar == hcvar[CVAR_BACKTRACK_TOLERANCE]) {
 		icvar[CVAR_BACKTRACK_TOLERANCE] = StringToInt(newValue, 10);
 		
 		if (icvar[CVAR_BACKTRACK_TOLERANCE] > 2)
 			PrintToServer("[Little Anti-Cheat %s] WARNING: It is not recommeded to set backtrack tolerance above 2, only do this if you understand what this means.", PLUGIN_VERSION);
 	}
-	
-	else if (convar == hcvar[CVAR_MAX_PING])
+	else if (convar == hcvar[CVAR_MAX_PING]) {
 		icvar[CVAR_MAX_PING] = StringToInt(newValue, 10);
-	
+	}
 	else if (convar == hcvar[CVAR_MAX_PING_SPEC]) {
 		icvar[CVAR_MAX_PING_SPEC] = StringToInt(newValue, 10);
 		
 		if (icvar[CVAR_MAX_PING_SPEC] < 30)
 			icvar[CVAR_MAX_PING_SPEC] = 0;
 	}
-	
-	else if (convar == hcvar[CVAR_MAX_LERP])
+	else if (convar == hcvar[CVAR_MAX_LERP]) {
 		icvar[CVAR_MAX_LERP] = StringToInt(newValue, 10);
-	
+	}
 	else if (convar == hcvar[CVAR_MACRO]) {
 		icvar[CVAR_MACRO] = StringToInt(newValue, 10);
 
@@ -614,35 +629,33 @@ public void cvar_change(ConVar convar, const char[] oldValue, const char[] newVa
 		for (int i = 1; i <= MaxClients; i++)
 			lilac_macro_reset_client(i);
 	}
-	
-	else if (convar == hcvar[CVAR_MACRO_WARNING])
+	else if (convar == hcvar[CVAR_MACRO_WARNING]) {
 		icvar[CVAR_MACRO_WARNING] = StringToInt(newValue, 10);
-	
-	else if (convar == hcvar[CVAR_MACRO_DEAL_METHOD])
+	}
+	else if (convar == hcvar[CVAR_MACRO_DEAL_METHOD]) {
 		icvar[CVAR_MACRO_DEAL_METHOD] = StringToInt(newValue, 10);
-	
-	else if (convar == hcvar[CVAR_MACRO_MODE])
+	}
+	else if (convar == hcvar[CVAR_MACRO_MODE]) {
 		icvar[CVAR_MACRO_MODE] = StringToInt(newValue, 10);
-	
-	else if (convar == hcvar[CVAR_FILTER_NAME])
+	}
+	else if (convar == hcvar[CVAR_FILTER_NAME]) {
 		icvar[CVAR_FILTER_NAME] = StringToInt(newValue, 10);
-	
-	else if (convar == hcvar[CVAR_FILTER_CHAT])
+	}
+	else if (convar == hcvar[CVAR_FILTER_CHAT]) {
 		icvar[CVAR_FILTER_CHAT] = StringToInt(newValue, 10);
-	
-	else if (convar == hcvar[CVAR_LOSS_FIX])
+	}
+	else if (convar == hcvar[CVAR_LOSS_FIX]) {
 		icvar[CVAR_LOSS_FIX] = StringToInt(newValue, 10);
-	
+	}
 	else if (convar == hcvar[CVAR_AUTO_UPDATE]) {
 		icvar[CVAR_AUTO_UPDATE] = StringToInt(newValue, 10);
 		
 		lilac_update_url();
 	}
-	
-	else if (convar == hcvar[CVAR_DATABASE])
+	else if (convar == hcvar[CVAR_DATABASE]) {
 		strcopy(db_name, sizeof(db_name), newValue);
-	
-	else { // 'else' equivalent
+	}
+	else {
 		convar.GetName(cvarname, sizeof(cvarname));
 		
 		if (StrEqual(cvarname, "sv_autobunnyhopping", false)) {
@@ -672,6 +685,11 @@ public void cvar_change(ConVar convar, const char[] oldValue, const char[] newVa
 	}
 }
 
+static int bclamp(int n, int idx)
+{
+	return ((n < bhop_settings_min[idx]) ? bhop_settings_min[idx] : n);
+}
+
 static void lilac_bhop_set_preset()
 {
 	int mode = intabs(icvar[CVAR_BHOP]);
@@ -692,30 +710,32 @@ static void lilac_bhop_set_preset()
 			PrintToServer("[Lilac] ВНИМАНИЕ: НЕ ИСПОЛЬЗУЙТЕ ПОЛЬЗОВАТЕЛЬСКИЙ РЕЖИМ BHOP, ЕСЛИ ВЫ НЕ ЗНАЕТЕ, ЧТО ВЫ ДЕЛАЕТЕ!");
 		}
 
-		bhop_settings[BHOP_INDEX_MIN] = 7;
+		/* Most of these clamps aren't necessary,
+		 * but in-case I change the presets in the future,
+		 * these are nice :) */
+		bhop_settings[BHOP_INDEX_MIN] = bclamp(10, BHOP_INDEX_MIN);
 		bhop_settings[BHOP_INDEX_JUMP] = 5;
-		bhop_settings[BHOP_INDEX_MAX] = 20;
-		if (bhop_settings_min[BHOP_INDEX_TOTAL] <= 3)
-			bhop_settings[BHOP_INDEX_TOTAL] = 3;
-		else /* >-> ... */
-			bhop_settings[BHOP_INDEX_TOTAL] = bhop_settings_min[BHOP_INDEX_TOTAL];
+		bhop_settings[BHOP_INDEX_MAX] = bclamp(25, BHOP_INDEX_MAX);
+		bhop_settings[BHOP_INDEX_AIR] = RoundToCeil(tick_rate * 0.3);
+		bhop_settings[BHOP_INDEX_TOTAL] = bclamp(5, BHOP_INDEX_TOTAL);
 	}
 	case BHOP_MODE_MEDIUM: {
-		bhop_settings[BHOP_INDEX_MIN] = 7;
+		bhop_settings[BHOP_INDEX_MIN] = bclamp(7, BHOP_INDEX_MIN);
 		bhop_settings[BHOP_INDEX_JUMP] = -1;
-		bhop_settings[BHOP_INDEX_MAX] = 15;
-		bhop_settings[BHOP_INDEX_TOTAL] = 4;
+		bhop_settings[BHOP_INDEX_MAX] = bclamp(20, BHOP_INDEX_MAX);
+		bhop_settings[BHOP_INDEX_AIR] = RoundToCeil(tick_rate * 0.3);
+		bhop_settings[BHOP_INDEX_TOTAL] = bclamp(3, BHOP_INDEX_TOTAL);
 	}
 	case BHOP_MODE_HIGH: {
-		bhop_settings[BHOP_INDEX_MIN] = 5;
-		bhop_settings[BHOP_INDEX_JUMP] = -1;
-		bhop_settings[BHOP_INDEX_MAX] = 12;
-		if (bhop_settings_min[BHOP_INDEX_TOTAL] <= 3)
-			bhop_settings[BHOP_INDEX_TOTAL] = 3;
-		else
-			bhop_settings[BHOP_INDEX_TOTAL] = bhop_settings_min[BHOP_INDEX_TOTAL];
+		bhop_settings[BHOP_INDEX_MIN] = bclamp(5, BHOP_INDEX_MIN);
+		bhop_settings[BHOP_INDEX_JUMP] = 8; /* 5 for SMAC bypass, and 3 as buffer. */
+		bhop_settings[BHOP_INDEX_MAX] = bclamp(20, BHOP_INDEX_MAX);
+		bhop_settings[BHOP_INDEX_AIR] = RoundToCeil(tick_rate * 0.3);
+		bhop_settings[BHOP_INDEX_TOTAL] = bclamp(1, BHOP_INDEX_TOTAL);
 	}
 	}
+
+	print_current_bhop_settings();
 }
 
 static void lilac_setup_date_format(const char []format)
