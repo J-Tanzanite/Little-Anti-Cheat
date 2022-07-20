@@ -193,14 +193,15 @@ public void OnPluginStart()
 	if (tick_rate > 50) {
 		bhop_settings_min[BHOP_INDEX_MIN] = 5;
 		bhop_settings_min[BHOP_INDEX_MAX] = 10;
-		bhop_settings_min[BHOP_INDEX_TOTAL] = 2;
+		bhop_settings_min[BHOP_INDEX_TOTAL] = 1;
 	}
 	else {
 		bhop_settings_min[BHOP_INDEX_MIN] = 10;
 		bhop_settings_min[BHOP_INDEX_MAX] = 20;
-		bhop_settings_min[BHOP_INDEX_TOTAL] = 4;
+		bhop_settings_min[BHOP_INDEX_TOTAL] = 3;
 	}
 	bhop_settings_min[BHOP_INDEX_JUMP] = -1;
+	bhop_settings_min[BHOP_INDEX_AIR] = 0;
 
 	/* This sets up convars and such. */
 	lilac_config_setup();
