@@ -1,3 +1,10 @@
+1.7.3
+- Removed a redundant function.
+- Added Air-Time check to Bhop detection (Default 0.3 seconds).
+- Fixed an issue where Bhop bans don't always log the amount of bhops done.
+- Updated default Bhop presets.
+- Updated Czech translations, thanks luk27official.
+
 1.7.2
 - Added experimental support for TF2Classic (Needs manual recompiling with `TF2C` defined in source).
 - Added Finnish translations, by Veeti.
