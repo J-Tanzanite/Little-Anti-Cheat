@@ -172,6 +172,7 @@ Handle forwardhandleban = INVALID_HANDLE;
 Handle forwardhandleallow = INVALID_HANDLE;
 
 /* External plugins. */
+bool sourcebans_exist = false;
 bool sourcebanspp_exist = false;
 bool materialadmin_exist = false;
 
