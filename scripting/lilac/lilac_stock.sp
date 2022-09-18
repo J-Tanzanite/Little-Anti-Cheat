@@ -239,8 +239,16 @@ void lilac_ban_client(int client, int cheat)
 
 
 #if defined _sourcebanspp_included
-	if (icvar[CVAR_SB] && NATIVE_EXISTS("SBPP_BanPlayer")) {
+	if (icvar[CVAR_SBPP] && NATIVE_EXISTS("SBPP_BanPlayer")) {
 		SBPP_BanPlayer(0, client, get_ban_length(cheat), reason);
+		CreateTimer(5.0, timer_kick, GetClientUserId(client));
+		return;
+	}
+#endif
+
+#if defined _sourcebans_included
+	if (icvar[CVAR_SB] && NATIVE_EXISTS("SBBanPlayer")) {
+		SBBanPlayer(0, client, get_ban_length(cheat), reason);
 		CreateTimer(5.0, timer_kick, GetClientUserId(client));
 		return;
 	}

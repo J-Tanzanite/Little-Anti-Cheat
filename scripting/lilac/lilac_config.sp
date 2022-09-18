@@ -26,7 +26,10 @@ void lilac_config_setup()
 	hcvar[CVAR_WELCOME] = new Convar("lilac_welcome", "0",
 		"Welcome connecting players saying that the server is protected.",
 		FCVAR_PROTECTED, true, 0.0, true, 1.0);
-	hcvar[CVAR_SB] = new Convar("lilac_sourcebans", "1",
+	hcvar[CVAR_SB] = new Convar("lilac_old_sourcebans", "0",
+		"Ban players via sourcebans (If it isn't installed, it will default to basebans).",
+		FCVAR_PROTECTED, true, 0.0, true, 1.0);
+	hcvar[CVAR_SBPP] = new Convar("lilac_sourcebans", "1",
 		"Ban players via sourcebans++ (If it isn't installed, it will default to basebans).",
 		FCVAR_PROTECTED, true, 0.0, true, 1.0);
 	hcvar[CVAR_MA] = new Convar("lilac_materialadmin", "1",

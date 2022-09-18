@@ -24,6 +24,7 @@
 #undef REQUIRE_EXTENSIONS
 #tryinclude <materialadmin>
 #tryinclude <sourcebanspp>
+#tryinclude <sourcebans>
 #tryinclude <updater>
 #if defined TF2C
 	#include <tf2c>
@@ -40,6 +41,9 @@
 #endif
 #if !defined _sourcebanspp_included
 	#warning "sourcebanspp.inc" include file not found, banning though SourceBans++ will not work!
+#endif
+#if !defined _sourcebans_included
+	#warning "sourcebans.inc" include file not found, banning though SourceBans will not work!
 #endif
 #if !defined _materialadmin_included
 	#warning "materialadmin.inc" include file not found, banning through Material-Admin will not work!
@@ -212,6 +216,7 @@ public void OnPluginStart()
 
 public void OnAllPluginsLoaded()
 {
+	sourcebans_exist = LibraryExists("sourcebans");
 	sourcebanspp_exist = LibraryExists("sourcebans++");
 	materialadmin_exist = LibraryExists("materialadmin");
 
@@ -226,6 +231,7 @@ public APLRes AskPluginLoad2(Handle hMyself, bool bLate, char[] sError, int err_
 {
 	/* Been told this isn't needed, but just in case. */
 	MarkNativeAsOptional("SBPP_BanPlayer");
+	MarkNativeAsOptional("SBBanPlayer");
 	MarkNativeAsOptional("MABanPlayer");
 	MarkNativeAsOptional("Updater_AddPlugin");
 	MarkNativeAsOptional("Updater_RemovePlugin");
@@ -240,6 +246,8 @@ public void OnLibraryAdded(const char []name)
 {
 	if (StrEqual(name, "sourcebans++"))
 		sourcebanspp_exist = true;
+	else if (StrEqual(name, "sourcebans"))
+		sourcebans_exist = true;
 	else if (StrEqual(name, "materialadmin"))
 		materialadmin_exist = true;
 	else if (StrEqual(name, "updater"))
@@ -250,6 +258,8 @@ public void OnLibraryRemoved(const char []name)
 {
 	if (StrEqual(name, "sourcebans++"))
 		sourcebanspp_exist = false;
+	else if (StrEqual(name, "sourcebans"))
+		sourcebans_exist = false;
 	else if (StrEqual(name, "materialadmin"))
 		materialadmin_exist = false;
 }
