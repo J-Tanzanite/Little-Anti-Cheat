@@ -1,6 +1,6 @@
 /*
 	Little Anti-Cheat
-	Copyright (C) 2018-2021 J_Tanzanite
+	Copyright (C) 2018-2022 J_Tanzanite
 
 	This program is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -55,6 +55,9 @@ void lilac_config_setup()
 		FCVAR_PROTECTED, true, 0.0, false, 0.0);
 	hcvar[CVAR_BAN_LANGUAGE] = new Convar("lilac_ban_language", "1",
 		"Ban reason language.\n0 = Use server's language.\n1 = Use the language of the cheater.",
+		FCVAR_PROTECTED, true, 0.0, true, 1.0);
+	hcvar[CVAR_CHEAT_WARN] = new Convar("lilac_cheat_warning", "1",
+		"Alert admins in chat about potential cheaters.",
 		FCVAR_PROTECTED, true, 0.0, true, 1.0);
 	hcvar[CVAR_ANGLES] = new Convar("lilac_angles", "1",
 		"Detect Angle-Cheats (Basic Anti-Aim, Legit Anti-Backstab and Duckspeed).\n-1 = Log only.\n0 = Disabled.\n1 = Enabled.",
@@ -344,42 +347,40 @@ public Action lilac_ban_status(int args)
 	char tmp[24];
 
 	PrintToServer("====[Little Anti-Cheat %s - Ban Status]====", PLUGIN_VERSION);
-	PrintToServer("Checking ban plugins:");
+	PrintToServer("Checking ban plugins and third party plugins:");
+
 	PrintToServer("Material-Admin:");
 	PrintToServer("\tLoaded: %s", ((materialadmin_exist) ? "Yes" : "No"));
 	PrintToServer("\tNative Exists: %s", ((NATIVE_EXISTS("MABanPlayer")) ? "Yes" : "No"));
 	PrintToServer("\tConVar: lilac_materialadmin = %d", icvar[CVAR_MA]);
-
-#if !defined _materialadmin_included
-	PrintToServer("\tWARNING: Material-Admin was NOT included when compiled, banning through MA won't work!");
-	PrintToServer("\tПредупреждение: Material-Admin НЕ БЫЛ включен при компиляции, баны через MA не будут работать!");
-#else
-	ban_type = ((icvar[CVAR_MA] && NATIVE_EXISTS("MABanPlayer")) ? 2 : 0);
-#endif
 
 	PrintToServer("Sourcebans++:");
 	PrintToServer("\tLoaded: %s", ((sourcebanspp_exist) ? "Yes" : "No"));
 	PrintToServer("\tNative Exists: %s", ((NATIVE_EXISTS("SBPP_BanPlayer")) ? "Yes" : "No"));
 	PrintToServer("\tConVar: lilac_sourcebans = %d", icvar[CVAR_SB]);
 
-#if !defined _sourcebanspp_included
-	PrintToServer("\tWARNING: Sourcebans++ was NOT included when compiled, banning through SB++ won't work!");
-#else
-	if (!ban_type)
-		ban_type = (icvar[CVAR_SB] && NATIVE_EXISTS("SBPP_BanPlayer"));
-#endif
+	PrintToServer("Sourcebans (Old):");
+	PrintToServer("\tLoaded: %s", ((sourcebans_exist) ? "Yes" : "No"));
+	PrintToServer("\tNative Exists: %s", ((NATIVE_EXISTS("SBBanPlayer")) ? "Yes" : "No"));
+	PrintToServer("\tConVar: lilac_sourcebans = %d", icvar[CVAR_SB]);
 
 	PrintToServer("SourceIRC:");
 	PrintToServer("\tNative Exists: %s", ((NATIVE_EXISTS("IRC_MsgFlaggedChannels")) ? "Yes" : "No"));
 	PrintToServer("\tConVar: lilac_sourceirc = %d", icvar[CVAR_SOURCEIRC]);
-	if (icvar[CVAR_SOURCEIRC] && NATIVE_EXISTS("IRC_MsgFlaggedChannels")) {
+	if (icvar[CVAR_SOURCEIRC] && NATIVE_EXISTS("IRC_MsgFlaggedChannels"))
 		IRC_MsgFlaggedChannels("lilac", "[LILAC] is active and logging to SourceIRC!");
-	}
+
+	ban_type = ((icvar[CVAR_MA] && NATIVE_EXISTS("MABanPlayer")) ? 3 : 0);
+	if (!ban_type)
+		ban_type = ((icvar[CVAR_SB] && NATIVE_EXISTS("SBPP_BanPlayer")) ? 2 : 0);
+	if (!ban_type)
+		ban_type = (icvar[CVAR_SB] && NATIVE_EXISTS("SBBanPlayer"));
 
 	switch (ban_type) {
 	case 0: { strcopy(tmp, sizeof(tmp), "BaseBans"); }
-	case 1: { strcopy(tmp, sizeof(tmp), "Sourcebans++"); }
-	case 2: { strcopy(tmp, sizeof(tmp), "Material-Admin"); }
+	case 1: { strcopy(tmp, sizeof(tmp), "SourceBans (Old)"); }
+	case 2: { strcopy(tmp, sizeof(tmp), "SourceBans++"); }
+	case 3: { strcopy(tmp, sizeof(tmp), "Material-Admin"); }
 	default: return Plugin_Handled;
 	}
 
@@ -552,6 +553,9 @@ public void cvar_change(ConVar convar, const char[] oldValue, const char[] newVa
 	}
 	else if (convar == hcvar[CVAR_BAN_LANGUAGE]) {
 		icvar[CVAR_BAN_LANGUAGE] = StringToInt(newValue, 10);
+	}
+	else if (convar == hcvar[CVAR_CHEAT_WARN]) {
+		icvar[CVAR_CHEAT_WARN] = StringToInt(newValue, 10);
 	}
 	else if (convar == hcvar[CVAR_ANGLES]) {
 		icvar[CVAR_ANGLES] = StringToInt(newValue, 10);

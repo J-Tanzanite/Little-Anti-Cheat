@@ -1,6 +1,6 @@
 /*
 	Little Anti-Cheat
-	Copyright (C) 2018-2021 J_Tanzanite
+	Copyright (C) 2018-2022 J_Tanzanite
 
 	This program is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -18,11 +18,13 @@
 
 static int aimbot_detection[MAXPLAYERS + 1];
 static int aimbot_autoshoot[MAXPLAYERS + 1];
+static int aimbot_timertick[MAXPLAYERS + 1];
 
 void lilac_aimbot_reset_client(int client)
 {
 	aimbot_detection[client] = 0;
 	aimbot_autoshoot[client] = 0;
+	aimbot_timertick[client] = 0;
 }
 
 int lilac_aimbot_get_client_detections(int client)
@@ -32,19 +34,30 @@ int lilac_aimbot_get_client_detections(int client)
 
 public Action event_player_death(Event event, const char[] name, bool dontBroadcast)
 {
-	int userid;
-
+	int attackerid;
+	int victimid;
+	int client;
+	
 	if (!icvar[CVAR_ENABLE])
 		return Plugin_Continue;
-
-	userid = GetEventInt(event, "attacker", -1);
-
-	/* Normal death event, just pass the data as-is for a normal aimbot test. */
-	event_death_shared(userid,
-		GetClientOfUserId(userid),
-		GetClientOfUserId(GetEventInt(event, "userid", -1)),
-		false);
-
+	
+	attackerid = GetEventInt(event, "attacker", -1);
+	victimid = GetEventInt(event, "userid", -1);
+	client = GetClientOfUserId(victimid);
+	
+	if (!is_player_valid(client))
+		return Plugin_Continue;
+	
+	/* This prevents running multiple aimbot checks on the same tick.
+	 * This can happen with explosives, like some projectiles.
+	 * This variable gets set in the "shared event" function. */
+	if (aimbot_timertick[client] == GetGameTickCount())
+		return Plugin_Continue;
+	
+	event_death_shared(attackerid,
+		GetClientOfUserId(attackerid),
+		client, false);
+	
 	return Plugin_Continue;
 }
 
@@ -56,6 +69,16 @@ public Action event_player_death_tf2(Event event, const char[] name, bool dontBr
 	if (!icvar[CVAR_ENABLE])
 		return Plugin_Continue;
 
+
+	victim = GetClientOfUserId(GetEventInt(event, "userid", -1));
+
+	if (!is_player_valid(victim))
+		return Plugin_Continue;
+	
+	/* Same as above, prevent multiple aimbot checks on the same tick. */
+	if (aimbot_timertick[victim] == GetGameTickCount())
+		return Plugin_Continue;
+
 	GetEventString(event, "weapon_logclassname", wep, sizeof(wep), "");
 
 	/* Ignore sentries & world in TF2. */
@@ -64,7 +87,6 @@ public Action event_player_death_tf2(Event event, const char[] name, bool dontBr
 
 	userid = GetEventInt(event, "attacker", -1);
 	client = GetClientOfUserId(userid);
-	victim = GetClientOfUserId(GetEventInt(event, "userid", -1));
 	killtype = GetEventInt(event, "customkill", 0);
 
 	/* killtype 3 == flamethrower,
@@ -83,7 +105,7 @@ void event_death_shared(int userid, int client, int victim, bool skip_delta)
 
 	if (client == victim
 		|| !is_player_valid(client)
-		|| !is_player_valid(victim)
+		/* || !is_player_valid(victim) Already checked. */
 		|| IsFakeClient(client)
 		|| !IsPlayerAlive(client)
 		|| playerinfo_banned_flags[client][CHEAT_AIMBOT]
@@ -95,6 +117,9 @@ void event_death_shared(int userid, int client, int victim, bool skip_delta)
 
 	if (!icvar[CVAR_AIMBOT])
 		return;
+
+	/* Prevent multiple aimbot timer checks on the same tick. */
+	aimbot_timertick[client] = GetGameTickCount();
 
 	GetClientEyePosition(client, killpos);
 	GetClientEyePosition(victim, deathpos);
@@ -301,6 +326,9 @@ static void lilac_detected_aimbot(int client, float delta, float td, int flags)
 	/* Don't log the first detection. */
 	if (++aimbot_detection[client] < 2)
 		return;
+
+	if (icvar[CVAR_CHEAT_WARN])
+		lilac_warn_admins(client, CHEAT_AIMBOT, aimbot_detection[client]);
 
 	if (icvar[CVAR_LOG]) {
 		lilac_log_setup_client(client);

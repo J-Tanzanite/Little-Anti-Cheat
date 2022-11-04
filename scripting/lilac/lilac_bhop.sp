@@ -1,6 +1,6 @@
 /*
 	Little Anti-Cheat
-	Copyright (C) 2018-2021 J_Tanzanite
+	Copyright (C) 2018-2022 J_Tanzanite
 
 	This program is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -77,7 +77,7 @@ static void check_bhop_max(int client)
 		return;
 
 	/* Client just hit the max threshhold, insta ban. */
-	lilac_detected_bhop(client, true);
+	lilac_detected_bhop(client, true, true);
 	lilac_ban_bhop(client);
 }
 
@@ -99,10 +99,10 @@ static void check_bhop_min(int client)
 	if (lilac_forward_allow_cheat_detection(client, CHEAT_BHOP) == false)
 		return;
 
-	lilac_detected_bhop(client, false);
+	lilac_detected_bhop(client, false, false);
 }
 
-static void lilac_detected_bhop(int client, bool force_log)
+static void lilac_detected_bhop(int client, bool force_log, bool banning)
 {
 	lilac_forward_client_cheat(client, CHEAT_BHOP);
 
@@ -112,6 +112,11 @@ static void lilac_detected_bhop(int client, bool force_log)
 	/* Don't log the first detection. */
 	if (++detections[client] < 2 && force_log == false)
 		return;
+
+	if (icvar[CVAR_CHEAT_WARN]
+		&& !banning
+		&& detections[client] < bhop_settings[BHOP_INDEX_TOTAL])
+		lilac_warn_admins(client, CHEAT_BHOP, detections[client]);
 
 	if (icvar[CVAR_LOG]) {
 		lilac_log_setup_client(client);

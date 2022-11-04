@@ -4,14 +4,15 @@
 	{
 		"Version"
 		{
-			"Latest"	"1.7.2"
+			"Latest"	"1.7.4"
 		}
 
-		"Notes" "Added experimental support for TF2Classic (Requires manual recompile)."
-		"Notes" "Added Finnish translations, by Veeti."
-		"Notes" "Removed unused UTF-8 check flags."
-		"Notes" "Changed ConVars to use kidfearless's methodmaps version."
-		"Notes" "Fixed so aimbot isn't checked on dead players (Should fix grenades in CS:GO)."
+		"Notes" "Removed the need to download other third party includes (SB, SB++, MA and Updater)."
+		"Notes" "Added define in lilac.sp for TF2Classic support."
+		"Notes" "Added support for the old version of SourceBans."
+		"Notes" "Added admin chat warnings for suspicious players (Aimbot, Aimlock and Bhop)."
+		"Notes" "Fixed a bug where multiple aimbot checks are fired upon getting multiple kills from the same shot."
+
 	}
 
 	"Files"

@@ -1,6 +1,6 @@
 /*
 	Little Anti-Cheat
-	Copyright (C) 2018-2021 J_Tanzanite
+	Copyright (C) 2018-2022 J_Tanzanite
 
 	This program is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -178,6 +178,9 @@ static void lilac_detected_aimlock(int client)
 	/* Don't log the first detection. */
 	if (++playerinfo_aimlock[client] < 2)
 		return;
+
+	if (icvar[CVAR_CHEAT_WARN])
+		lilac_warn_admins(client, CHEAT_AIMLOCK, playerinfo_aimlock[client]);
 
 	if (icvar[CVAR_LOG]) {
 		lilac_log_setup_client(client);

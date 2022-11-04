@@ -1,6 +1,6 @@
 /*
 	Little Anti-Cheat
-	Copyright (C) 2018-2021 J_Tanzanite
+	Copyright (C) 2018-2022 J_Tanzanite
 
 	This program is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -16,35 +16,24 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+
+/* Uncomment this line to compile for Team Fortress 2 Classic.
+ * Note: Doing so means the compiled plugin won't work correctly
+ * for other source games. */
+// #define TF2C
+
+
 #include <sourcemod>
 #include <sdktools_engine>
 #include <sdktools_entoutput>
 #include <convar_class>
-#undef REQUIRE_PLUGIN
-#undef REQUIRE_EXTENSIONS
-#tryinclude <materialadmin>
-#tryinclude <sourcebanspp>
-#tryinclude <updater>
 #if defined TF2C
 	#include <tf2c>
 #else
 	#include <tf2>
 	#include <tf2_stocks>
 #endif
-#define REQUIRE_PLUGIN
-#define REQUIRE_EXTENSIONS
 
-/* Include warnings: */
-#if !defined _updater_included
-	#warning "updater.inc" include file not found, auto update functionality will not work!
-#endif
-#if !defined _sourcebanspp_included
-	#warning "sourcebanspp.inc" include file not found, banning though SourceBans++ will not work!
-#endif
-#if !defined _materialadmin_included
-	#warning "materialadmin.inc" include file not found, banning through Material-Admin will not work!
-	#warning Включаемый файл "materialadmin.inc" не найден, бан через Material-Admin не будет работать!
-#endif
 
 #pragma semicolon 1
 #pragma newdecls required
@@ -213,6 +202,7 @@ public void OnPluginStart()
 public void OnAllPluginsLoaded()
 {
 	sourcebanspp_exist = LibraryExists("sourcebans++");
+	sourcebans_exist = LibraryExists("sourcebans");
 	materialadmin_exist = LibraryExists("materialadmin");
 
 	if (LibraryExists("updater"))
@@ -225,6 +215,7 @@ public void OnAllPluginsLoaded()
 public APLRes AskPluginLoad2(Handle hMyself, bool bLate, char[] sError, int err_max)
 {
 	/* Been told this isn't needed, but just in case. */
+	MarkNativeAsOptional("SBBanPlayer");
 	MarkNativeAsOptional("SBPP_BanPlayer");
 	MarkNativeAsOptional("MABanPlayer");
 	MarkNativeAsOptional("Updater_AddPlugin");
@@ -240,6 +231,8 @@ public void OnLibraryAdded(const char []name)
 {
 	if (StrEqual(name, "sourcebans++"))
 		sourcebanspp_exist = true;
+	else if (StrEqual(name, "sourcebans"))
+		sourcebans_exist = true;
 	else if (StrEqual(name, "materialadmin"))
 		materialadmin_exist = true;
 	else if (StrEqual(name, "updater"))
@@ -250,13 +243,14 @@ public void OnLibraryRemoved(const char []name)
 {
 	if (StrEqual(name, "sourcebans++"))
 		sourcebanspp_exist = false;
+	else if (StrEqual(name, "sourcebans"))
+		sourcebans_exist = false;
 	else if (StrEqual(name, "materialadmin"))
 		materialadmin_exist = false;
 }
 
 void lilac_update_url()
 {
-#if defined _updater_included
 	if (icvar[CVAR_AUTO_UPDATE]) {
 		if (!NATIVE_EXISTS("Updater_AddPlugin")) {
 			PrintToServer("Error: Native Updater_AddPlugin() not found! Check if updater plugin is installed.");
@@ -273,9 +267,6 @@ void lilac_update_url()
 
 		Updater_RemovePlugin();
 	}
-#else
-	PrintToServer("Error: Auto updater wasn't included when compiled, auto updating won't work!");
-#endif
 }
 
 public void OnClientPutInServer(int client)
