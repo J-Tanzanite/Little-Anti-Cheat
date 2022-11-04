@@ -1,3 +1,10 @@
+1.7.4
+- Removed the need to download other third party includes (SB, SB++, MA and Updater).
+- Added define in lilac.sp for TF2Classic support.
+- Added support for the old version of SourceBans.
+- Added admin chat warnings for suspicious players (Aimbot, Aimlock and Bhop).
+- Fixed a bug where multiple aimbot checks are fired upon getting multiple kills from the same shot.
+
 1.7.3
 - Removed a redundant function.
 - Added Air-Time check to Bhop detection (Default 0.3 seconds).

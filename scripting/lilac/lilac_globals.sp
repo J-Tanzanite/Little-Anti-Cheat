@@ -1,6 +1,6 @@
 /*
 	Little Anti-Cheat
-	Copyright (C) 2018-2021 J_Tanzanite
+	Copyright (C) 2018-2022 J_Tanzanite
 
 	This program is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -59,34 +59,35 @@
 #define CVAR_BAN                    8
 #define CVAR_BAN_LENGTH             9
 #define CVAR_BAN_LANGUAGE          10
-#define CVAR_ANGLES                11
-#define CVAR_PATCH_ANGLES          12
-#define CVAR_CHAT                  13
-#define CVAR_CONVAR                14
-#define CVAR_NOLERP                15
-#define CVAR_BHOP                  16
-#define CVAR_AIMBOT                17
-#define CVAR_AIMBOT_AUTOSHOOT      18
-#define CVAR_AIMLOCK               19
-#define CVAR_AIMLOCK_LIGHT         20
-#define CVAR_ANTI_DUCK_DELAY       21
-#define CVAR_NOISEMAKER_SPAM       22
-#define CVAR_BACKTRACK_PATCH       23
-#define CVAR_BACKTRACK_TOLERANCE   24
-#define CVAR_MAX_PING              25
-#define CVAR_MAX_PING_SPEC         26
-#define CVAR_MAX_LERP              27
-#define CVAR_MACRO                 28
-#define CVAR_MACRO_WARNING         29
-#define CVAR_MACRO_DEAL_METHOD     30
-#define CVAR_MACRO_MODE            31
-#define CVAR_FILTER_NAME           32
-#define CVAR_FILTER_CHAT           33
-#define CVAR_LOSS_FIX              34
-#define CVAR_AUTO_UPDATE           35
-#define CVAR_SOURCEIRC             36
-#define CVAR_DATABASE              37
-#define CVAR_MAX                   38
+#define CVAR_CHEAT_WARN            11
+#define CVAR_ANGLES                12
+#define CVAR_PATCH_ANGLES          13
+#define CVAR_CHAT                  14
+#define CVAR_CONVAR                15
+#define CVAR_NOLERP                16
+#define CVAR_BHOP                  17
+#define CVAR_AIMBOT                18
+#define CVAR_AIMBOT_AUTOSHOOT      19
+#define CVAR_AIMLOCK               20
+#define CVAR_AIMLOCK_LIGHT         21
+#define CVAR_ANTI_DUCK_DELAY       22
+#define CVAR_NOISEMAKER_SPAM       23
+#define CVAR_BACKTRACK_PATCH       24
+#define CVAR_BACKTRACK_TOLERANCE   25
+#define CVAR_MAX_PING              26
+#define CVAR_MAX_PING_SPEC         27
+#define CVAR_MAX_LERP              28
+#define CVAR_MACRO                 29
+#define CVAR_MACRO_WARNING         30
+#define CVAR_MACRO_DEAL_METHOD     31
+#define CVAR_MACRO_MODE            32
+#define CVAR_FILTER_NAME           33
+#define CVAR_FILTER_CHAT           34
+#define CVAR_LOSS_FIX              35
+#define CVAR_AUTO_UPDATE           36
+#define CVAR_SOURCEIRC             37
+#define CVAR_DATABASE              38
+#define CVAR_MAX                   39
 
 #define BHOP_INDEX_MIN     0
 #define BHOP_INDEX_JUMP    1
@@ -138,7 +139,7 @@
 #define PLUGIN_NAME      "[Lilac] Little Anti-Cheat"
 #define PLUGIN_AUTHOR    "J_Tanzanite"
 #define PLUGIN_DESC      "An opensource Anti-Cheat"
-#define PLUGIN_VERSION   "1.7.3"
+#define PLUGIN_VERSION   "1.7.4"
 #define PLUGIN_URL       "https://github.com/J-Tanzanite/Little-Anti-Cheat"
 
 /* Convars. */
@@ -172,6 +173,7 @@ Handle forwardhandleban = INVALID_HANDLE;
 Handle forwardhandleallow = INVALID_HANDLE;
 
 /* External plugins. */
+bool sourcebans_exist = false;
 bool sourcebanspp_exist = false;
 bool materialadmin_exist = false;
 
@@ -194,5 +196,13 @@ float playerinfo_time_forward[MAXPLAYERS + 1][CHEAT_MAX];
 bool playerinfo_banned_flags[MAXPLAYERS + 1][CHEAT_MAX];
 
 
-/* Forward declare SourceIRC native so we can compile without it but still use it if present: */
+/* Forward declarations so we don't need third-party include files. */
+
+#define MA_BAN_STEAM  1
+
 native Function IRC_MsgFlaggedChannels(const char[] flag, const char[] format, any:...);
+native Function MABanPlayer(int iClient, int iTarget, int iType, int iTime, char[] sReason);
+native Function SBBanPlayer(int client, int target, int time, const char[] reason);
+native Function SBPP_BanPlayer(int iAdmin, int iTarget, int iTime, const char[] sReason);
+native Function Updater_AddPlugin(const char[] url);
+native Function Updater_RemovePlugin();

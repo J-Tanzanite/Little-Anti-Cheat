@@ -1,6 +1,6 @@
 /*
 	Little Anti-Cheat
-	Copyright (C) 2018-2021 J_Tanzanite
+	Copyright (C) 2018-2022 J_Tanzanite
 
 	This program is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -15,6 +15,51 @@
 	You should have received a copy of the GNU General Public License
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
+
+void lilac_warn_admins(int client, int cheat, int detections)
+{
+	char name[MAX_NAME_LENGTH];
+	char type[16];
+	int admins[MAXPLAYERS + 1];
+	int n = 0;
+	
+	/* We'll assume the player is valid, as this function
+	 * should never be called on invalid clients in the first place. */
+	/* if (!is_player_valid(client))
+		return; */
+	
+	/* Setup a list of admins. */
+	for (int i = 1; i <= MaxClients; i++) {
+		if (!is_player_valid(i))
+			continue;
+		
+		if (IsFakeClient(i))
+			continue;
+		
+		if (is_player_admin(i))
+			admins[n++] = i;
+	}
+	
+	/* No admins are on. */
+	if (!n)
+		return;
+	
+	switch (cheat) {
+	case CHEAT_BHOP: { strcopy(type, sizeof(type), "Bhop"); }
+	case CHEAT_AIMBOT: { strcopy(type, sizeof(type), "Aimbot"); }
+	case CHEAT_AIMLOCK: { strcopy(type, sizeof(type), "Aimlock"); }
+	/* Macros have their own warning system. */
+	default: { return; }
+	}
+	
+	if (!GetClientName(client, name, sizeof(name)))
+		strcopy(name, sizeof(name), "[NAME_ERROR]");
+	
+	for (int i = 0; i < n; i++)
+		PrintToChat(admins[i],
+			"[Lilac] %T", "admin_chat_warning_generic",
+			name, type, detections);
+}
 
 /* Useless Todo: I should update this soon... But I won't :P */
 bool bullettime_can_shoot(int client)
@@ -229,22 +274,30 @@ void lilac_ban_client(int client, int cheat)
 	lilac_forward_client_ban(client, cheat);
 
 
-#if defined _materialadmin_included
+	/* Try to ban with MateralAdmin first,
+	 * if that fails, proceed to SourceBans, then SourceBans++,
+	 * And lastly, BaseBans. */
+
+
 	if (icvar[CVAR_MA] && NATIVE_EXISTS("MABanPlayer")) {
 		MABanPlayer(0, client, MA_BAN_STEAM, get_ban_length(cheat), reason);
 		CreateTimer(5.0, timer_kick, GetClientUserId(client));
 		return;
 	}
-#endif
 
 
-#if defined _sourcebanspp_included
-	if (icvar[CVAR_SB] && NATIVE_EXISTS("SBPP_BanPlayer")) {
-		SBPP_BanPlayer(0, client, get_ban_length(cheat), reason);
-		CreateTimer(5.0, timer_kick, GetClientUserId(client));
-		return;
+	if (icvar[CVAR_SB]) {
+		if (NATIVE_EXISTS("SBPP_BanPlayer")) {
+			SBPP_BanPlayer(0, client, get_ban_length(cheat), reason);
+			CreateTimer(5.0, timer_kick, GetClientUserId(client));
+			return;
+		}
+		else if (NATIVE_EXISTS("SBBanPlayer")) {
+			SBBanPlayer(0, client, get_ban_length(cheat), reason);
+			CreateTimer(5.0, timer_kick, GetClientUserId(client));
+			return;
+		}
 	}
-#endif
 
 
 	BanClient(client, get_ban_length(cheat), BANFLAG_AUTO, reason, reason, "lilac", 0);

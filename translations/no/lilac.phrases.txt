@@ -98,4 +98,10 @@
 	{
 		"no"		"Ny-linje bokstav i navnet oppdaget"
 	}
+
+	"admin_chat_warning_generic"
+	{
+		"#format"	"{1:s},{2:s},{3:d}"
+		"no"		"{1} mistenkes for å bruke '{2}' (Oppdagelser: {3})"
+	}
 }
