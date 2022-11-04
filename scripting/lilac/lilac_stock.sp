@@ -58,7 +58,7 @@ void lilac_warn_admins(int client, int cheat, int detections)
 	for (int i = 0; i < n; i++)
 		PrintToChat(admins[i],
 			"[Lilac] %T", "admin_chat_warning_generic",
-			name, type, detections);
+			admins[i], name, type, detections);
 }
 
 /* Useless Todo: I should update this soon... But I won't :P */
