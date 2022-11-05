@@ -27,12 +27,16 @@
 #include <sdktools_engine>
 #include <sdktools_entoutput>
 #include <convar_class>
+#undef REQUIRE_PLUGIN /* ... */
+#undef REQUIRE_EXTENSIONS
 #if defined TF2C
 	#include <tf2c>
 #else
 	#include <tf2>
 	#include <tf2_stocks>
 #endif
+#define REQUIRE_PLUGIN
+#define REQUIRE_EXTENSIONS
 
 
 #pragma semicolon 1
