@@ -8,6 +8,7 @@
 		}
 
 		"Notes" "Removed the need to download other third party includes (SB, SB++, MA and Updater)."
+		"Notes" "Removed Angle checks in L4D1&2."
 		"Notes" "Added define in lilac.sp for TF2Classic support."
 		"Notes" "Added support for the old version of SourceBans."
 		"Notes" "Added admin chat warnings for suspicious players (Aimbot, Aimlock and Bhop)."
