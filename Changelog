@@ -1,5 +1,6 @@
 1.7.4
 - Removed the need to download other third party includes (SB, SB++, MA and Updater).
+- Removed Angle checks in L4D1&2.
 - Added define in lilac.sp for TF2Classic support.
 - Added support for the old version of SourceBans.
 - Added admin chat warnings for suspicious players (Aimbot, Aimlock and Bhop).
