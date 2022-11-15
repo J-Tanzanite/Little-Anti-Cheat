@@ -108,22 +108,6 @@ public void OnPluginStart()
 			PrintToServer("[Lilac] Unable to to find convar \"sv_autobunnyhopping\", bhop checks have been forcefully disabled.");
 		}
 	}
-	else if (StrEqual(gamefolder, "left4dead2", false)) {
-		ggame = GAME_L4D2;
-
-		/* Pitch AA isn't really used much in L4D2 afaik, plus,
-		 * like larrybrains reported, causes false positives for
-		 * the infected team memeber smoker.
-		 * Thanks to Larrybrains for reporting this! */
-		max_angles = view_as<float>({0.0, 0.0, 50.01});
-	}
-	else if (StrEqual(gamefolder, "left4dead", false)) {
-		ggame = GAME_L4D;
-
-		/* Same as L4D2, the smoker handles pitch differently it seems.
-		 * Thanks to finishlast for reporting this! */
-		max_angles = view_as<float>({0.0, 0.0, 50.01});
-	}
 	else if (StrEqual(gamefolder, "dod", false)) {
 		ggame = GAME_DODS;
 	}

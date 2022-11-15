@@ -18,6 +18,10 @@
 
 void lilac_angles_check(int client, float angles[3])
 {
+	/* Angles in L4D1&2 aren't always normalized properly. */
+	if (ggame == GAME_L4D2 || ggame == GAME_L4D)
+		return;
+
 	if (!IsPlayerAlive(client)
 		|| playerinfo_time_teleported[client] + 5.0 > GetGameTime())
 		return;
