@@ -418,8 +418,7 @@ int intabs(int num)
 
 bool is_player_admin(int client)
 {
-	/* Todo: I don't know if this is correct. */
-	return CheckCommandAccess(client, "", ADMFLAG_GENERIC | ADMFLAG_KICK | ADMFLAG_SLAY, true);
+	return CheckCommandAccess(client, "sm_admin", ADMFLAG_GENERIC, true);
 }
 
 bool is_player_valid(int client)
