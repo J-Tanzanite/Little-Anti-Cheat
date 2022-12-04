@@ -16,8 +16,6 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#warning Messy code!
-/* I might wanna organize this... */
 
 static int ping_high[MAXPLAYERS + 1];
 static int ping_warn[MAXPLAYERS + 1];

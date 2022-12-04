@@ -504,6 +504,8 @@ public Action lilac_date_list(int args)
 	PrintToServer("\t{second}  = Second.");
 	PrintToServer("\t{seconds} = Second.");
 	PrintToServer("Using flags example: {year}/{month}/{day} {hour}:{minute}:{second}");
+
+	return Plugin_Continue;
 }
 
 public void cvar_change(ConVar convar, const char[] oldValue, const char[] newValue)

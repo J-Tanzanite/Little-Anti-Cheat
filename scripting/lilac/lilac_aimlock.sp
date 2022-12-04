@@ -264,8 +264,10 @@ public Action timer_decrement_aimlock(Handle timer, int userid)
 	int client = GetClientOfUserId(userid);
 
 	if (!is_player_valid(client))
-		return;
+		return Plugin_Continue;
 
 	if (playerinfo_aimlock[client] > 0)
 		playerinfo_aimlock[client]--;
+
+	return Plugin_Continue;
 }

@@ -170,7 +170,7 @@ public Action timer_check_aimbot(Handle timer, DataPack pack)
 
 	/* Killer may have left the game, cancel. */
 	if (!is_player_valid(client))
-		return;
+		return Plugin_Continue;
 
 	/* Locate when the shot was fired. */
 	ind = playerinfo_index[client];
@@ -308,6 +308,8 @@ public Action timer_check_aimbot(Handle timer, DataPack pack)
 
 	if (detected || total_delta > AIMBOT_MAX_TOTAL_DELTA)
 		lilac_detected_aimbot(client, delta, total_delta, detected);
+
+	return Plugin_Continue;
 }
 
 static void lilac_detected_aimbot(int client, float delta, float td, int flags)
@@ -373,8 +375,10 @@ public Action timer_decrement_aimbot(Handle timer, int userid)
 	int client = GetClientOfUserId(userid);
 
 	if (!is_player_valid(client))
-		return;
+		return Plugin_Continue;
 
 	if (aimbot_detection[client] > 0)
 		aimbot_detection[client]--;
+
+	return Plugin_Continue;
 }
