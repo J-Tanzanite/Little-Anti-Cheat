@@ -285,6 +285,8 @@ public Action event_teleported(Event event, const char[] name, bool dontBroadcas
 
 	if (is_player_valid(client))
 		playerinfo_time_teleported[client] = GetGameTime();
+
+	return Plugin_Continue;
 }
 
 public void map_teleport(const char[] output, int caller, int activator, float delay)
@@ -304,6 +306,8 @@ public Action timer_welcome(Handle timer, int userid)
 	if (is_player_valid(client) && icvar[CVAR_WELCOME]
 		&& icvar[CVAR_ENABLE] && icvar[CVAR_BAN])
 		PrintToChat(client, "[Lilac] %T", "welcome_msg", client, PLUGIN_VERSION);
+
+	return Plugin_Continue;
 }
 
 public Action OnPlayerRunCmd(int client, int& buttons, int& impulse, float vel[3],

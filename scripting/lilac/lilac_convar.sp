@@ -16,11 +16,6 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#warning Messy code! Considering re-writing this entire system.
-/* I'm considering redoing this entire ConVar system...
- * Maybe adding more ConVars, maybe adding game specific stuff as well.
- * One thing I won't do is add dynamic ConVar checks, as in,
- * server owners being able to add convars to be tested. */
 
 /* Basic query list. */
 static char query_list[][] = {
