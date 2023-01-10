@@ -69,12 +69,6 @@ public Plugin myinfo = {
 	url = PLUGIN_URL
 };
 
-public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max)
-{
-	RegPluginLibrary("lilac");
-	return APLRes_Success;
-}
-
 public void OnPluginStart()
 {
 	LoadTranslations("lilac.phrases.txt");
@@ -213,6 +207,8 @@ public void OnAllPluginsLoaded()
 
 public APLRes AskPluginLoad2(Handle hMyself, bool bLate, char[] sError, int err_max)
 {
+	RegPluginLibrary("lilac");
+
 	/* Been told this isn't needed, but just in case. */
 	MarkNativeAsOptional("SBBanPlayer");
 	MarkNativeAsOptional("SBPP_BanPlayer");
