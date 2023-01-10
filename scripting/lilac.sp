@@ -69,6 +69,11 @@ public Plugin myinfo = {
 	url = PLUGIN_URL
 };
 
+public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max)
+{
+	RegPluginLibrary("lilac");
+	return APLRes_Success;
+}
 
 public void OnPluginStart()
 {
