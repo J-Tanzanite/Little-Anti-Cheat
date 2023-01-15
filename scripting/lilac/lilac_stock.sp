@@ -1,6 +1,6 @@
 /*
 	Little Anti-Cheat
-	Copyright (C) 2018-2021 J_Tanzanite
+	Copyright (C) 2018-2022 J_Tanzanite
 
 	This program is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -16,7 +16,52 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-// Todo: I should update this soon...
+void lilac_warn_admins(int client, int cheat, int detections)
+{
+	char name[MAX_NAME_LENGTH];
+	char type[16];
+	int admins[MAXPLAYERS + 1];
+	int n = 0;
+	
+	/* We'll assume the player is valid, as this function
+	 * should never be called on invalid clients in the first place. */
+	/* if (!is_player_valid(client))
+		return; */
+	
+	/* Setup a list of admins. */
+	for (int i = 1; i <= MaxClients; i++) {
+		if (!is_player_valid(i))
+			continue;
+		
+		if (IsFakeClient(i))
+			continue;
+		
+		if (is_player_admin(i))
+			admins[n++] = i;
+	}
+	
+	/* No admins are on. */
+	if (!n)
+		return;
+	
+	switch (cheat) {
+	case CHEAT_BHOP: { strcopy(type, sizeof(type), "Bhop"); }
+	case CHEAT_AIMBOT: { strcopy(type, sizeof(type), "Aimbot"); }
+	case CHEAT_AIMLOCK: { strcopy(type, sizeof(type), "Aimlock"); }
+	/* Macros have their own warning system. */
+	default: { return; }
+	}
+	
+	if (!GetClientName(client, name, sizeof(name)))
+		strcopy(name, sizeof(name), "[NAME_ERROR]");
+	
+	for (int i = 0; i < n; i++)
+		PrintToChat(admins[i],
+			"[Lilac] %T", "admin_chat_warning_generic",
+			admins[i], name, type, detections);
+}
+
+/* Useless Todo: I should update this soon... But I won't :P */
 bool bullettime_can_shoot(int client)
 {
 	int weapon;
@@ -41,7 +86,10 @@ void lilac_reset_client(int client)
 	lilac_backtrack_reset_client(client);
 	lilac_bhop_reset_client(client);
 	lilac_macro_reset_client(client);
+#if !defined TF2C
+	/* Noise maker file is empty if compiled for TF2Classic. */
 	lilac_noisemaker_reset_client(client);
+#endif
 	lilac_aimbot_reset_client(client);
 	lilac_ping_reset_client(client);
 	lilac_convar_reset_client(client);
@@ -78,7 +126,7 @@ void lilac_log_setup_client(int client)
 	GetClientAuthId(client, AuthId_Steam2, steamid, sizeof(steamid), true);
 	GetClientIP(client, ip, sizeof(ip), true);
 
-	Format(line, sizeof(line),
+	FormatEx(line_buffer, sizeof(line_buffer),
 		"%s [Version %s] {Name: \"%N\" | SteamID: %s | IP: %s}",
 		date, PLUGIN_VERSION, client, steamid, ip);
 }
@@ -94,7 +142,7 @@ void lilac_log_extra(int client)
 
 	get_player_log_angles(client, 0, true, ang);
 
-	Format(line, sizeof(line),
+	FormatEx(line_buffer, sizeof(line_buffer),
 		"\tPos={%.0f,%.0f,%.0f}, Angles={%.5f,%.5f,%.5f}, Map=\"%s\", Team={%d}, Weapon=\"%s\", Latency={Inc:%f,Out:%f}, Loss={Inc:%f,Out:%f}, Choke={Inc:%f,Out:%f}, ConnectionTime={%f seconds}, GameTime={%f seconds}",
 		pos[0], pos[1], pos[2],
 		ang[0], ang[1], ang[2],
@@ -119,42 +167,42 @@ void lilac_log(bool cleanup)
 		return;
 	}
 
-	// Remove invalid characters.
-	// This doesn't care about invalid utf-8 formatting,
-	// only ASCII control characters.
+	/* Remove invalid characters.
+	 * This doesn't care about invalid utf-8 formatting,
+	 * only ASCII control characters. */
 	if (cleanup) {
-		for (int i = 0; line[i]; i++) {
-			if (line[i] == '\n' || line[i] == 0x0d)
-				line[i] = '*';
-			else if (line[i] < 32)
-				line[i] = '#';
+		for (int i = 0; line_buffer[i]; i++) {
+			if (line_buffer[i] == '\n' || line_buffer[i] == 0x0d)
+				line_buffer[i] = '*';
+			else if (line_buffer[i] < 32)
+				line_buffer[i] = '#';
 		}
 	}
 
-	WriteFileLine(file, "%s", line);
-	// Just echo log lines to SourceIRC
+	WriteFileLine(file, "%s", line_buffer);
+	/* Just echo log lines to SourceIRC */
 	if (icvar[CVAR_SOURCEIRC] && NATIVE_EXISTS("IRC_MsgFlaggedChannels")) {
-		// Note- SourceIRC Expects messages to be clean with no \r or \n, so clean it if not already done.
+		/* Note- SourceIRC Expects messages to be clean with no \r or \n, so clean it if not already done. */
 		if (!cleanup) {
-			for (int i = 0; line[i]; i++) {
-				if (line[i] == '\n' || line[i] == 0x0d)
-					line[i] = '*';
-				else if (line[i] < 32)
-					line[i] = '#';
+			for (int i = 0; line_buffer[i]; i++) {
+				if (line_buffer[i] == '\n' || line_buffer[i] == 0x0d)
+					line_buffer[i] = '*';
+				else if (line_buffer[i] < 32)
+					line_buffer[i] = '#';
 			}
 		}
-		IRC_MsgFlaggedChannels("lilac", "[LILAC] %s", line);
+		IRC_MsgFlaggedChannels("lilac", "[LILAC] %s", line_buffer);
 	}
 	CloseHandle(file);
 }
 
 void lilac_log_first_time_setup()
 {
-	// Some admins may not understand how to interpret cheat logs
-	// correctly, thus, we should warn them so they don't panic
-	// over trivial stuff.
+	/* Some admins may not understand how to interpret cheat logs
+	 * correctly, thus, we should warn them so they don't panic
+	 * over trivial stuff. */
 	if (!FileExists(log_file, false, NULL_STRING)) {
-		Format(line, sizeof(line),
+		FormatEx(line_buffer, sizeof(line_buffer),
 "=========[Notice]=========\n\
 Thank you for installing Little Anti-Cheat %s!\n\
 Just a few notes about this Anti-Cheat:\n\n\
@@ -173,18 +221,18 @@ void lilac_ban_client(int client, int cheat)
 	int lang = LANG_SERVER;
 	bool log_only = false;
 
-	// Banning has been disabled, don't forward the ban and don't ban.
+	/* Banning has been disabled, don't forward the ban and don't ban. */
 	if (!icvar[CVAR_BAN])
 		return;
 
-	// Check if log only mode has been enabled, in which case, don't ban.
+	/* Check if log only mode has been enabled, in which case, don't ban. */
 	switch (cheat) {
 	case CHEAT_ANGLES: { log_only = icvar[CVAR_ANGLES] < 0; }
 	case CHEAT_CHATCLEAR: { log_only = icvar[CVAR_CHAT] < 0; }
 	case CHEAT_CONVAR: { log_only = icvar[CVAR_CONVAR] < 0; }
 	case CHEAT_NOLERP: { log_only = icvar[CVAR_NOLERP] < 0; }
 	case CHEAT_BHOP: { log_only = icvar[CVAR_BHOP] < 0; }
-	// Aimbot and Aimlock have their own dedicated log-only mode.
+	/* Aimbot and Aimlock have their own dedicated log-only mode. */
 	case CHEAT_ANTI_DUCK_DELAY: { log_only = icvar[CVAR_ANTI_DUCK_DELAY] < 0; }
 	case CHEAT_NOISEMAKER_SPAM: { log_only = icvar[CVAR_NOISEMAKER_SPAM] < 0; }
 	case CHEAT_MACRO: { log_only = icvar[CVAR_MACRO] < 0; }
@@ -226,22 +274,30 @@ void lilac_ban_client(int client, int cheat)
 	lilac_forward_client_ban(client, cheat);
 
 
-#if defined _materialadmin_included
+	/* Try to ban with MateralAdmin first,
+	 * if that fails, proceed to SourceBans, then SourceBans++,
+	 * And lastly, BaseBans. */
+
+
 	if (icvar[CVAR_MA] && NATIVE_EXISTS("MABanPlayer")) {
 		MABanPlayer(0, client, MA_BAN_STEAM, get_ban_length(cheat), reason);
 		CreateTimer(5.0, timer_kick, GetClientUserId(client));
 		return;
 	}
-#endif
 
 
-#if defined _sourcebanspp_included
-	if (icvar[CVAR_SB] && NATIVE_EXISTS("SBPP_BanPlayer")) {
-		SBPP_BanPlayer(0, client, get_ban_length(cheat), reason);
-		CreateTimer(5.0, timer_kick, GetClientUserId(client));
-		return;
+	if (icvar[CVAR_SB]) {
+		if (NATIVE_EXISTS("SBPP_BanPlayer")) {
+			SBPP_BanPlayer(0, client, get_ban_length(cheat), reason);
+			CreateTimer(5.0, timer_kick, GetClientUserId(client));
+			return;
+		}
+		else if (NATIVE_EXISTS("SBBanPlayer")) {
+			SBBanPlayer(0, client, get_ban_length(cheat), reason);
+			CreateTimer(5.0, timer_kick, GetClientUserId(client));
+			return;
+		}
 	}
-#endif
 
 
 	BanClient(client, get_ban_length(cheat), BANFLAG_AUTO, reason, reason, "lilac", 0);
@@ -254,6 +310,8 @@ public Action timer_kick(Handle timer, int userid)
 
 	if (is_player_valid(client))
 		KickClient(client, "%T", "kick_ban_generic", client);
+		
+	return Plugin_Continue;
 }
 
 int get_ban_length(int cheat)
@@ -284,7 +342,7 @@ void set_player_log_angles(int client, float ang[3], int tick)
 {
 	int i = tick;
 
-	// Normalize tick.
+	/* Normalize tick. */
 	while (i < 0)
 		i += CMD_LENGTH;
 	while (i >= CMD_LENGTH)
@@ -322,13 +380,13 @@ float angle_delta(float []a1, float []a2)
 	p2[1] = a2[1];
 	p1[1] = a1[1];
 
-	// We don't care about roll.
+	/* We don't care about roll. */
 	p1[2] = 0.0;
 	p2[2] = 0.0;
 
 	delta = GetVectorDistance(p1, p2);
 
-	// Normalize maximum 5 times, yaw can sometimes be odd.
+	/* Normalize maximum 5 times, yaw can sometimes be odd. */
 	while (delta > 180.0 && normal > 0) {
 		normal--;
 		delta = FloatAbs(delta - 360.0);
@@ -339,8 +397,8 @@ float angle_delta(float []a1, float []a2)
 
 bool skip_due_to_loss(int client)
 {
-	// Debate: What percentage should this be at?
-	// 	Skip detection if the loss is more than 50%
+	/* Debate: What percentage should this be at?
+	 * Skip detection if the loss is more than 50% */
 	if (icvar[CVAR_LOSS_FIX])
 		return GetClientAvgLoss(client, NetFlow_Both) > 0.5;
 
@@ -362,7 +420,7 @@ int intabs(int num)
 
 bool is_player_admin(int client)
 {
-	// Todo: I don't know if this is correct.
+	/* Todo: I don't know if this is correct. */
 	return CheckCommandAccess(client, "", ADMFLAG_GENERIC | ADMFLAG_KICK | ADMFLAG_SLAY, true);
 }
 
