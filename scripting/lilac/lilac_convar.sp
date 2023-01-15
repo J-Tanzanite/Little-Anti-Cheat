@@ -1,6 +1,6 @@
 /*
 	Little Anti-Cheat
-	Copyright (C) 2018-2021 J_Tanzanite
+	Copyright (C) 2018-2023 J_Tanzanite
 
 	This program is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -16,13 +16,8 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#warning Messy code! Considering re-writing this entire system.
-// I'm considering redoing this entire ConVar system...
-// Maybe adding more ConVars, maybe adding game specific stuff as well.
-// One thing I won't do is add dynamic ConVar checks, as in,
-// 	server owners being able to add convars to be tested.
 
-// Basic query list.
+/* Basic query list. */
 static char query_list[][] = {
 	"sv_cheats",
 	"r_drawothermodels",
@@ -51,7 +46,7 @@ public Action timer_query(Handle timer)
 	if (!icvar[CVAR_ENABLE] || !icvar[CVAR_CONVAR])
 		return Plugin_Continue;
 
-	// sv_cheats recently changed or is set to 1, abort.
+	/* sv_cheats recently changed or is set to 1, abort. */
 	if (GetTime() < time_sv_cheats || sv_cheats)
 		return Plugin_Continue;
 
@@ -59,16 +54,16 @@ public Action timer_query(Handle timer)
 		if (!is_player_valid(i) || IsFakeClient(i))
 			continue;
 
-		// Player recently joined, wait before querying.
+		/* Player recently joined, wait before querying. */
 		if (GetClientTime(i) < 60.0)
 			continue;
 
-		// Don't query already banned players.
+		/* Don't query already banned players. */
 		if (playerinfo_banned_flags[i][CHEAT_CONVAR])
 			continue;
 
-		// Only increments query index if the player
-		// 	has responded to the last one.
+		/* Only increments query index if the player
+		 * has responded to the last one. */
 		if (!query_failed[i]) {
 			if (++query_index[i] >= 11)
 				query_index[i] = 0;
@@ -79,9 +74,9 @@ public Action timer_query(Handle timer)
 		if (++query_failed[i] > QUERY_MAX_FAILURES) {
 			if (icvar[CVAR_LOG_MISC]) {
 				lilac_log_setup_client(i);
-				Format(line, sizeof(line),
+				Format(line_buffer, sizeof(line_buffer),
 					"%s was kicked for failing to respond to %d queries in %.0f seconds.",
-					line, QUERY_MAX_FAILURES,
+					line_buffer, QUERY_MAX_FAILURES,
 					QUERY_TIMER * QUERY_MAX_FAILURES);
 
 				lilac_log(true);
@@ -101,25 +96,25 @@ public Action timer_query(Handle timer)
 public void query_reply(QueryCookie cookie, int client, ConVarQueryResult result,
 			const char[] cvarName, const char[] cvarValue, any value)
 {
-	// Player NEEDS to answer the query.
+	/* Player NEEDS to answer the query. */
 	if (result != ConVarQuery_Okay)
 		return;
 
-	// Client did respond to the query request, move on to the next convar.
+	/* Client did respond to the query request, move on to the next convar. */
 	query_failed[client] = 0;
 
-	// Any response the server may recieve may also be faulty, ignore.
+	/* Any response the server may recieve may also be faulty, ignore. */
 	if (GetTime() < time_sv_cheats || sv_cheats)
 		return;
 
-	// Already banned.
+	/* Already banned. */
 	if (playerinfo_banned_flags[client][CHEAT_CONVAR])
 		return;
 
 	int val = StringToInt(cvarValue);
 
-	// Check for invalid convar responses.
-	// 	Other than drawothermodels, a value of non-zero is invalid.
+	/* Check for invalid convar responses.
+	 * Other than drawothermodels, a value of non-zero is invalid. */
 	if (StrEqual("r_drawothermodels", cvarName, false) && val == 1)
 		return;
 	else if (val == 0)
@@ -132,9 +127,9 @@ public void query_reply(QueryCookie cookie, int client, ConVarQueryResult result
 
 	if (icvar[CVAR_LOG]) {
 		lilac_log_setup_client(client);
-		Format(line, sizeof(line),
+		Format(line_buffer, sizeof(line_buffer),
 			"%s was detected and banned for an invalid ConVar (%s %s).",
-			line, cvarName, cvarValue);
+			line_buffer, cvarName, cvarValue);
 
 		lilac_log(true);
 

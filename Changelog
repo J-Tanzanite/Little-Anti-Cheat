@@ -1,3 +1,27 @@
+1.7.4
+- Removed the need to download other third party includes (SB, SB++, MA and Updater).
+- Removed Angle checks in L4D1&2 (Fix coming in 1.8).
+- Added define in lilac.sp for TF2Classic support.
+- Added support for the old version of SourceBans.
+- Added admin chat warnings for suspicious players (Aimbot, Aimlock and Bhop).
+- Removed custom warnings when compiling (some people mistook them for errors).
+- Fixed a bug where multiple aimbot checks are fired upon getting multiple kills from the same shot.
+- Updated sourcecode to compile in SM 1.11 without warnings.
+
+1.7.3
+- Removed a redundant function.
+- Added Air-Time check to Bhop detection (Default 0.3 seconds).
+- Fixed an issue where Bhop bans don't always log the amount of bhops done.
+- Updated default Bhop presets.
+- Updated Czech translations, thanks luk27official.
+
+1.7.2
+- Added experimental support for TF2Classic (Needs manual recompiling with `TF2C` defined in source).
+- Added Finnish translations, by Veeti.
+- Removed unused UTF-8 check flags.
+- Changed ConVars to use kidfearless's methodmaps version.
+- Fixed so aimbot isn't checked on dead players (Should fix grenades in CS:GO).
+
 1.7.1
 - Reorganized source code to be in separate files.
 - - The plugin itself is still a single file, making installation easier.
@@ -38,7 +62,6 @@
 - - 2 = Ban cheaters with newlines in name.
 - Added new ConVar "lilac_filter_chat" (Default 1).
 - - Filters chat for invalid characters, also blocks Bismillah spam.
-- Fixed Swedish translations being in the wrong folder... Yes really :'D
 - Fixed sm_basepath not being respected.
 - Fixed ban status message (lilac_ban_status) being spammed.
 - Fixed general code ordering to be more efficient.

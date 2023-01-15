@@ -1,6 +1,6 @@
 /*
 	Little Anti-Cheat
-	Copyright (C) 2018-2021 J_Tanzanite
+	Copyright (C) 2018-2023 J_Tanzanite
 
 	This program is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -32,10 +32,10 @@ void lilac_lerp_ignore_nolerp_client(int client)
 
 void lilac_lerp_ratio_changed(int value)
 {
-	// Permamently disable nolerp checks.
-	// Yes, this is a little harsh, but if servers allow
-	//     any interp ratio, they are unlikely to change
-	//     it back to any restrictive value.
+	/* Permamently disable nolerp checks.
+	 * Yes, this is a little harsh, but if servers allow
+	 * any interp ratio, they are unlikely to change
+	 * it back to any restrictive value. */
 	if (value < 1)
 		ignore_nolerp_all = true;
 }
@@ -68,7 +68,7 @@ public Action timer_check_lerp(Handle timer)
 			|| ignore_nolerp_all
 			|| ignore_nolerp[i]
 			|| playerinfo_banned_flags[i][CHEAT_NOLERP]
-			|| min_lerp_possible < 0.005) // Minvalue invalid or too low.
+			|| min_lerp_possible < 0.005) /* Minvalue invalid or too low. */
 			continue;
 
 		if (lerp > min_lerp_possible * 0.95 /* buffer */)
@@ -84,9 +84,9 @@ static void detected_lerp_exploit(int client, float lerp)
 {
 	if (icvar[CVAR_LOG_MISC]) {
 		lilac_log_setup_client(client);
-		Format(line, sizeof(line),
+		Format(line_buffer, sizeof(line_buffer),
 			"%s was kicked for exploiting interpolation (%.3fms / %dms max).",
-			line, lerp * 1000.0, icvar[CVAR_MAX_LERP]);
+			line_buffer, lerp * 1000.0, icvar[CVAR_MAX_LERP]);
 
 		lilac_log(true);
 		if (icvar[CVAR_LOG_EXTRA] == 2)
@@ -110,8 +110,8 @@ static void detected_nolerp(int client, float lerp)
 
 	if (icvar[CVAR_LOG]) {
 		lilac_log_setup_client(client);
-		Format(line, sizeof(line), "%s was detected and banned for NoLerp (%fms).",
-			line, lerp * 1000.0);
+		Format(line_buffer, sizeof(line_buffer), "%s was detected and banned for NoLerp (%fms).",
+			line_buffer, lerp * 1000.0);
 
 		lilac_log(true);
 

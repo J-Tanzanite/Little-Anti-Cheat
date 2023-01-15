@@ -1,6 +1,6 @@
 /*
 	Little Anti-Cheat
-	Copyright (C) 2018-2021 J_Tanzanite
+	Copyright (C) 2018-2023 J_Tanzanite
 
 	This program is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -44,17 +44,17 @@ void lilac_macro_check(int client, const int buttons, int last_buttons)
 		index[client] = 0;
 
 	for (int i = 0; i < MACRO_ARRAY; i++) {
-		// Skip macros we aren't checking for.
+		/* Skip macros we aren't checking for. */
 		if (!process_macro_type(i))
 			continue;
 
 		int input = get_macro_input(i);
 
-		// Player pressed the key.
+		/* Player pressed the key. */
 		bool key = (!(last_buttons & input) && (buttons & input)) ? true : false;
 		macro_history[client][i][index[client]] = key;
 
-		// Only check for spam when the key is pressed.
+		/* Only check for spam when the key is pressed. */
 		if (!key)
 			continue;
 
@@ -72,15 +72,15 @@ void lilac_macro_check(int client, const int buttons, int last_buttons)
 
 static bool process_macro_type(int macro_type)
 {
-	// Invalid macro type.
+	/* Invalid macro type. */
 	if (macro_type >= MACRO_ARRAY || macro_type < 0)
 		return false;
 
-	// 0 == Test for all types.
+	/* 0 == Test for all types. */
 	if (!icvar[CVAR_MACRO_MODE])
 		return true;
 
-	// Check bit.
+	/* Check bit. */
 	return (icvar[CVAR_MACRO_MODE] & (1 << macro_type)) ? true : false;
 }
 
@@ -97,14 +97,14 @@ static void lilac_detected_macro(int client, int type)
 {
 	char string[20];
 
-	// Clear history, prevents overlap.
+	/* Clear history, prevents overlap. */
 	lilac_macro_reset_client_history(client, type);
 
-	// Already been logged once, ignore.
+	/* Already been logged once, ignore. */
 	if (playerinfo_banned_flags[client][CHEAT_MACRO])
 		return;
 
-	// Spam prevention.
+	/* Spam prevention. */
 	if (playerinfo_time_forward[client][CHEAT_MACRO] > GetGameTime())
 		return;
 
@@ -116,39 +116,39 @@ static void lilac_detected_macro(int client, int type)
 	switch (type) {
 	case MACRO_AUTOJUMP: { strcopy(string, sizeof(string), "Auto-Jump"); }
 	case MACRO_AUTOSHOOT: { strcopy(string, sizeof(string), "Auto-Shoot"); }
-	default: { return; } // Invalid type.
+	default: { return; } /* Invalid type. */
 	}
 
 	lilac_forward_client_cheat(client, CHEAT_MACRO);
 
-	// Ignore the first detection.
+	/* Ignore the first detection. */
 	if (++macro_detected[client][type] < 2)
 		return;
 
-	// Log (2 == detect, but no logging).
+	/* Log (2 == detect, but no logging). */
 	if (icvar[CVAR_LOG] && icvar[CVAR_MACRO] < 2) {
 		lilac_log_setup_client(client);
-		Format(line, sizeof(line),
+		Format(line_buffer, sizeof(line_buffer),
 			"%s was detected of using Macro %s (Detection: %d | Max presses: %d).",
-			line, string, macro_detected[client][type], macro_max);
+			line_buffer, string, macro_detected[client][type], macro_max);
 
 		lilac_log(true);
 
 		if (icvar[CVAR_LOG_EXTRA])
 			lilac_log_extra(client);
 	}
-	
+
 	int char_index;
 	while (string[char_index]) {
-		string[char_index] = CharToLower(string[char_index]); // lower each character
+		string[char_index] = CharToLower(string[char_index]); /* lower each character */
 		char_index++;
 	}
 	Format(string, sizeof(string), "macro_%s", string);
 	database_log(client, string, macro_detected[client][type], float(macro_max));
 
-	// If we are using log-only, then don't warn, there's no point.
+	/* If we are using log-only, then don't warn, there's no point. */
 	if (icvar[CVAR_MACRO] > -1) {
-		// Warnings.
+		/* Warnings. */
 		switch (icvar[CVAR_MACRO_WARNING]) {
 		case 1: {
 			PrintCenterText(client, "[Little Anti-Cheat] Warning: Macro usage isn't allowed!");
@@ -167,7 +167,7 @@ static void lilac_detected_macro(int client, int type)
 			}
 		}
 		case 3: {
-			// Warn everyone once...
+			/* Warn everyone once... */
 			if (macro_detected[client][type] == 2)
 				PrintToChatAll("[Little Anti-Cheat] %N was detected of using Macro %s.",
 					client, string);
@@ -189,8 +189,8 @@ static void lilac_detected_macro(int client, int type)
 		lilac_ban_client(client, CHEAT_MACRO);
 }
 
-// Macro detections decrement every 5 minutes.
-// Todo: Might wanna make it more frequent?
+/* Macro detections decrement every 5 minutes.
+ * Todo: Might wanna make it more frequent? */
 public Action timer_decrement_macro(Handle timer)
 {
 	for (int i = 1; i <= MaxClients; i++) {
@@ -199,4 +199,6 @@ public Action timer_decrement_macro(Handle timer)
 				macro_detected[i][k]--;
 		}
 	}
+
+	return Plugin_Continue;
 }

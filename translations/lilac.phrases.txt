@@ -103,4 +103,10 @@
 	{
 		"en"		"Name Newlines Detected"
 	}
+
+	"admin_chat_warning_generic"
+	{
+		"#format"	"{1:s},{2:s},{3:d}"
+		"en"		"{1} is suspected of using '{2}' (Detections: {3})"
+	}
 }
