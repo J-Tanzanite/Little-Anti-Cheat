@@ -1,6 +1,6 @@
 /*
 	Little Anti-Cheat
-	Copyright (C) 2018-2021 J_Tanzanite
+	Copyright (C) 2018-2023 J_Tanzanite
 
 	This program is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -16,8 +16,6 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#warning Messy code!
-// I might wanna organize this...
 
 static int ping_high[MAXPLAYERS + 1];
 static int ping_warn[MAXPLAYERS + 1];
@@ -41,7 +39,7 @@ public Action timer_check_ping(Handle timer)
 		if (!is_player_valid(i) || IsFakeClient(i))
 			continue;
 
-		// Player recently joined, don't check ping yet.
+		/* Player recently joined, don't check ping yet. */
 		if (GetClientTime(i) < 120.0)
 			continue;
 
@@ -62,7 +60,7 @@ public Action timer_check_ping(Handle timer)
 
 		if (++ping_high[i] >= icvar[CVAR_MAX_PING_SPEC] / 5
 			&& icvar[CVAR_MAX_PING_SPEC] >= 30) {
-			ChangeClientTeam(i, 1); // Move this player to spectators.
+			ChangeClientTeam(i, 1); /* Move this player to spectators. */
 
 			ping_warn[i] = ping_high[i];
 
@@ -71,15 +69,15 @@ public Action timer_check_ping(Handle timer)
 				ping, icvar[CVAR_MAX_PING]);
 		}
 
-		// Player has a higher ping than maximum for 100 seconds.
+		/* Player has a higher ping than maximum for 100 seconds. */
 		if (ping_high[i] < 20)
 			continue;
 
 		if (icvar[CVAR_LOG_MISC]) {
 			lilac_log_setup_client(i);
-			Format(line, sizeof(line),
+			Format(line_buffer, sizeof(line_buffer),
 				"%s was kicked for having too high ping (%.3fms / %dms max).",
-				line, ping, icvar[CVAR_MAX_PING]);
+				line_buffer, ping, icvar[CVAR_MAX_PING]);
 
 			lilac_log(true);
 
@@ -91,7 +89,7 @@ public Action timer_check_ping(Handle timer)
 		Format(reason, sizeof(reason), "[Lilac] %T", "tban_ping_high", i,
 			ping, icvar[CVAR_MAX_PING]);
 
-		// Ban the client for three minutes to avoid instant reconnects.
+		/* Ban the client for three minutes to avoid instant reconnects. */
 		BanClient(i, 3, BANFLAG_AUTHID, reason, reason, "lilac", 0);
 	}
 
@@ -99,4 +97,3 @@ public Action timer_check_ping(Handle timer)
 
 	return Plugin_Continue;
 }
-

@@ -1,6 +1,6 @@
 /*
 	Little Anti-Cheat
-	Copyright (C) 2018-2021 J_Tanzanite
+	Copyright (C) 2018-2023 J_Tanzanite
 
 	This program is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -18,14 +18,16 @@
 
 static int jump_ticks[MAXPLAYERS + 1];
 static int perfect_bhops[MAXPLAYERS + 1];
+static int next_bhop[MAXPLAYERS + 1];
 static int detections[MAXPLAYERS + 1];
 
 
 static void bhop_reset(int client)
 {
-	// -1 because the initial jump doesn't count.
+	/* -1 because the initial jump doesn't count. */
 	jump_ticks[client] = -1;
 	perfect_bhops[client] = -1;
+	next_bhop[client] = GetGameTickCount();
 }
 
 void lilac_bhop_reset_client(int client)
@@ -36,7 +38,7 @@ void lilac_bhop_reset_client(int client)
 
 void lilac_bhop_check(int client, const int buttons, int last_buttons)
 {
-	// Player already banned / logged enough, no need to test anything.
+	/* Player already banned / logged enough, no need to test anything. */
 	if (playerinfo_banned_flags[client][CHEAT_BHOP])
 		return;
 
@@ -46,8 +48,14 @@ void lilac_bhop_check(int client, const int buttons, int last_buttons)
 	int flags = GetEntityFlags(client);
 	if ((buttons & IN_JUMP) && !(last_buttons & IN_JUMP)) {
 		if ((flags & FL_ONGROUND)) {
-			perfect_bhops[client]++;
-			check_bhop_max(client);
+			if (GetGameTickCount() > next_bhop[client]) {
+				next_bhop[client] = GetGameTickCount() + bhop_settings[BHOP_INDEX_AIR];
+				perfect_bhops[client]++;
+				check_bhop_max(client);
+			}
+			else {
+				bhop_reset(client);
+			}
 		}
 	}
 	else if ((flags & FL_ONGROUND)) {
@@ -56,65 +64,65 @@ void lilac_bhop_check(int client, const int buttons, int last_buttons)
 	}
 }
 
-static bool forward_allow_detection(int client)
-{
-	return (lilac_forward_allow_cheat_detection(client, CHEAT_BHOP) == true);
-}
-
 static void check_bhop_max(int client)
 {
-	// Invalid max, disable max bhop bans.
+	/* Invalid max, disable max bhop bans. */
 	if (bhop_settings[BHOP_INDEX_MAX] < bhop_settings_min[BHOP_INDEX_MAX])
 		return;
 
 	if (perfect_bhops[client] < bhop_settings[BHOP_INDEX_MAX])
 		return;
 
-	if (forward_allow_detection(client) == false)
+	if (lilac_forward_allow_cheat_detection(client, CHEAT_BHOP) == false)
 		return;
 
-	// Client just hit the max threshhold, insta ban.
-	lilac_detected_bhop(client);
+	/* Client just hit the max threshhold, insta ban. */
+	lilac_detected_bhop(client, true, true);
 	lilac_ban_bhop(client);
 }
 
 static void check_bhop_min(int client)
 {
-	// Invalid min-Bhop settings.
+	/* Invalid min-Bhop settings. */
 	if (bhop_settings[BHOP_INDEX_MIN] < bhop_settings_min[BHOP_INDEX_MIN])
 		return;
 
 	if (perfect_bhops[client] < bhop_settings[BHOP_INDEX_MIN])
 		return;
 
-	// Jump ticks buffer is set and jump ticks is higher than max, ignore.
+	/* Jump ticks buffer is set and jump ticks is higher than max, ignore. */
 	if (bhop_settings[BHOP_INDEX_JUMP] > -1
 		&& jump_ticks[client] > bhop_settings[BHOP_INDEX_JUMP]
 		+ bhop_settings[BHOP_INDEX_MIN])
 		return;
 
-	if (forward_allow_detection(client) == false)
+	if (lilac_forward_allow_cheat_detection(client, CHEAT_BHOP) == false)
 		return;
 
-	lilac_detected_bhop(client);
+	lilac_detected_bhop(client, false, false);
 }
 
-static void lilac_detected_bhop(int client)
+static void lilac_detected_bhop(int client, bool force_log, bool banning)
 {
 	lilac_forward_client_cheat(client, CHEAT_BHOP);
 
-	// Detection expires in 10 minutes.
+	/* Detection expires in 10 minutes. */
 	CreateTimer(600.0, timer_decrement_bhop, GetClientUserId(client));
 
-	// Don't log the first detection.
-	if (++detections[client] < 2)
+	/* Don't log the first detection. */
+	if (++detections[client] < 2 && force_log == false)
 		return;
+
+	if (icvar[CVAR_CHEAT_WARN]
+		&& !banning
+		&& detections[client] < bhop_settings[BHOP_INDEX_TOTAL])
+		lilac_warn_admins(client, CHEAT_BHOP, detections[client]);
 
 	if (icvar[CVAR_LOG]) {
 		lilac_log_setup_client(client);
-		Format(line, sizeof(line),
+		Format(line_buffer, sizeof(line_buffer),
 			"%s is suspected of using Bhop (Detection: %d | Bhops: %d | JumpTicks: %d).",
-			line, detections[client], perfect_bhops[client],
+			line_buffer, detections[client], perfect_bhops[client],
 			jump_ticks[client]);
 		lilac_log(true);
 
@@ -129,7 +137,7 @@ static void lilac_detected_bhop(int client)
 
 static void lilac_ban_bhop(int client)
 {
-	// Already been banned, ignore.
+	/* Already been banned, ignore. */
 	if (playerinfo_banned_flags[client][CHEAT_BHOP])
 		return;
 
@@ -137,9 +145,9 @@ static void lilac_ban_bhop(int client)
 
 	if (icvar[CVAR_LOG]) {
 		lilac_log_setup_client(client);
-		Format(line, sizeof(line),
+		Format(line_buffer, sizeof(line_buffer),
 			"%s was detected and banned for Bhop.",
-			line);
+			line_buffer);
 		lilac_log(true);
 
 		if (icvar[CVAR_LOG_EXTRA])
@@ -157,8 +165,10 @@ public Action timer_decrement_bhop(Handle timer, int userid)
 	client = GetClientOfUserId(userid);
 
 	if (!is_player_valid(client))
-		return;
+		return Plugin_Continue;
 
 	if (detections[client] > 0)
 		detections[client]--;
+
+	return Plugin_Continue;
 }
