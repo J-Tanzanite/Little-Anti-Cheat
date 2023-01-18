@@ -16,6 +16,12 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+/* Uncomment below line to compile for Team Fortress 2 Classic.
+ * Note: Doing so means the compiled plugin won't work correctly
+ * for other source games. 
+ * Note #2: You need SM-TF2Clasic-Tools to compile the plugin: https://github.com/tf2classic/SM-TF2Classic-Tools */
+//#define TF2C
+
 #include <sourcemod>
 #include <sdktools_engine>
 #include <sdktools_entoutput>
@@ -30,10 +36,6 @@
 #endif
 #define REQUIRE_PLUGIN
 #define REQUIRE_EXTENSIONS
-/* Uncomment below line to compile for Team Fortress 2 Classic.
- * Note: Doing so means the compiled plugin won't work correctly
- * for other source games. */
-//#define TF2C
 
 #pragma semicolon 1
 #pragma newdecls required
