@@ -17,9 +17,11 @@
 */
 
 /* Uncomment below line to compile for Team Fortress 2 Classic.
+ * You'll need SourceMod 1.10 and SM-TF2Clasic-Tools to compile, if you decide to.
  * Note: Doing so means the compiled plugin won't work correctly
  * for other source games. 
- * Note #2: You need SM-TF2Clasic-Tools to compile the plugin: https://github.com/tf2classic/SM-TF2Classic-Tools */
+ * SourceMod 1.10: https://www.sourcemod.net/downloads.php?branch=1.10-dev
+ * SM-TF2Clasic-Tools: https://github.com/tf2classic/SM-TF2Classic-Tools */
 //#define TF2C
 
 #include <sourcemod>
