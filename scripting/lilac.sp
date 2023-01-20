@@ -16,12 +16,13 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-
-/* Uncomment this line to compile for Team Fortress 2 Classic.
+/* Uncomment below line to compile for Team Fortress 2 Classic.
+ * You'll need SourceMod 1.10 and SM-TF2Clasic-Tools to compile, if you decide to.
  * Note: Doing so means the compiled plugin won't work correctly
- * for other source games. */
-// #define TF2C
-
+ * for other source games. 
+ * SourceMod 1.10: https://www.sourcemod.net/downloads.php?branch=1.10-dev
+ * SM-TF2Clasic-Tools: https://github.com/tf2classic/SM-TF2Classic-Tools */
+//#define TF2C
 
 #include <sourcemod>
 #include <sdktools_engine>
@@ -37,7 +38,6 @@
 #endif
 #define REQUIRE_PLUGIN
 #define REQUIRE_EXTENSIONS
-
 
 #pragma semicolon 1
 #pragma newdecls required
