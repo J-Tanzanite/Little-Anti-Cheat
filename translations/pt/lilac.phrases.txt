@@ -42,7 +42,7 @@
 	
 	"ban_nolerp"
 	{
-		"pt"		"Remoção de interpolação detectada"
+		"pt"		"Anulação de interpolação detectada"
 	}
 
 	"ban_bhop"
