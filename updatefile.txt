@@ -13,7 +13,8 @@
 		"Notes" "Added support for the old version of SourceBans."
 		"Notes" "Added admin chat warnings for suspicious players (Aimbot, Aimlock and Bhop)."
 		"Notes" "Fixed a bug where multiple aimbot checks are fired upon getting multiple kills from the same shot."
-
+		"Notes" "Removed custom warnings when compiling."
+		"Notes" "Updated sourcecode to compile in SM 1.11 without warnings."
 	}
 
 	"Files"
