@@ -37,17 +37,21 @@ This Anti-Cheat is by no means perfect, and it is bypassable to some extent, but
 
 ## Non-Steam versions / CS:S v34 / CS:S v91 / ETC...
 Non-Steam versions (IE: Cracks) **ARE NOT SUPPORTED!**\
-It seems like a few people have tried to use Lilac on cracked/non-steam versions of Counter-Strike:Source, and have reported bugs.\
 I am sorry to say, but non-steam versions aren't supported.\
-This is because of technical problems with cracks (as they tend to be of older versions of the game) and the fact that I don't want to support piracy.
+This is because of technical problems with cracks, as they tend to be of older versions of the game, which means they'll have bugs that can conflict with some cheat detections.\
+And I just don't want to support piracy.\
+I also just don't want to download sketchy unofficial cracked versions of games...
 
-I'm sorry, but Little Anti-Cheat will not work for cracks/non-steam versions.\
-And support will never come from me officially.
+So Little Anti-Cheat may not work out of the box for cracked versions of games.\
+That said, I've decided to be a little helpful based on feedback from others.
 
-The same goes for other games, non-steam / cracks aren't supported.
+For Non-Steam/Cracked version of CS:S (like v34 or v91), Angle-Cheat detections won't work.\
+You can fix this by updating these ConVars: `lilac_angles 0` and `lilac_angles_patch 0`.\
+These **HAVE** to be disabled.
 
 ### Credits / Special Thanks to:
  - J_Tanzanite... Yeah I'm crediting myself for writing this AC...
+ - Azalty, for being (rightly) stubborn regarding an issue and for contributing database logging.
  - foon, for fixing sourcebans++ not working (https://forums.alliedmods.net/showthread.php?p=2689297#post2689297).
  - Bottiger, for fixing this plugin not working in CS:GO and general criticisms.
  - MAGNAT2645 for suggesting a cleaner method of handling convar changes.
@@ -63,13 +67,15 @@ The same goes for other games, non-steam / cracks aren't supported.
  - Finnish (By [Veeti](https://forums.alliedmods.net/member.php?u=317665)).
  - English (by me lol duh hue hue hue).
  - Russian (by an awesome person c:).
- - Czech (by an awesome person <3).
+ - Czech (by luk27official and someone else).
  - Brazilian Portuguese by SheepyChris (https://github.com/SheepyChris), Tiagoquix (https://github.com/Tiagoquix) and Crashzk (https://github.com/crashzk).
  - German (by two humble nice Germans c:).
  - Spanish (by ALEJANDRO ^-^).
  - Ukrainian (by panikajo ;D).
  - Polish (by https://github.com/qawery-just-sad).
- - Turkish (by ShiroNje and R3nzTheCodeGOD).\
+ - Turkish (by ShiroNje and R3nzTheCodeGOD).
+ - Hungarian (by The Solid Lad).
+ - Swedish (by Teamkiller324).\
 \
 I do hope to add more languages in the future.\
 But at least you can add or improve on the translations already provided.\
