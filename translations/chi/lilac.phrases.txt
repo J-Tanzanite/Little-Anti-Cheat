@@ -83,12 +83,12 @@
 
 	"chat_invalid_characters"
 	{
-		"chi" 		"您的聊天信息已被屏蔽 (原因: 无效字符)"
+		"chi" 		"你的聊天信息已被屏蔽 (原因: 无效字符)"
 	}
 
 	"chat_wide_char_spam"
 	{
-		"chi"		"您的聊天信息已被屏蔽 (原因: 宽字符垃圾信息)"
+		"chi"		"你的聊天信息已被屏蔽 (原因: 宽字符垃圾信息)"
 	}
 
 	"kick_bad_name"
