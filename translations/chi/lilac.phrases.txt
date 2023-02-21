@@ -42,6 +42,10 @@
 	{
 		"chi"		"检测到非法变量"
 	}
+	"ban_nolerp"
+	{
+		"chi"		"检测到非法Lerp值"
+	}
 
 	"ban_bhop"
 	{
@@ -65,5 +69,41 @@
 	"ban_noisemaker"
 	{
 		"chi"		"检测到刷屏"
+	}
+	"ban_macro"
+	{
+		"chi"		"检测到辅助宏"
+	}
+
+	"kick_macro"
+	{
+		"#format"	"{1:s}"
+		"chi"		"此服务器不允许使用{1}辅助宏 "
+	}
+
+	"chat_invalid_characters"
+	{
+		"chi" 		"您的聊天信息已被屏蔽 (原因: 无效字符)"
+	}
+
+	"chat_wide_char_spam"
+	{
+		"chi"		"您的聊天信息已被屏蔽 (原因: 宽字符垃圾信息)"
+	}
+
+	"kick_bad_name"
+	{
+		"chi"		"你的游戏名称含有非法字符, 请更改你的游戏名称"
+	}
+
+	"ban_name_newline"
+	{
+		"chi"		"检测到名称还有换行符"
+	}
+
+	"admin_chat_warning_generic"
+	{
+		"#format"	"{1:s},{2:s},{3:d}"
+		"chi"		"{1} 可能使用了 '{2}' (检测次数: {3})"
 	}
 }
