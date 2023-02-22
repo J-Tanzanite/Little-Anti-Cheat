@@ -98,7 +98,7 @@
 
 	"ban_name_newline"
 	{
-		"chi"		"检测到名称还有换行符"
+		"chi"		"检测到名称含有换行符"
 	}
 
 	"admin_chat_warning_generic"
