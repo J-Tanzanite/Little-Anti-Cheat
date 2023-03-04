@@ -1,0 +1,112 @@
+"Phrases"
+{
+	"welcome_msg"
+	{
+		"#format"	"{1:s}"
+		"lv"		"Šis serveris izmanto Little Anti-Cheat aizsardzību {1}"
+	}
+
+	"kick_query_failure"
+	{
+		"lv"		"Kļūda: Query response failure, Restartē spēli ja šī problēma turpinās"
+	}
+
+	"kick_interp_exploit"
+	{
+		"#format"	"{1:.0f},{2:d},{3:.3f}"
+		"lv"		"Exploits atklāts: Tavs interp ir pārāk liels ({1}ms / {2}ms max). Lūdzu uzstādi cl_interp atpakaļ uz {3} vai zemāk"
+	}
+
+	"tban_ping_high"
+	{
+		"#format"	"{1:.0f},{2:d}"
+		"lv"		"Tavs pings ir pārāk liels ({1} / {2} max)"
+	}
+
+	"kick_ban_glveric"
+	{
+		"lv"		"Tu tiki banots no šī servera"
+	}
+
+	"ban_angle"
+	{
+		"lv"		"Angle-Cheats Atklāts"
+	}
+
+	"ban_chat_clear"
+	{
+		"lv"		"Chat-Clear Atklāts"
+	}
+
+	"ban_convar"
+	{
+		"lv"		"Invalid ConVar Atklāts"
+	}
+
+	"ban_nolerp"
+	{
+		"lv"		"NoLerp Atklāts"
+	}
+
+	"ban_bhop"
+	{
+		"lv"		"Bhop Atklāts"
+	}
+
+	"ban_aimbot"
+	{
+		"lv"		"Aimbot Atklāts"
+	}
+
+	"ban_aimlock"
+	{
+		"lv"		"Aimlock Atklāts"
+	}
+
+	"ban_anti_duck_delay"
+	{
+		"lv" 		"Anti-Duck-Delay Atklāts"
+	}
+
+	"ban_noisemaker"
+	{
+		"lv" 		"Infinite Noise Maker Atklāts"
+	}
+
+	"ban_macro"
+	{
+		"lv"		"Macro Atklāts"
+	}
+
+	"kick_macro"
+	{
+		"#format"	"{1:s}"
+		"lv"		"{1} Macro skriptus aizliegts lietot šajā serverī"
+	}
+
+	"chat_invalid_characters"
+	{
+		"lv" 		"Tavas čata ziņas tika bloķētas (Iemesls: Invalid Characters)."
+	}
+
+	"chat_wide_char_spam"
+	{
+		"lv"		"Tavas čata ziņas tika bloķētas (Iemesls: Wide-Char Spam)."
+	}
+
+	"kick_bad_name"
+	{
+		"lv"		"Tavs nickname satur invalid characters, lūdzu nomaini to"
+	}
+
+	"ban_name_newline"
+	{
+		"lv"		"Name Newlines Atklāts"
+	}
+
+	"admin_chat_warning_glveric"
+	{
+		"#format"	"{1:s},{2:s},{3:d}"
+		"lv"		"{1} Tiek turēts aizdomās par '{2}' (Detections: {3})"
+	}
+}
