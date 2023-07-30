@@ -8,13 +8,13 @@
 
 	"kick_query_failure"
 	{
-		"ro"		"Eroare: Interogare eșuată, te rog sa repornești jocul dacă acestă problemă persistă"
+		"ro"		"Eroare: Interogare eșuată, te rog sa repornești jocul dacă această problemă persistă"
 	}
 
 	"kick_interp_exploit"
 	{
 		"#format"	"{1:.0f},{2:d},{3:.3f}"
-		"ro"		"Exploit detectat: interp-ul tău este prea mare ({1}ms / {2}ms max). Te rog sa ți setezi cl_interp înapoi la {3} sau mai mic"
+		"ro"		"Exploit detectat: interp-ul tău este prea mare ({1}ms / {2}ms max). Te rog sa îți setezi cl_interp înapoi la {3} sau mai mic"
 	}
 
 	"tban_ping_high"
@@ -96,7 +96,7 @@
 
 	"kick_bad_name"
 	{
-		"ro"		"Numele tau conține cractere invalide, te rog sa iți schimbi numele."
+		"ro"		"Numele tău conține caractere invalide, te rog să iți schimbi numele."
 	}
 
 	"ban_name_newline"
