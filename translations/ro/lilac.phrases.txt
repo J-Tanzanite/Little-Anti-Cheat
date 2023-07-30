@@ -1,0 +1,112 @@
+"Phrases"
+{
+	"welcome_msg"
+	{
+		"#format"	"{1:s}"
+		"ro"		"Acest server este protejat de Little Anti-Cheat {1}"
+	}
+
+	"kick_query_failure"
+	{
+		"ro"		"Eroare: Interogare eșuată, te rog sa repornești jocul dacă acestă problemă persistă"
+	}
+
+	"kick_interp_exploit"
+	{
+		"#format"	"{1:.0f},{2:d},{3:.3f}"
+		"ro"		"Exploit detectat: interp-ul tău este prea mare ({1}ms / {2}ms max). Te rog sa ți setezi cl_interp înapoi la {3} sau mai mic"
+	}
+
+	"tban_ping_high"
+	{
+		"#format"	"{1:.0f},{2:d}"
+		"ro"		"Ping-ul tău este prea mare ({1} / {2} max)"
+	}
+
+	"kick_ban_groeric"
+	{
+		"ro"		"Ai fost banat pe acest server"
+	}
+
+	"ban_angle"
+	{
+		"ro"		"Angle-Cheats Detectat"
+	}
+
+	"ban_chat_clear"
+	{
+		"ro"		"Chat-Clear Detectat"
+	}
+
+	"ban_convar"
+	{
+		"ro"		"Invalid ConVar Detectat"
+	}
+
+	"ban_nolerp"
+	{
+		"ro"		"NoLerp Detectat"
+	}
+
+	"ban_bhop"
+	{
+		"ro"		"Bhop Detectat"
+	}
+
+	"ban_aimbot"
+	{
+		"ro"		"Aimbot Detectat"
+	}
+
+	"ban_aimlock"
+	{
+		"ro"		"Aimlock Detectat"
+	}
+
+	"ban_anti_duck_delay"
+	{
+		"ro" 		"Anti-Duck-Delay Detectat"
+	}
+
+	"ban_noisemaker"
+	{
+		"ro" 		"Infinite Noise Maker Detectat"
+	}
+
+	"ban_macro"
+	{
+		"ro"		"Macro Detectat"
+	}
+
+	"kick_macro"
+	{
+		"#format"	"{1:s}"
+		"ro"		"{1} Macro nu este permis pe acest server"
+	}
+
+	"chat_invalid_characters"
+	{
+		"ro" 		"Mesajul tău din chat a fost blocat (Motiv: Caractere Invalide)."
+	}
+
+	"chat_wide_char_spam"
+	{
+		"ro"		"Mesajul tău din chat a fost blocat (Motiv: Spam cu caractere largi)."
+	}
+
+	"kick_bad_name"
+	{
+		"ro"		"Numele tau conține cractere invalide, te rog sa iți schimbi numele."
+	}
+
+	"ban_name_newline"
+	{
+		"ro"		"Au fost detectate noi linii în nume"
+	}
+
+	"admin_chat_warning_groeric"
+	{
+		"#format"	"{1:s},{2:s},{3:d}"
+		"ro"		"{1} este suspect de folosire  '{2}' (Detecții: {3})"
+	}
+}
