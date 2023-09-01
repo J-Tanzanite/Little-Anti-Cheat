@@ -176,6 +176,7 @@ Handle forwardhandleallow = INVALID_HANDLE;
 bool sourcebans_exist = false;
 bool sourcebanspp_exist = false;
 bool materialadmin_exist = false;
+bool dmtf_exist = false;
 
 /* Logging.
  * Todo: Might wanna move a lot of this variables to
