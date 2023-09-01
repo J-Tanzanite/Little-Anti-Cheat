@@ -198,6 +198,7 @@ public void OnAllPluginsLoaded()
 	sourcebanspp_exist = LibraryExists("sourcebans++");
 	sourcebans_exist = LibraryExists("sourcebans");
 	materialadmin_exist = LibraryExists("materialadmin");
+	dmtf_exist = LibaryExists("dmtf");
 
 	if (LibraryExists("updater"))
 		lilac_update_url();
@@ -229,6 +230,8 @@ public void OnLibraryAdded(const char []name)
 		sourcebans_exist = true;
 	else if (StrEqual(name, "materialadmin"))
 		materialadmin_exist = true;
+	else if (StrEqual(name, "dmtf"))
+		dmtf_exist = true;
 	else if (StrEqual(name, "updater"))
 		lilac_update_url();
 }
@@ -241,6 +244,8 @@ public void OnLibraryRemoved(const char []name)
 		sourcebans_exist = false;
 	else if (StrEqual(name, "materialadmin"))
 		materialadmin_exist = false;
+	else if (StrEqual(name, "dmtf"))
+		dmtf_exist = false
 }
 
 void lilac_update_url()
