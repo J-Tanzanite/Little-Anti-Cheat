@@ -87,8 +87,8 @@
 #define CVAR_AUTO_UPDATE           36
 #define CVAR_SOURCEIRC             37
 #define CVAR_DATABASE              38
-#define CVAR_MAX                   39
-#define CVAR_DMTF		   40
+#define CVAR_DMTF                  39
+#define CVAR_MAX		   40
 
 #define BHOP_INDEX_MIN     0
 #define BHOP_INDEX_JUMP    1
