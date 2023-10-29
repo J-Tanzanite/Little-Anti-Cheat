@@ -103,7 +103,7 @@ These **HAVE** to be disabled.
  - VintagePC (https://github.com/vintagepc) for SourceIRC support and basepath fix.
 
 ### Current languages supported:
- - Simplified Chinese (by RoyZ https://github.com/RoyZ-CSGO ^-^).
+ - Simplified Chinese (by RoyZ https://github.com/RoyZ-CSGO ^-^, and apples194)
  - Dutch (by snowy UwU OwO EwE).
  - Danish (by kS the Man / ksgoescoding c:).
  - Norwegian (by me, the translations could be better).
@@ -119,8 +119,11 @@ These **HAVE** to be disabled.
  - Polish (by https://github.com/qawery-just-sad).
  - Turkish (by ShiroNje and R3nzTheCodeGOD).
  - Hungarian (by The Solid Lad).
- - Swedish (by Teamkiller324).\
-\
+ - Swedish (by Teamkiller324).
+ - Latvian (by rcon420).
+ - Romanian (by rigE08).
+
+
 I do hope to add more languages in the future.\
 But at least you can add or improve on the translations already provided.\
 My friends who did some of the translations were told by me that the translations don't have to be perfect.\
