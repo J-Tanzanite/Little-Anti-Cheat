@@ -23,7 +23,7 @@
 		"lv"		"Tavs pings ir pārāk liels ({1} / {2} max)"
 	}
 
-	"kick_ban_glveric"
+	"kick_ban_generic"
 	{
 		"lv"		"Tu tiki banots no šī servera"
 	}
@@ -104,7 +104,7 @@
 		"lv"		"Name Newlines Atklāts"
 	}
 
-	"admin_chat_warning_glveric"
+	"admin_chat_warning_generic"
 	{
 		"#format"	"{1:s},{2:s},{3:d}"
 		"lv"		"{1} Tiek turēts aizdomās par '{2}' (Detections: {3})"
