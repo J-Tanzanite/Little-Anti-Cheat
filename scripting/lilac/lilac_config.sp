@@ -31,7 +31,10 @@ void lilac_config_setup()
 		FCVAR_PROTECTED, true, 0.0, true, 1.0);
 	hcvar[CVAR_MA] = new Convar("lilac_materialadmin", "1",
 		"Ban players via Material-Admin (Fork of Sourcebans++. If it isn't installed, will default to sourcebans++ or basebans).",
-		FCVAR_PROTECTED, true, 0.0, true, 1.0);
+	FCVAR_PROTECTED, true, 0.0, true, 1.0);
+	hcvar[CVAR_DMTF] = new Convar("lilac_dmtf", "1",
+		"Ban players via DMTF. Not available for most servers. If it isn't present, will default to MaterialAdmin, SourceBans++ or basebans",
+	FCVAR_PROTECTED, true, 0.0, true, 1.0);
 	hcvar[CVAR_SOURCEIRC] = new Convar("lilac_sourceirc", "1",
 		"Enable reflecting log messages to SourceIRC channels flagged with 'lilac', if SourceIRC is available.",
 		FCVAR_PROTECTED, true, 0.0, true, 1.0);

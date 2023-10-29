@@ -87,7 +87,8 @@
 #define CVAR_AUTO_UPDATE           36
 #define CVAR_SOURCEIRC             37
 #define CVAR_DATABASE              38
-#define CVAR_MAX                   39
+#define CVAR_DMTF                  39
+#define CVAR_MAX		   40
 
 #define BHOP_INDEX_MIN     0
 #define BHOP_INDEX_JUMP    1
@@ -176,6 +177,7 @@ Handle forwardhandleallow = INVALID_HANDLE;
 bool sourcebans_exist = false;
 bool sourcebanspp_exist = false;
 bool materialadmin_exist = false;
+bool dmtf_exist = false;
 
 /* Logging.
  * Todo: Might wanna move a lot of this variables to
