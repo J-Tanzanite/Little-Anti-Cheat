@@ -23,7 +23,7 @@
 		"ro"		"Ping-ul tău este prea mare ({1} / {2} max)"
 	}
 
-	"kick_ban_groeric"
+	"kick_ban_generic"
 	{
 		"ro"		"Ai fost banat pe acest server"
 	}
@@ -104,7 +104,7 @@
 		"ro"		"Au fost detectate noi linii în nume"
 	}
 
-	"admin_chat_warning_groeric"
+	"admin_chat_warning_generic"
 	{
 		"#format"	"{1:s},{2:s},{3:d}"
 		"ro"		"{1} este suspect de folosire  '{2}' (Detecții: {3})"
