@@ -41,6 +41,7 @@ void lilac_anti_duck_delay_check(int client, const int buttons)
 
 	playerinfo_banned_flags[client][CHEAT_ANTI_DUCK_DELAY] = true;
 
+	lilac_save_player_details(client, "N/A");
 	lilac_forward_client_cheat(client, CHEAT_ANTI_DUCK_DELAY);
 
 	if (icvar[CVAR_LOG]) {

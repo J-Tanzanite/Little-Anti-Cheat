@@ -104,6 +104,10 @@ static void check_bhop_min(int client)
 
 static void lilac_detected_bhop(int client, bool force_log, bool banning)
 {
+	char sDetails[512];
+	Format(sDetails, sizeof(sDetails), "Detection: %d | Bhops: %d | JumpTicks: %d", detections[client], perfect_bhops[client], jump_ticks[client]);
+
+	lilac_save_player_details(client, sDetails);
 	lilac_forward_client_cheat(client, CHEAT_BHOP);
 
 	/* Detection expires in 10 minutes. */
@@ -121,9 +125,8 @@ static void lilac_detected_bhop(int client, bool force_log, bool banning)
 	if (icvar[CVAR_LOG]) {
 		lilac_log_setup_client(client);
 		Format(line_buffer, sizeof(line_buffer),
-			"%s is suspected of using Bhop (Detection: %d | Bhops: %d | JumpTicks: %d).",
-			line_buffer, detections[client], perfect_bhops[client],
-			jump_ticks[client]);
+			"%s is suspected of using Bhop (%s).",
+			line_buffer, sDetails);
 		lilac_log(true);
 
 		if (icvar[CVAR_LOG_EXTRA] == 2)

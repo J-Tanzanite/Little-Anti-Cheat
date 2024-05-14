@@ -28,6 +28,7 @@
 #include <sdktools_engine>
 #include <sdktools_entoutput>
 #include <convar_class>
+#include <lilac>
 #undef REQUIRE_PLUGIN /* ... */
 #undef REQUIRE_EXTENSIONS
 #if defined TF2C
@@ -208,6 +209,10 @@ public void OnAllPluginsLoaded()
 
 public APLRes AskPluginLoad2(Handle hMyself, bool bLate, char[] sError, int err_max)
 {
+	RegPluginLibrary("lilac");
+
+	CreateNative("lilac_GetDetectedInfos", lilac_native_get_detected_infos);
+
 	/* Been told this isn't needed, but just in case. */
 	MarkNativeAsOptional("SBBanPlayer");
 	MarkNativeAsOptional("SBPP_BanPlayer");

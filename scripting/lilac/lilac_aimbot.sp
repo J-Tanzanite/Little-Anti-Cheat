@@ -323,6 +323,17 @@ static void lilac_detected_aimbot(int client, float delta, float td, int flags)
 	/* Detection expires in 10 minutes. */
 	CreateTimer(600.0, timer_decrement_aimbot, GetClientUserId(client), TIMER_FLAG_NO_MAPCHANGE);
 
+	char sDetails[512];
+	Format(sDetails, sizeof(sDetails),
+			"Detection: %d | Delta: %.0f | TotalDelta: %.0f | Detected:%s%s%s%s%s",
+			aimbot_detection[client], delta, td,
+			((flags & AIMBOT_FLAG_SNAP)      ? " Aim-Snap"     : ""),
+			((flags & AIMBOT_FLAG_SNAP2)     ? " Aim-Snap2"    : ""),
+			((flags & AIMBOT_FLAG_AUTOSHOOT) ? " Autoshoot"    : ""),
+			((flags & AIMBOT_FLAG_REPEAT)    ? " Angle-Repeat" : ""),
+			((td > AIMBOT_MAX_TOTAL_DELTA)   ? " Total-Delta"  : ""));
+
+	lilac_save_player_details(client, sDetails);
 	lilac_forward_client_cheat(client, CHEAT_AIMBOT);
 
 	/* Don't log the first detection. */
@@ -335,13 +346,8 @@ static void lilac_detected_aimbot(int client, float delta, float td, int flags)
 	if (icvar[CVAR_LOG]) {
 		lilac_log_setup_client(client);
 		Format(line_buffer, sizeof(line_buffer),
-			"%s is suspected of using an aimbot (Detection: %d | Delta: %.0f | TotalDelta: %.0f | Detected:%s%s%s%s%s).",
-			line_buffer, aimbot_detection[client], delta, td,
-			((flags & AIMBOT_FLAG_SNAP)      ? " Aim-Snap"     : ""),
-			((flags & AIMBOT_FLAG_SNAP2)     ? " Aim-Snap2"    : ""),
-			((flags & AIMBOT_FLAG_AUTOSHOOT) ? " Autoshoot"    : ""),
-			((flags & AIMBOT_FLAG_REPEAT)    ? " Angle-Repeat" : ""),
-			((td > AIMBOT_MAX_TOTAL_DELTA)   ? " Total-Delta"  : ""));
+			"%s is suspected of using an aimbot (%s).",
+			line_buffer, sDetails);
 
 		lilac_log(true);
 

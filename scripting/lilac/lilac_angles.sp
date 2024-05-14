@@ -81,13 +81,17 @@ static void lilac_detected_angles(int client, float ang[3])
 
 	playerinfo_banned_flags[client][CHEAT_ANGLES] = true;
 
+	char sDetails[512];
+	Format(sDetails, sizeof(sDetails), "Pitch: %.2f, Yaw: %.2f, Roll: %.2f", ang[0], ang[1], ang[2]);
+
+	lilac_save_player_details(client, sDetails);
 	lilac_forward_client_cheat(client, CHEAT_ANGLES);
 
 	if (icvar[CVAR_LOG]) {
 		lilac_log_setup_client(client);
 		Format(line_buffer, sizeof(line_buffer),
-			"%s was detected and banned for Angle-Cheats (Pitch: %.2f, Yaw: %.2f, Roll: %.2f).",
-			line_buffer, ang[0], ang[1], ang[2]);
+			"%s was detected and banned for Angle-Cheats (%s).",
+			line_buffer, sDetails);
 
 		lilac_log(true);
 

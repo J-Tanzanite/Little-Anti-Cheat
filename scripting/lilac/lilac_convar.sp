@@ -123,13 +123,17 @@ public void query_reply(QueryCookie cookie, int client, ConVarQueryResult result
 	if (lilac_forward_allow_cheat_detection(client, CHEAT_CONVAR) == false)
 		return;
 
+	char sDetails[512];
+	Format(sDetails, sizeof(sDetails), "%s %s", cvarName, cvarValue);
+
+	lilac_save_player_details(client, sDetails);
 	lilac_forward_client_cheat(client, CHEAT_CONVAR);
 
 	if (icvar[CVAR_LOG]) {
 		lilac_log_setup_client(client);
 		Format(line_buffer, sizeof(line_buffer),
-			"%s was detected and banned for an invalid ConVar (%s %s).",
-			line_buffer, cvarName, cvarValue);
+			"%s was detected and banned for an invalid ConVar (%s).",
+			line_buffer, sDetails);
 
 		lilac_log(true);
 

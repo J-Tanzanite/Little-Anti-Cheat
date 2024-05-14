@@ -173,6 +173,10 @@ static void lilac_detected_aimlock(int client)
 	/* Detection expires in 10 minutes. */
 	CreateTimer(600.0, timer_decrement_aimlock, GetClientUserId(client), TIMER_FLAG_NO_MAPCHANGE);
 
+	char sDetails[512];
+	Format(sDetails, sizeof(sDetails), "Detection: %d", playerinfo_aimlock[client]);
+
+	lilac_save_player_details(client, sDetails);
 	lilac_forward_client_cheat(client, CHEAT_AIMLOCK);
 
 	/* Don't log the first detection. */
@@ -185,8 +189,8 @@ static void lilac_detected_aimlock(int client)
 	if (icvar[CVAR_LOG]) {
 		lilac_log_setup_client(client);
 		Format(line_buffer, sizeof(line_buffer),
-			"%s is suspected of using an aimlock (Detection: %d).",
-			line_buffer, playerinfo_aimlock[client]);
+			"%s is suspected of using an aimlock (%s).",
+			line_buffer, sDetails);
 
 		lilac_log(true);
 
