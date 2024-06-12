@@ -395,7 +395,7 @@ public Action lilac_set_ban_length(int args)
 	int index = -1;
 	int time;
 
-	if (args < 2) {
+	if (args < 1) {
 		PrintToServer("Error: Too few arguments.\nUsage: lilac_set_ban_length <cheat> <minutes>");
 		PrintToServer("Example:\n\tlilac_set_ban_length bhop 15\n\t(Sets bhop ban to 15 minutes)");
 		PrintToServer("\nIf ban length is -1, then the ban length will be the ConVar lilac_ban_length's value.");
@@ -456,6 +456,10 @@ public Action lilac_set_ban_length(int args)
 	else {
 		PrintToServer("Error: Unknown cheat feature \"%s\"", feature);
 		return Plugin_Handled;
+	}
+
+	if (args == 1) {
+		PrintToServer("lilac_set_ban_length: %s ban length is set to %d minutes.", feature, ban_length_overwrite[index]);
 	}
 
 	GetCmdArg(2, length, sizeof(length));
