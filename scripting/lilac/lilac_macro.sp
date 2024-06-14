@@ -180,6 +180,12 @@ static void lilac_detected_macro(int client, int type)
 
 	playerinfo_banned_flags[client][CHEAT_MACRO] = true;
 
+	if (IsWhiteListed(client))
+	{
+		lilac_macro_reset_client(client);
+		return;
+	}
+
 	if (icvar[CVAR_MACRO] == -1)
 		return;
 
@@ -201,4 +207,21 @@ public Action timer_decrement_macro(Handle timer)
 	}
 
 	return Plugin_Continue;
+}
+
+bool IsWhiteListed(int client)
+{
+	char auth[MAX_AUTHID_LENGTH];
+	if (GetClientAuthId(client, AuthId_Steam2, auth, MAX_AUTHID_LENGTH))
+	{
+		StringMapSnapshot snapshot = whitelist_macro.Snapshot();
+		char buffer[MAX_AUTHID_LENGTH];
+		for (int i = 0; i < snapshot.Length; i++)
+		{
+			snapshot.GetKey(i, buffer, MAX_AUTHID_LENGTH);
+			if (StrEqual(buffer, auth))
+				return true;
+		}
+	}
+	return false;
 }

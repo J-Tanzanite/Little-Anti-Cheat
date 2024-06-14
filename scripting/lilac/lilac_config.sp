@@ -16,6 +16,8 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+StringMap whitelist_macro;
+
 void lilac_config_setup()
 {
 	ConVar tcvar;
@@ -185,6 +187,10 @@ void lilac_config_setup()
 	RegServerCmd("lilac_set_ban_length", lilac_set_ban_length, "Sets custom ban lengths for specific cheats.", 0);
 	RegServerCmd("lilac_ban_status", lilac_ban_status, "Prints banning status to server console.", 0);
 	RegServerCmd("lilac_bhop_set", lilac_bhop_set, "Sets Custom Bhop settings", 0);
+	RegServerCmd("lilac_macro_add_whitelist", lilac_macro_add_whitelist, "Adds a player to the macro whitelist.");
+	RegServerCmd("lilac_macro_remove_whitelist", lilac_macro_remove_whitelist, "Adds a player to the macro whitelist.");
+	RegAdminCmd("lilac_macro_whitelist", lilac_macro_whitelist, ADMFLAG_BAN, "Print the macro whitelist.");
+
 
 	/* Legacy check, execute old config location.
 	 * Uses github.com/kidfearless/Auto-Exec-Config-Class */
@@ -510,6 +516,75 @@ public Action lilac_date_list(int args)
 	PrintToServer("Using flags example: {year}/{month}/{day} {hour}:{minute}:{second}");
 
 	return Plugin_Continue;
+}
+
+Action lilac_macro_add_whitelist(int args)
+{
+	char buffer[128];
+	GetCmdArg(1, buffer, sizeof(buffer));
+	if (buffer[0] == EOS)
+	{
+		PrintToServer("lilac_macro_add_whitelist: Error No player specified.");
+		return Plugin_Handled;
+	}
+
+	if (whitelist_macro.SetValue(buffer, 1, false))
+		PrintToServer("lilac_macro_add_whitelist: Player %s Added to white list", buffer);
+
+	return Plugin_Handled;
+}
+
+Action lilac_macro_remove_whitelist(int args)
+{
+	char buffer[128];
+	GetCmdArg(1, buffer, sizeof(buffer));
+	if (buffer[0] == EOS)
+	{
+		PrintToServer("lilac_macro_remove_whitelist: Error No player specified.");
+		return Plugin_Handled;
+	}
+
+	if (whitelist_macro.Remove(buffer))
+		PrintToServer("lilac_macro_remove_whitelist: Player %s Removed from white list", buffer);
+	else
+		PrintToServer("lilac_macro_remove_whitelist: Player %s not found in white list", buffer);
+
+	return Plugin_Handled;
+}
+
+Action lilac_macro_whitelist(int client, int args)
+{
+	StringMapSnapshot snapshot = whitelist_macro.Snapshot();
+
+	if (snapshot.Length == 0)
+	{
+		PrintToServer("lilac_macro_add_whitelist: No players in the whitelist.");
+		return Plugin_Handled;
+	}
+
+	if (GetCmdReplySource() == SM_REPLY_TO_CHAT || client > 0)
+		PrintToChat(client, "lilac_macro_add_whitelist: List is printed in console");
+
+	PrintToConsole(client, "/***********[%d Players]***********\\", snapshot.Length);
+
+	char buffer[MAX_AUTHID_LENGTH];
+	char auth[MAX_AUTHID_LENGTH];
+	for (int i = 0; i < snapshot.Length; i++)
+	{
+		snapshot.GetKey(i, buffer, sizeof(buffer));
+		for(int j = 1; j <= MaxClients; j++)
+		{
+			if (!IsClientInGame(j) || IsFakeClient(j) || !GetClientAuthId(j, AuthId_Steam2, auth, MAX_AUTHID_LENGTH))
+				continue;
+
+			if (StrEqual(buffer, auth))
+				PrintToConsole(client, ">Player %s (%N).", buffer, j);
+			else
+				PrintToConsole(client, ">Player %s.", buffer);
+		}
+	}
+
+	return Plugin_Handled;
 }
 
 public void cvar_change(ConVar convar, const char[] oldValue, const char[] newValue)
