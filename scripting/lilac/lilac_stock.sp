@@ -300,7 +300,8 @@ void lilac_ban_client(int client, int cheat)
 	}
 
 
-	BanClient(client, get_ban_length(cheat), BANFLAG_AUTO, reason, reason, "lilac", 0);
+	//BanClient(client, get_ban_length(cheat), BANFLAG_AUTO, reason, reason, "lilac", 0);
+	ServerCommand("sm_ban #%d %d %s", GetClientUserId(client), get_ban_length(cheat), reason); // Console command; ban system-agnostic.
 	CreateTimer(5.0, timer_kick, GetClientUserId(client));
 }
 
