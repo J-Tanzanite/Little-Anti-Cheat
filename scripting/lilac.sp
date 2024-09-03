@@ -73,6 +73,7 @@ public Plugin myinfo = {
 public void OnPluginStart()
 {
 	LoadTranslations("lilac.phrases.txt");
+	whitelist_macro = new StringMap();
 
 #if defined TF2C
 	ggame = GAME_TF2;
